@@ -11,19 +11,11 @@ LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa
 GLUTPATH = ../common/mac
 GLUT	= ../common/mac/MicroGlut.m
 endif
-ifeq ($(UNAME), Linux) # Fixa flaggor!
+ifeq ($(UNAME), Linux)
 CXX     = gcc
-CCFLAGS = -g -std=c++0x -pedantic -Wall -Wextra
-CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra
-LINK    = -g -shared-libgcc -lstdc++ -lm lGL -DGL_GLEXT_PROTOTYPES # Kan vara fel!
-GLUTPATH = ../common/linux
-GLUT	= ../common/linux/MicroGlut.c
-endif
-ifeq ($(UNAME), Ubuntu) # Fixa flaggor!
-CXX     = gcc
-CCFLAGS = -g -std=c++11 -pedantic -Wall -Wextra
-CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra
-LINK    = -g
+CCFLAGS = -g -std=c++0x -pedantic -Wall -Wextra -lGL -DGL_GLEXT_PROTOTYPES
+CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -lGL -DGL_GLEXT_PROTOTYPES
+LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -DGL_GLEXT_PROTOTYPES
 GLUTPATH = ../common/linux
 GLUT	= ../common/linux/MicroGlut.c
 endif
@@ -38,7 +30,7 @@ main: $(OFILES)
 cfiles: $(UTILS)
 	$(CXX) -c $(UTILS) $(CFLAGS)
 
-ccfiles: $(CCFILES)
+lab0.o: $(CCFILES)
 	$(CXX) -c $(CCFILES) $(CCFLAGS)
 
 clean:
