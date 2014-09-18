@@ -64,112 +64,107 @@ vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2)
   return Normalize(n);
 }
 
-Model* GenerateTerrain(TextureData *tex)
+Model* generateTerrain(TextureData *tex)
 {
   int vertexCount = tex->width * tex->height;
   int triangleCount = (tex->width-1) * (tex->height-1) * 2;
   int x, z;
-	
-  GLfloat *vertexArray = (GLfloat *)malloc(sizeof(GLfloat) * 3 * vertexCount);
-  GLfloat *normalArray = (GLfloat *)malloc(sizeof(GLfloat) * 3 * vertexCount);
-  GLfloat *texCoordArray = (GLfloat *)malloc(sizeof(GLfloat) * 2 * vertexCount);
-  GLuint *indexArray = (GLuint *)malloc(sizeof(GLuint) * triangleCount*3);
+
+  GLfloat vertexArray[3 * vertexCount];
+  GLfloat normalArray[3 * vertexCount];
+  GLfloat texCoordArray[ 2 * vertexCount];
+  GLuint indexArray[3 * triangleCount];
 
   float hScale = 20.0;
-	
-  printf("bpp %d\n", tex->bpp);
+
   for (x = 0; x < tex->width; x++)
     for (z = 0; z < tex->height; z++)
+    {
+      vec3 n = {0.0,1.0,0.0};
+      if(!((x==0)||(x==tex->width - 1)||(z == 0)||(z==tex->height - 1)))
       {
-	vec3 n = {0.0,1.0,0.0};
-	if(!((x==0)||(x==tex->width - 1)||(z == 0)||(z==tex->height - 1)))
-	  {
-	    float x0 = (float)(x-1);
-	    float z0 = (float)(z-1);
+        float x0 = (float)(x-1);
+        float z0 = (float)(z-1);
 
-	    float x1 = (float)x;
-	    float z1 = (float)z;
-	    
-	    float x2 = (float)(x+1);
-	    float z2 = (float)(z+1);
+        float x1 = (float)x;
+        float z1 = (float)z;
 
-	    float y00 = tex->imageData[((int)x0 + (int)z0 * tex->width) * (tex->bpp/8)] / hScale;
-	    float y01 = tex->imageData[((int)x1 + (int)z0 * tex->width) * (tex->bpp/8)] / hScale;
-	    //float y02 = tex->imageData[((int)x2 + (int)z0 * tex->width) * (tex->bpp/8)] / hScale;
+        float x2 = (float)(x+1);
+        float z2 = (float)(z+1);
 
-	    float y10 = tex->imageData[((int)x0 + (int)z1 * tex->width) * (tex->bpp/8)] / hScale;
-	    float y11 = tex->imageData[((int)x1 + (int)z1 * tex->width) * (tex->bpp/8)] / hScale;
-	    float y12 = tex->imageData[((int)x2 + (int)z1 * tex->width) * (tex->bpp/8)] / hScale;
+        float y00 = tex->imageData[((int)x0 + (int)z0 * tex->width) * (tex->bpp/8)] / hScale;
+        float y01 = tex->imageData[((int)x1 + (int)z0 * tex->width) * (tex->bpp/8)] / hScale;
 
-	    //float y20 = tex->imageData[((int)x0 + (int)z2 * tex->width) * (tex->bpp/8)] / hScale;
-	    float y21 = tex->imageData[((int)x1 + (int)z2 * tex->width) * (tex->bpp/8)] / hScale;
-	    float y22 = tex->imageData[((int)x2 + (int)z2 * tex->width) * (tex->bpp/8)] / hScale;
-	    
-	    vec3 p00 = {x0,y00,z0};
-	    vec3 p01 = {x1,y01,z0};
-	    //vec3 p02 = {x2,y02,z0};
-	    vec3 p10 = {x0,y10,z1};
-	    vec3 p11 = {x1,y11,z1};
-	    vec3 p12 = {x2,y12,z1};
-	    //vec3 p20 = {x0,y20,z2};
-	    vec3 p21 = {x1,y21,z2};
-	    vec3 p22 = {x2,y22,z2};
+        float y10 = tex->imageData[((int)x0 + (int)z1 * tex->width) * (tex->bpp/8)] / hScale;
+        float y11 = tex->imageData[((int)x1 + (int)z1 * tex->width) * (tex->bpp/8)] / hScale;
+        float y12 = tex->imageData[((int)x2 + (int)z1 * tex->width) * (tex->bpp/8)] / hScale;
 
-	    vec3 n0 = calcNormal(p11,p10,p00);
-	    vec3 n1 = calcNormal(p11,p00,p01);
-	    vec3 n2 = calcNormal(p11,p01,p12);
-	    vec3 n3 = calcNormal(p11,p12,p22);
-	    vec3 n4 = calcNormal(p11,p21,p22);
-	    vec3 n5 = calcNormal(p11,p10,p21);
-	    
-	    n = VectorAdd(n0,n1);
-	    n = VectorAdd(n,n2);
-	    n = VectorAdd(n,n3);
-	    n = VectorAdd(n,n4);
-	    n = VectorAdd(n,n5);
-	    n = Normalize(n);
-	    //Normalize(ScalarMult(VectorAdd(VectorAdd(n0,n1),VectorAdd(VectorAdd(n2,n3),VectorAdd(n4,n5))),mean));
-	    //printf("x: %3.2f y: %3.2f z: %3.2f \n", n.x,n.y,n.z);
-	    // printf(cout << "x: " << n.x  << " y: " << n.y << " z: " << n.z << endl;
-	  }
+        float y21 = tex->imageData[((int)x1 + (int)z2 * tex->width) * (tex->bpp/8)] / hScale;
+        float y22 = tex->imageData[((int)x2 + (int)z2 * tex->width) * (tex->bpp/8)] / hScale;
 
-	//	printf("y: %3.2f \n",  tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / hScale);
-	vertexArray[(x + z * tex->width)*3 + 0] = x / 1.0;
-	vertexArray[(x + z * tex->width)*3 + 1] = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / hScale;
-	vertexArray[(x + z * tex->width)*3 + 2] = z / 1.0;
-	// Normal vectors. You need to calculate these.
-	normalArray[(x + z * tex->width)*3 + 0] = n.x; //(y1-y0)*(z2-z0)-(y2-y0)*(z1-z0); //0.0;
-	normalArray[(x + z * tex->width)*3 + 1] = n.y; //(z1-z0)*(x2-x0)-(z2-z0)*(x1-x0); //1.0;
-	normalArray[(x + z * tex->width)*3 + 2] =n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
-	// Texture coordinates. You may want to scale them.
-	texCoordArray[(x + z * tex->width)*2 + 0] = x; // (float)x / tex->width;
-	texCoordArray[(x + z * tex->width)*2 + 1] = z; // (float)z / tex->height;
+        vec3 p00 = {x0,y00,z0};
+        vec3 p01 = {x1,y01,z0};
+
+        vec3 p10 = {x0,y10,z1};
+        vec3 p11 = {x1,y11,z1};
+        vec3 p12 = {x2,y12,z1};
+
+        vec3 p21 = {x1,y21,z2};
+        vec3 p22 = {x2,y22,z2};
+
+        vec3 n0 = calcNormal(p11,p10,p00);
+        vec3 n1 = calcNormal(p11,p00,p01);
+        vec3 n2 = calcNormal(p11,p01,p12);
+        vec3 n3 = calcNormal(p11,p12,p22);
+        vec3 n4 = calcNormal(p11,p21,p22);
+        vec3 n5 = calcNormal(p11,p10,p21);
+
+        n = VectorAdd(n0,n1);
+        n = VectorAdd(n,n2);
+        n = VectorAdd(n,n3);
+        n = VectorAdd(n,n4);
+        n = VectorAdd(n,n5);
+        n = Normalize(n);
       }
+
+      vertexArray[(x + z * tex->width)*3 + 0] = x / 1.0;
+      vertexArray[(x + z * tex->width)*3 + 1] = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / hScale;
+      vertexArray[(x + z * tex->width)*3 + 2] = z / 1.0;
+
+      // Normal vectors. You need to calculate these.
+      normalArray[(x + z * tex->width)*3 + 0] = n.x; //(y1-y0)*(z2-z0)-(y2-y0)*(z1-z0); //0.0;
+      normalArray[(x + z * tex->width)*3 + 1] = n.y; //(z1-z0)*(x2-x0)-(z2-z0)*(x1-x0); //1.0;
+      normalArray[(x + z * tex->width)*3 + 2] =n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
+
+      // Texture coordinates. You may want to scale them.
+      texCoordArray[(x + z * tex->width)*2 + 0] = x; // (float)x / tex->width;
+      texCoordArray[(x + z * tex->width)*2 + 1] = z; // (float)z / tex->height;
+    }
   for (x = 0; x < tex->width-1; x++)
     for (z = 0; z < tex->height-1; z++)
-      {
-	// Triangle 1
-	indexArray[(x + z * (tex->width-1))*6 + 0] = x + z * tex->width;
-	indexArray[(x + z * (tex->width-1))*6 + 1] = x + (z+1) * tex->width;
-	indexArray[(x + z * (tex->width-1))*6 + 2] = x+1 + z * tex->width;
-	// Triangle 2
-	indexArray[(x + z * (tex->width-1))*6 + 3] = x+1 + z * tex->width;
-	indexArray[(x + z * (tex->width-1))*6 + 4] = x + (z+1) * tex->width;
-	indexArray[(x + z * (tex->width-1))*6 + 5] = x+1 + (z+1) * tex->width;
-      }
-	
+    {
+      // Triangle 1
+      indexArray[(x + z * (tex->width-1))*6 + 0] = x + z * tex->width;
+      indexArray[(x + z * (tex->width-1))*6 + 1] = x + (z+1) * tex->width;
+      indexArray[(x + z * (tex->width-1))*6 + 2] = x+1 + z * tex->width;
+      // Triangle 2
+      indexArray[(x + z * (tex->width-1))*6 + 3] = x+1 + z * tex->width;
+      indexArray[(x + z * (tex->width-1))*6 + 4] = x + (z+1) * tex->width;
+      indexArray[(x + z * (tex->width-1))*6 + 5] = x+1 + (z+1) * tex->width;
+    }
+
   // End of terrain generation
-	
+
   // Create Model and upload to GPU:
 
   Model* model = LoadDataToModel(
-				 vertexArray,
-				 normalArray,
-				 texCoordArray,
-				 NULL,
-				 indexArray,
-				 vertexCount,
-				 triangleCount*3);
+      vertexArray,
+      normalArray,
+      texCoordArray,
+      NULL,
+      indexArray,
+      vertexCount,
+      triangleCount*3);
 
   return model;
 }
@@ -191,20 +186,20 @@ float calcHeight(Model* mod,float x,float z,int texWidth)
   y11 = mod->vertexArray[(x1 + z1 * texWidth)*3 + 1];
 
   if(dx0 > dz0)
-    {
-      // Upper triangle
-      float dyx = y01 - y00;
-      float dyz = y11 - y01;
-      yTot = y00 + dyx*dx0 + dyz*dz0*dx0;
-      //float tempYz = y01 + dyz*dz0;
-    }
+  {
+    // Upper triangle
+    float dyx = y01 - y00;
+    float dyz = y11 - y01;
+    yTot = y00 + dyx*dx0 + dyz*dz0*dx0;
+    //float tempYz = y01 + dyz*dz0;
+  }
   else
-    {
-      // Lower triangle
-      float dyx = y11 - y10;
-      float dyz = y10 - y00;
-      yTot = y10 + dyx*dx0 + dyz*(1.0-dz0)*dx0;
-    }
+  {
+    // Lower triangle
+    float dyx = y11 - y10;
+    float dyz = y10 - y00;
+    yTot = y10 + dyx*dx0 + dyz*(1.0-dz0)*dx0;
+  }
   return yTot;
 }
 
@@ -231,7 +226,7 @@ void init(void)
   printError("init shader");
 
   glUseProgram(program);
-	
+
   glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
   glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
   LoadTGATextureSimple("textures/grass.tga", &tex1);
@@ -239,11 +234,11 @@ void init(void)
   // Load light. THIS IS NOT WORKING YET! CHANGES IN SHADER NEEDED
   glUniform3fv(glGetUniformLocation(program, "lightSource"), 1, lightSource); //&
   glUniform1fv(glGetUniformLocation(program, "specularExponent"), 1, &specularExponent);
-	
+
   // Load terrain data
-	
+
   LoadTGATextureData("textures/fft-terrain.tga", &ttex);
-  tm = GenerateTerrain(&ttex);
+  tm = generateTerrain(&ttex);
   printError("init terrain");
 
   // Key handling
@@ -260,7 +255,7 @@ void init(void)
 
   //Skybox
   glUseProgram(skyboxProgram);
-  
+
   //skybox.loadImages("textures/skybox/sky%d.tga");
   //skybox.generateCubeMap();
   skybox = Skybox(mSkybox, skyboxProgram);
@@ -268,37 +263,37 @@ void init(void)
 
   //printf("BPP for texture[1] after init: %i \n", skybox.texture[1].bpp); // private
   printError("Error: init skybox");
- }
+}
 
 void handleKeyPress()
 {
   // --- HANDLE KEY INPUT ----
   if(keyIsDown('w'))
-    {
-      vec3 w = Normalize(VectorSub(l,p));
-      l = VectorAdd(l,ScalarMult(w,constSpeed));
-      p = VectorAdd(p,ScalarMult(w,constSpeed));
-    }
+  {
+    vec3 w = Normalize(VectorSub(l,p));
+    l = VectorAdd(l,ScalarMult(w,constSpeed));
+    p = VectorAdd(p,ScalarMult(w,constSpeed));
+  }
   if(keyIsDown('s'))
-    {
-      vec3 s = Normalize(VectorSub(p,l));
-      l = VectorAdd(l,ScalarMult(s,constSpeed));
-      p = VectorAdd(p,ScalarMult(s,constSpeed));
-    }
+  {
+    vec3 s = Normalize(VectorSub(p,l));
+    l = VectorAdd(l,ScalarMult(s,constSpeed));
+    p = VectorAdd(p,ScalarMult(s,constSpeed));
+  }
   if(keyIsDown('a'))
-    {
-      vec3 w = VectorSub(l,p);
-      vec3 a = Normalize(CrossProduct(v,w));
-      l = VectorAdd(l,ScalarMult(a,constSpeed));
-      p = VectorAdd(p,ScalarMult(a,constSpeed));
-    }
+  {
+    vec3 w = VectorSub(l,p);
+    vec3 a = Normalize(CrossProduct(v,w));
+    l = VectorAdd(l,ScalarMult(a,constSpeed));
+    p = VectorAdd(p,ScalarMult(a,constSpeed));
+  }
   if(keyIsDown('d'))
-    {
-      vec3 w = VectorSub(l,p);
-      vec3 d = Normalize(CrossProduct(w,v));
-      l = VectorAdd(l,ScalarMult(d,constSpeed));
-      p = VectorAdd(p,ScalarMult(d,constSpeed));
-    }
+  {
+    vec3 w = VectorSub(l,p);
+    vec3 d = Normalize(CrossProduct(w,v));
+    l = VectorAdd(l,ScalarMult(d,constSpeed));
+    p = VectorAdd(p,ScalarMult(d,constSpeed));
+  }
 }
 
 void handleMouse(int x,int y)
@@ -333,16 +328,16 @@ void display(void)
 
   // clear the screen
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
+
   //Disable Z-buffer before drawing skybox
   glDisable(GL_DEPTH_TEST);
   glUseProgram(skyboxProgram);
   skybox.draw(camMatrix);
   glEnable(GL_DEPTH_TEST);
   printError("Error in display skybox");
-	
+
   printError("pre display");
-	
+
   glUseProgram(program);
 
   //float test = calcHeight(tm,1,2,3);
@@ -371,7 +366,7 @@ void display(void)
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl2World"), 1, GL_TRUE, modelView.m);
   DrawModel(sphere1,program,"inPosition","inNormal","inTexCoord");
   printError("display 2");
-	
+
   glutSwapBuffers();
 }
 
