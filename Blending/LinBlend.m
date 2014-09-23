@@ -1,24 +1,32 @@
-% LinBlend.m
-% Linear blending
-close all;
-%% Read noise images
-imLeft = double(imread('../noiseExamples/testNoise1'));
-imRight = double(imread('../noiseExamples/testNoise2'));
-figure(1); imagesc(imLeft/255); colormap gray; 
-figure(2); imagesc(imRight/255); colormap gray;
+% function LinBlend
+% Blends two images in a specified direction
+% origIm:   image which blending is made on. Size [H W]
+% blendIm:  images which to blend with. Should be of size
+%           [H W 4] in the order: top, right, bottom, left.
 
-% Merge without interpolation
-[h w] = size(imLeft);
-f = InterpFunc(w,2,'lin');
-wLeft = repmat(f,h,1);
-wRight = repmat(1-f,h,1);
-simpleMerge = imLeft.*wLeft + imRight.*wRight;
-figure(3); imagesc(simpleMerge/255); colormap gray;
+%function outIm = LinBlend(origIm,blendIms,overlap)
+% top = blendIms(:,:,1);
+% right = blendIms(:,:,2);
+% bottom = blendIms(:,:,3);
+% left = blendIms(:,:,4);
 
-%% Merge with linear interpolation
-f = InterpFunc(w,32,'lin');
-wLeft = repmat(f,h,1);
-wRight = repmat(1-f,h,1);
-figure(4); imagesc(wLeft); colormap gray; title('Linear weithting function');
-linMerge = imLeft.*wLeft + imRight.*wRight;
-figure(5); imagesc(linMerge/255); colormap gray; title('Linear blended image');
+function outIm = LinBlend(origIm,top,right,bottom,left,overlap)
+[H W] = size(origIm);
+outIm = origIm(overlap+1:(H-overlap),overlap+1:(W-overlap));
+[Hnew,Wnew] = size(outIm);
+
+% Blend top
+win = (1:overlap)/2/overlap; % Window and inverted window
+invWin = 1-win;
+outIm(1:overlap,:) = 0;
+
+% Blend right
+outIm(:,Wnew-overlap:end) = 0;
+
+% Blend buttom
+outIm(Hnew-overlap:end,:) = 0;
+
+% Blend left
+outIm(:,1:overlap) = 0;
+
+end
