@@ -17,6 +17,7 @@
 #include "../common/LoadTGA.h"
 
 #include "skybox.h"
+#include "Camera.h"
 
 #include <math.h>
 #include <iostream>
@@ -38,17 +39,11 @@ using namespace std;
 
 // Skybox
 Skybox skybox;
-//TextureData texture[6];
-//GLuint cubeMap;
 GLuint skyboxProgram;
 Model *mSkybox;
 
-// Movement variables
-vec3 p = vec3(0,0,0);
-vec3 l = vec3(0,0,0);
-vec3 v = vec3(0,0,0);
+Camera cam;
 
-GLfloat constSpeed = 0.5;
 GLfloat t = 0;
 
 mat4 projectionMatrix;
@@ -241,12 +236,8 @@ void init(void)
   tm = generateTerrain(&ttex);
   printError("init terrain");
 
-  // Key handling
-  initKeymapManager();
-  vec3 r = SetVector(-0.5,0,-0.5);
-  p = SetVector(24,5,24);
-  l = VectorAdd(p,r);
-  v = SetVector(0,1,0);
+  // Init camera
+  cam.init(SetVector(24,20,24), WIDTH, HEIGHT, 0.7, 7);
 
   // Place model at light source
   lSource = LoadModelPlus("objects/groundsphere.obj");
@@ -265,87 +256,28 @@ void init(void)
   printError("Error: init skybox");
 }
 
-void handleKeyPress()
-{
-  // --- HANDLE KEY INPUT ----
-  if(keyIsDown('w'))
-  {
-    vec3 w = Normalize(VectorSub(l,p));
-    l = VectorAdd(l,ScalarMult(w,constSpeed));
-    p = VectorAdd(p,ScalarMult(w,constSpeed));
-  }
-  if(keyIsDown('s'))
-  {
-    vec3 s = Normalize(VectorSub(p,l));
-    l = VectorAdd(l,ScalarMult(s,constSpeed));
-    p = VectorAdd(p,ScalarMult(s,constSpeed));
-  }
-  if(keyIsDown('a'))
-  {
-    vec3 w = VectorSub(l,p);
-    vec3 a = Normalize(CrossProduct(v,w));
-    l = VectorAdd(l,ScalarMult(a,constSpeed));
-    p = VectorAdd(p,ScalarMult(a,constSpeed));
-  }
-  if(keyIsDown('d'))
-  {
-    vec3 w = VectorSub(l,p);
-    vec3 d = Normalize(CrossProduct(w,v));
-    l = VectorAdd(l,ScalarMult(d,constSpeed));
-    p = VectorAdd(p,ScalarMult(d,constSpeed));
-  }
-}
-
-void handleMouse(int x,int y)
-{
-  GLfloat xtemp = (GLfloat)(-x+WIDTH/2)/20000;
-  GLfloat ytemp = (GLfloat)(-y+HEIGHT/2)/20000;
-  vec3 r = Normalize(VectorSub(l,p)); // Forward Direction
-  vec3 d = Normalize(CrossProduct(r,v)); // Right direction
-  mat4 phiRot = ArbRotate(v,xtemp);
-  r = MultVec3(phiRot,r);
-  mat4 thetaRot = ArbRotate(d,ytemp);
-  r = MultVec3(thetaRot,r);
-  //v = MultVec3(thetaRot,v); // for flight simulator
-  l = VectorAdd(p,r);
-  //int windowWidth = WIDTH;
-  //int windowHeight = HEIGHT;
-  //glutWarpPointer(windowWidth,windowHeight);
-}
-
 void display(void)
 {
+  cam.update();
   t = (GLfloat)glutGet(GLUT_ELAPSED_TIME) / 3000;
-  mat4 total, modelView, camMatrix;
-  // Build matrix
-  vec3 cam = p; //{0, 5, 8};
-  vec3 lookAtPoint = l; //{2, 0, 2};
-  vec3 upVector = v;
-
-  camMatrix = lookAtv(cam,lookAtPoint,upVector);
-  modelView = IdentityMatrix();
-  total = Mult(camMatrix,modelView);
-
+  mat4 modelView = IdentityMatrix();
+  mat4 total = Mult(cam.camMatrix,modelView);
+  
   // clear the screen
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   //Disable Z-buffer before drawing skybox
   glDisable(GL_DEPTH_TEST);
   glUseProgram(skyboxProgram);
-  skybox.draw(camMatrix);
+  skybox.draw(cam.camMatrix);
   glEnable(GL_DEPTH_TEST);
   printError("Error in display skybox");
 
   printError("pre display");
 
   glUseProgram(program);
-
-  //float test = calcHeight(tm,1,2,3);
-  //float test2 = ttex.width;
-  //printf("y: %3.2f \n",test2);
-
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl2World"), 1, GL_TRUE, modelView.m);
-  glUniformMatrix4fv(glGetUniformLocation(program, "world2View"), 1, GL_TRUE, camMatrix.m);
+  glUniformMatrix4fv(glGetUniformLocation(program, "world2View"), 1, GL_TRUE, cam.camMatrix.m);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
   glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
   DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord"); // "inNormal"
@@ -370,17 +302,18 @@ void display(void)
   glutSwapBuffers();
 }
 
+ void mouse(int x, int y)
+{
+  //printf("%d %d\n", x, y);
+  cam.handleMouse(x,y);
+}
+
 void timer(int i)
 {
   glutTimerFunc(20, &timer, i);
   glutPostRedisplay();
-  handleKeyPress();
-  glutPassiveMotionFunc(handleMouse);
-}
-
-void mouse(int x, int y)
-{
-  printf("%d %d\n", x, y);
+  cam.handleKeyPress();
+  glutPassiveMotionFunc(mouse);
 }
 
 int main(int argc, char **argv)

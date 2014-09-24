@@ -16,39 +16,28 @@
 #endif
 
 #include "../common/VectorUtils3.h"
-#include "../common/loadobj.h"
-#include "../common/LoadTGA.h"
-
-//#include <cmath>
-#include <stdio.h> // Inkluderas i LoadTGA.h men kan vara bra att ha ändå (?)
-//#include <iostream>
-//#include <vector>
-
-using namespace std;
+#include "../common/GL_utilities.h"
 
 class Camera
 {
-  private:
+ private:
+  
+  vec3 camPosition = vec3(0,0,0);
+  vec3 lookAtPoint = vec3(0,0,0);
+  vec3 upVector = vec3(0,1,0);
+  GLfloat velocity;
+  GLfloat sensitivity;
+  int windowWidth;
+  int windowHeight;
+
+ public:
   mat4 camMatrix;
-  vec3 camPosition;
-  vec3 lookAtPoint;
-  vec3 upVector;
-
-
-  initKeymapManager();
-  vec3 r = SetVector(-0.5,0,-0.5);
-  camPosition = SetVector(24,5,24);
-  l = VectorAdd(p,r);
-  v = SetVector(0,1,0);
-
-  GLfloat constSpeed = 0.5;
-  public:
-  Skybox();
-  Skybox(Model *model, GLuint shader);
-  void loadImages(const char *imagePath);
-  void generateCubeMap();
-  void init(mat4 projectionMatrix, const char *imagePath);
-  void draw(mat4 camMatrix);
+  Camera();
+  //Camera(vec3 pos);
+  void init(vec3 pos, int width, int height, GLfloat vel, GLfloat sens);
+  void handleKeyPress();
+  void handleMouse(int x, int y);
+  void update();
 };
 
 #endif

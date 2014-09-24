@@ -22,8 +22,9 @@ endif
 
 CCFILES = lab4-4.cpp
 CCFILES2 = skybox.cpp
+CCFILES3 = Camera.cpp
 UTILS = ../common/GL_utilities.c ../common/VectorUtils3.c ../common/loadobj.c ../common/zpr.c ../common/LoadTGA.c $(GLUT)
-OFILES = lab4-4.o skybox.o ../common/GL_utilities.o ../common/loadobj.o ../common/LoadTGA.o ../common/VectorUtils3.o ../common/zpr.o $(GLUTPATH)/MicroGlut.o
+OFILES = lab4-4.o skybox.o Camera.o ../common/GL_utilities.o ../common/loadobj.o ../common/LoadTGA.o ../common/VectorUtils3.o ../common/zpr.o $(GLUTPATH)/MicroGlut.o
 
 main: $(OFILES)
 	$(CXX) $(OFILES) $(LINK) -o main
@@ -36,6 +37,9 @@ lab4-4.o: $(CCFILES)
 
 skybox.o: $(CCFILES2)
 	$(CXX) -c $(CCFILES2) $(CCFLAGS)
+
+Camera.o: $(CCFILES3)
+	$(CXX) -c $(CCFILES3) $(CCFLAGS)
 
 clean:
 	@ \rm -f *.o *.gch ../common/*.o ../common/mac/*.o ../common/linux/*.o main
