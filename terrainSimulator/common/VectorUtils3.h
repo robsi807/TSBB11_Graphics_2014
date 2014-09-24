@@ -24,39 +24,39 @@
 #define Matrix3D mat3
 #define Matrix4D mat4
 	
-	// vec3 is very useful
-	typedef struct vec3
-	{
-		GLfloat x, y, z;
-		#ifdef __cplusplus
-			vec3(GLfloat x2, GLfloat y2, GLfloat z2) : x(x2), y(y2), z(z2) {}
-
-//			vec3(vec4 v) : x(v.x), y(v.y), z(v.z) {}
-		#endif
-	}
-	vec3, *vec3Ptr;
+// vec3 is very useful
+typedef struct vec3
+{
+  GLfloat x, y, z;
+#ifdef __cplusplus
+vec3(GLfloat x2, GLfloat y2, GLfloat z2) : x(x2), y(y2), z(z2) {}
+vec3() : x(0.0), y(0.0), z(0.0) {}
+  //			vec3(vec4 v) : x(v.x), y(v.y), z(v.z) {}
+#endif
+}
+  vec3, *vec3Ptr;
 	
-	// vec4 is not as useful. Can be a color with alpha, or a quaternion, but IMHO you
-	// rarely need homogenous coordinate vectors on the CPU.
-	typedef struct vec4
-	{
-		GLfloat x, y, z, w; // w or h
-		#ifdef __cplusplus
-			vec4(GLfloat x2, GLfloat y2, GLfloat z2, GLfloat w2) : x(x2), y(y2), z(z2), w(w2) {}
+// vec4 is not as useful. Can be a color with alpha, or a quaternion, but IMHO you
+// rarely need homogenous coordinate vectors on the CPU.
+typedef struct vec4
+{
+  GLfloat x, y, z, w; // w or h
+#ifdef __cplusplus
+vec4(GLfloat x2, GLfloat y2, GLfloat z2, GLfloat w2) : x(x2), y(y2), z(z2), w(w2) {}
 			
-			vec4(vec3 v) : x(v.x), y(v.y), z(v.z), w(1) {}
-		#endif
-	}
-	vec4, *vec4Ptr;
+vec4(vec3 v) : x(v.x), y(v.y), z(v.z), w(1) {}
+#endif
+}
+  vec4, *vec4Ptr;
 
-	typedef struct mat4
-	{
-		GLfloat m[16];
-	} mat4;
-	typedef struct mat3
-	{
-		GLfloat m[9];
-	} mat3;
+typedef struct mat4
+{
+  GLfloat m[16];
+} mat4;
+typedef struct mat3
+{
+  GLfloat m[9];
+} mat3;
 
 #ifdef __cplusplus
 extern "C" {
