@@ -26,14 +26,6 @@
 
 using namespace std;
 
-// Perspective
-#define near 0.8
-#define far 250.0
-#define right 0.5
-#define left -0.5
-#define top 0.5
-#define bottom -0.5
-
 #define PI 3.1415
 
 #define WIDTH 1024
@@ -49,7 +41,7 @@ Camera cam;
 
 GLfloat t = 0;
 
-mat4 projectionMatrix;
+//mat4 projectionMatrix;
 
 const GLfloat lightSource[3] = {50.0f, 100.0f, 50.0f}; //Point3D
 GLfloat specularExponent = 50;
@@ -70,7 +62,10 @@ void init(void)
   glDisable(GL_CULL_FACE);
   printError("GL inits");
 
-  projectionMatrix = frustum(left,right,bottom,top,near,far);
+  //projectionMatrix = frustum(left,right,bottom,top,near,far);
+
+  // Init camera
+  cam.init(vec3(24,20,24), WIDTH, HEIGHT, 0.7, 7);
 
   // Load and compile shader
   program = loadShaders("lab4-4.vert", "lab4-4.frag");
@@ -79,7 +74,7 @@ void init(void)
 
   glUseProgram(program);
 
-  glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+  glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, cam.projectionMatrix.m);
   glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
   LoadTGATextureSimple("../textures/grass.tga", &tex1);
 
@@ -98,9 +93,6 @@ void init(void)
   tm = terrainGenerator.generateTerrain(&ttex);
   printError("init terrain");
 
-  // Init camera
-  cam.init(SetVector(24,20,24), WIDTH, HEIGHT, 0.7, 7);
-
   // Place model at light source
   lSource = LoadModelPlus("../objects/groundsphere.obj");
   sphere1 = LoadModelPlus("../objects/groundsphere.obj");
@@ -112,7 +104,7 @@ void init(void)
   //skybox.loadImages("textures/skybox/sky%d.tga");
   //skybox.generateCubeMap();
   skybox = Skybox(mSkybox, skyboxProgram);
-  skybox.init(projectionMatrix, "../textures/skybox/sky%d.tga");
+  skybox.init(cam.projectionMatrix, "../textures/skybox/sky%d.tga");
 
   //printf("BPP for texture[1] after init: %i \n", skybox.texture[1].bpp); // private
   printError("Error: init skybox");
@@ -123,15 +115,14 @@ void display(void)
   cam.update();
   t = (GLfloat)glutGet(GLUT_ELAPSED_TIME) / 3000;
   mat4 modelView = IdentityMatrix();
-  mat4 total = Mult(cam.camMatrix,modelView);
-
+  mat4 total = Mult(cam.cameraMatrix,modelView);
   // clear the screen
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   //Disable Z-buffer before drawing skybox
   glDisable(GL_DEPTH_TEST);
   glUseProgram(skyboxProgram);
-  skybox.draw(cam.camMatrix);
+  skybox.draw(cam.cameraMatrix);
   glEnable(GL_DEPTH_TEST);
   printError("Error in display skybox");
 
@@ -139,7 +130,7 @@ void display(void)
 
   glUseProgram(program);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl2World"), 1, GL_TRUE, modelView.m);
-  glUniformMatrix4fv(glGetUniformLocation(program, "world2View"), 1, GL_TRUE, cam.camMatrix.m);
+  glUniformMatrix4fv(glGetUniformLocation(program, "world2View"), 1, GL_TRUE, cam.cameraMatrix.m);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
   glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
   DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord"); // "inNormal"
