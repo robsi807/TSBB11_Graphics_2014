@@ -20,26 +20,27 @@ GLUTPATH = ../common/linux
 GLUT	= ../common/linux/MicroGlut.c
 endif
 
-CCFILES = lab4-4.cpp
-CCFILES2 = skybox.cpp
-CCFILES3 = Camera.cpp
+CCFILES = lab4-4.cpp skybox.cpp Camera.cpp TerrainGenerator.cpp
+
 UTILS = ../common/GL_utilities.c ../common/VectorUtils3.c ../common/loadobj.c ../common/zpr.c ../common/LoadTGA.c $(GLUT)
-OFILES = lab4-4.o skybox.o Camera.o ../common/GL_utilities.o ../common/loadobj.o ../common/LoadTGA.o ../common/VectorUtils3.o ../common/zpr.o $(GLUTPATH)/MicroGlut.o
+OFILES = lab4-4.o skybox.o Camera.o TerrainGenerator.o ../common/GL_utilities.o ../common/loadobj.o ../common/LoadTGA.o ../common/VectorUtils3.o ../common/zpr.o $(GLUTPATH)/MicroGlut.o
+
 
 main: $(OFILES)
 	$(CXX) $(OFILES) $(LINK) -o main
 
-cfiles: $(UTILS)
-	$(CXX) -c $(UTILS) $(CFLAGS)
+..common/%.o: $(UTILS)
+	$(CXX) -c $(UTILS) $(CFLAGS) $< 
 
-lab4-4.o: $(CCFILES)
-	$(CXX) -c $(CCFILES) $(CCFLAGS)
+%.o: %.cpp
+	$(CXX) -c $(CCFILES) $(CCFLAGS) $<
+#skybox.o: skybox.cpp
+	#$(CXX) -c skybox.cpp $(CCFLAGS)
+#Camera.o: Camera.cpp
+	#$(CXX) -c Camera.cpp $(CCFLAGS)
+#TerrainGenerator.o: TerrainGenerator.cpp
+	#$(CXX) -c TerrainGenerator.cpp $(CCFLAGS)
 
-skybox.o: $(CCFILES2)
-	$(CXX) -c $(CCFILES2) $(CCFLAGS)
-
-Camera.o: $(CCFILES3)
-	$(CXX) -c $(CCFILES3) $(CCFLAGS)
 
 clean:
 	@ \rm -f *.o *.gch ../common/*.o ../common/mac/*.o ../common/linux/*.o main

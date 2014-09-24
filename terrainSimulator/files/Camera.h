@@ -1,4 +1,3 @@
-
 #ifndef _CAMERA_
 #define _CAMERA_
 
@@ -22,9 +21,9 @@ class Camera
 {
  private:
   
-  vec3 camPosition = vec3(0,0,0);
-  vec3 lookAtPoint = vec3(0,0,0);
-  vec3 upVector = vec3(0,1,0);
+  vec3 camPosition;
+  vec3 lookAtPoint;
+  vec3 upVector;
   GLfloat velocity;
   GLfloat sensitivity;
   int windowWidth;

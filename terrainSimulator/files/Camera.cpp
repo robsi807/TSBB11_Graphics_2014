@@ -3,10 +3,10 @@
 
 Camera::Camera()
 {
-  vec3 r = SetVector(-0.5,0,-0.5);
+  vec3 r = vec3(-0.5,0.0,-0.5);
   //camPosition = SetVector(0,0,0);
   lookAtPoint = VectorAdd(camPosition,r);
-  //upVector = SetVector(0,1,0);
+  upVector = vec3(0.0, 1.0, 0.0);
 
   camMatrix = lookAtv(camPosition,lookAtPoint,upVector);
   velocity = 0.5;
@@ -76,11 +76,12 @@ void Camera::handleMouse(int x, int y)
 
 #ifdef __APPLE__
   glutWarpPointer(windowWidth/2, (windowHeight/2)-520); // On mac the pointer is shifted 520 pixels (why?)
+glutHideCursor();
 #else
   glutWarpPointer(windowWidth/2, windowHeight/2);
 #endif
   
-  glutHideCursor();
+  
 }
 
 void Camera::update()

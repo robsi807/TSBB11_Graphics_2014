@@ -30,7 +30,7 @@
 		GLfloat x, y, z;
 		#ifdef __cplusplus
 			vec3(GLfloat x2, GLfloat y2, GLfloat z2) : x(x2), y(y2), z(z2) {}
-
+			vec3() : x(0.0), y(0.0), z(0.0) {}
 //			vec3(vec4 v) : x(v.x), y(v.y), z(v.z) {}
 		#endif
 	}
