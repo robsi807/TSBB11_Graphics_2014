@@ -27,3 +27,5 @@
 *.app
 
 .DS_Store
+
+*main
