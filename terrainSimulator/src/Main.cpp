@@ -17,20 +17,13 @@
 #include "World.h"
 
 #include <cmath> 
-//#include <iostream>
 
 using namespace std;
 
 World* world;
 
+// Should be a member of world
 //GLfloat t = 0;
-
-vec3 lightSource = vec3(50.0f, 100.0f, 50.0f);
-GLfloat specularExponent = 50;
-
-// vertex array object
-//Model *lSource,*sphere1;
-// Reference to shader world->phongShader
 
 void init(void)
 {
@@ -43,15 +36,7 @@ void init(void)
   
   world = new World();
 
-  glUseProgram(world->phongShader);
-
-  glUniformMatrix4fv(glGetUniformLocation(world->phongShader, "projMatrix"), 1, GL_TRUE, world->camera->projectionMatrix.m);
-
-  // Load light. THIS IS NOT WORKING YET! CHANGES IN SHADER NEEDED
-  glUniform3fv(glGetUniformLocation(world->phongShader, "lightSource"), 1, &lightSource.x); //&
-  glUniform1fv(glGetUniformLocation(world->phongShader, "specularExponent"), 1, &specularExponent);
-
-  // Place model at light source
+  // Should be moved to world
   //lSource = LoadModelPlus("../objects/groundsphere.obj");
   //sphere1 = LoadModelPlus("../objects/groundsphere.obj");
 
@@ -61,8 +46,7 @@ void display(void)
 {
   //t = (GLfloat)glutGet(GLUT_ELAPSED_TIME) / 3000;
   
-  world->renderWorld();
-  
+  world->draw();
 
 /*
   // Light source sphere
@@ -82,6 +66,7 @@ void display(void)
   DrawModel(sphere1,world->phongShader,"inPosition","inNormal","inTexCoord");
   printError("display 2");
  */
+
   glutSwapBuffers();
 }
 
@@ -101,16 +86,14 @@ void timer(int i)
 
 int main(int argc, char **argv)
 {
-  //cout << "Funkar nu!" << endl;
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutInitContextVersion(3, 2);
-  glutInitWindowSize(1024,860); //Change!
+  glutInitWindowSize(1024,860); //Change! Do not hard code!
   glutCreateWindow("TSBK03 C++");
   glutDisplayFunc(display);
   init();
   glutTimerFunc(20, &timer, 0);
-
   glutPassiveMotionFunc(mouse);
 
   glutMainLoop();

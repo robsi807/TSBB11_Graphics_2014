@@ -24,16 +24,15 @@
 class World
 {
   private:
+  long worldSeed;
+  void init();
 
-    long worldSeed;
-
-    void initWorld();
   public:
     World();
     ~World();
     GLuint phongShader;
     GLuint skyboxShader;
-    void renderWorld();
+    void draw();
     Camera* camera;
     Skybox* skybox;
     TerrainPatch* terrainPatch;
