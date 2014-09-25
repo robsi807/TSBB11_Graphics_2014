@@ -16,12 +16,12 @@
 //#include "../common/zpr.h"
 #include "../common/LoadTGA.h"
 
-#include "skybox.h"
+#include "Skybox.h"
 #include "Camera.h"
 #include "TerrainGenerator.h"
 
 
-#include <math.h> // Should be changed to <cmath>!
+#include <cmath> // Should be changed to <cmath>!
 #include <iostream>
 
 using namespace std;
@@ -64,7 +64,7 @@ void init(void)
   cam.init(vec3(24,20,24), WIDTH, HEIGHT, 0.7, 7);
 
   // Load and compile shader
-  program = loadShaders("lab4-4.vert", "lab4-4.frag");
+  program = loadShaders("phong.vert", "phong.frag");
   skyboxProgram = loadShaders("skybox.vert", "skybox.frag");
   printError("init shader");
 
