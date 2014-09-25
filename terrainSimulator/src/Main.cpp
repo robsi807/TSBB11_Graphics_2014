@@ -18,7 +18,7 @@
 
 #include "Skybox.h"
 #include "Camera.h"
-#include "TerrainGenerator.h"
+#include "TerrainPatch.h"
 
 
 #include <cmath> // Should be changed to <cmath>!
@@ -36,7 +36,7 @@ Skybox skybox;
 GLuint skyboxProgram;
 Model *mSkybox;
 
-TerrainGenerator terrainGenerator;
+TerrainPatch* terrainPatch;
 
 Camera cam;
 
@@ -46,7 +46,7 @@ const GLfloat lightSource[3] = {50.0f, 100.0f, 50.0f}; //Point3D
 GLfloat specularExponent = 50;
 
 // vertex array object
-Model *tm,*lSource,*sphere1;
+Model *lSource,*sphere1;
 // Reference to shader program
 GLuint program;
 GLuint tex1, tex2;
@@ -82,11 +82,10 @@ void init(void)
 
   LoadTGATextureData("../textures/fft-terrain.tga", &ttex);
 
-  long test = 12345;
+  long x = 0, y = 0;
 
-  terrainGenerator = TerrainGenerator(test);
+  terrainPatch = new TerrainPatch(&ttex, x ,y);
 
-  tm = terrainGenerator.generateTerrain(&ttex);
   printError("init terrain");
 
   // Place model at light source
@@ -129,7 +128,7 @@ void display(void)
   glUniformMatrix4fv(glGetUniformLocation(program, "world2View"), 1, GL_TRUE, cam.cameraMatrix.m);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
   glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
-  DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord"); // "inNormal"
+  DrawModel(terrainPatch->geometry, program, "inPosition", "inNormal", "inTexCoord"); // "inNormal"
 
   // Light source sphere
   modelView = T(50,105,50);
@@ -142,7 +141,7 @@ void display(void)
   int texWidth = ttex.width;
   xs = 70+20*cos(t);
   zs = 70+20*sin(t);
-  ys = terrainGenerator.calcHeight(tm,xs,zs,texWidth);
+  ys = terrainPatch->calcHeight(xs,zs,texWidth);
   modelView = T(xs,ys,zs);
   glUniformMatrix4fv(glGetUniformLocation(program, "mdl2World"), 1, GL_TRUE, modelView.m);
   DrawModel(sphere1,program,"inPosition","inNormal","inTexCoord");
@@ -180,5 +179,6 @@ int main(int argc, char **argv)
   glutPassiveMotionFunc(mouse);
 
   glutMainLoop();
+  delete terrainPatch;
   exit(0);
 }
