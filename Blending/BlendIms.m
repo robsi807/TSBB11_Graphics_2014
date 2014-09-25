@@ -20,13 +20,16 @@ linBlend = leftWeighted+rightWeighted;
 
 % Low pass filter images
 kern = [1 2 1;2 4 2;1 2 1]/16;
-leftLp = leftWeighted; rightLp = rightWeighted;
+leftLp = leftWeighted; 
+rightLp = rightWeighted;
 for q = 1:3
     leftLp = conv2(leftLp,kern,'same');
     rightLp = conv2(rightLp,kern,'same');
 end
 leftLapl = leftWeighted-leftLp;
 rightLapl = rightWeighted-rightLp;
+
+figure(10); imagesc(leftLapl); colormap gray;
 
 % Blend each band and add
 multiBlend = leftLp + leftLapl + rightLp + rightLapl;
