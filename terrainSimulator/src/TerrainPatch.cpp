@@ -150,5 +150,4 @@ float TerrainPatch::calcHeight(float x,float z,int texWidth)
 
 TerrainPatch::~TerrainPatch(){
   delete geometry;
-  delete heightMap;
 }
