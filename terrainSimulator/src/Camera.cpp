@@ -1,12 +1,12 @@
 
 #include "Camera.h"
 
-Camera::Camera()
+Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
 {
-  vec3 r = SetVector(-0.5,0,-0.5);
-  //position = SetVector(0,0,0);
+  vec3 r = vec3(-0.5,0,-0.5);
+  position = pos;
   lookAtPoint = VectorAdd(position,r);
-  upVector = SetVector(0,1,0);
+  upVector = vec3(0,1,0);
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector);
   velocity = 0.5;
@@ -17,6 +17,16 @@ Camera::Camera()
   projectionLeft = -0.5;
   projectionTop = 0.5;
   projectionBottom = -0.5;
+
+
+  initKeymapManager();
+  
+  cameraMatrix = lookAtv(position,lookAtPoint,upVector);
+  velocity = vel;
+  sensitivity = sens;
+
+  projectionMatrix = frustum(projectionLeft, projectionRight, projectionBottom, projectionTop,projectionNear, projectionFar);
+
 }
 
 Camera::Camera(float left, float right, float bottom, float top, float near, float far)
@@ -35,23 +45,6 @@ Camera::Camera(float left, float right, float bottom, float top, float near, flo
   projectionTop = top;
   projectionNear = near;
   projectionFar = far;
-}
-
-void Camera::init(vec3 pos, int width, int height, GLfloat vel, GLfloat sens)
-{
-  initKeymapManager();
-  vec3 r = SetVector(-0.5,0,-0.5);
-  position = pos; //SetVector(24,5,24);
-  lookAtPoint = VectorAdd(pos,r);
-  
-  cameraMatrix = lookAtv(position,lookAtPoint,upVector);
-  velocity = vel;
-  sensitivity = sens;
-  windowWidth = width;
-  windowHeight = height;
-
-  projectionMatrix = frustum(projectionLeft, projectionRight, projectionBottom, projectionTop,projectionNear, projectionFar);
-  //perspective(float fovyInDegrees, float aspectRatio,float znear, float zfar); // Better?
 }
 
 
@@ -90,8 +83,8 @@ void Camera::handleKeyPress()
 
 void Camera::handleMouse(int x, int y)
 {
-  GLfloat xtemp = (GLfloat)(-x + windowWidth / 2) / (10000 / sensitivity);
-  GLfloat ytemp = (GLfloat)(-y + windowHeight / 2) / (10000 / sensitivity);
+  GLfloat xtemp = (GLfloat)(-x + SCREEN_WIDTH / 2) / (10000 / sensitivity);
+  GLfloat ytemp = (GLfloat)(-y + SCREEN_HEIGHT / 2) / (10000 / sensitivity);
 
   vec3 r = Normalize(VectorSub(lookAtPoint, position)); // Forward Direction
   vec3 d = Normalize(CrossProduct(r, upVector)); // Right direction
@@ -111,10 +104,10 @@ void Camera::handleMouse(int x, int y)
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
 #ifdef __APPLE__
-  glutWarpPointer(windowWidth/2, (windowHeight/2)-520); // On mac the pointer is shifted 520 pixels (why?)
+  glutWarpPointer(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)-520); // On mac the pointer is shifted 520 pixels (why?)
   glutHideCursor();
 #else
-  glutWarpPointer(windowWidth/2, windowHeight/2);
+  glutWarpPointer(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 #endif
  
 }

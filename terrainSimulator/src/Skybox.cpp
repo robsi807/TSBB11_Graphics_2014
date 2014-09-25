@@ -12,10 +12,10 @@ Skybox::Skybox()
 
 }
 
-Skybox::Skybox(Model *model, GLuint shader)
+Skybox::Skybox(GLuint* skyboxShader)
 {
-  this->shader = shader;
-  this->model = model;
+  shader = skyboxShader;
+  model = LoadModelPlus("../objects/skyboxbig.obj");
 }
 
 // Lägg in färger i texture[] istället för bilddata (men hur får vi -> Interpolerade färger?)
@@ -129,9 +129,9 @@ void Skybox::init(mat4 projectionMatrix, const char *imagePath)
   generateCubeMap();
   
   mat4 transSkybox = T(0,0,0);
-  glUniform1i(glGetUniformLocation(shader, "cubeMap"), 16); // Texture unit 16: skybox
-  glUniformMatrix4fv(glGetUniformLocation(shader, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
-  glUniformMatrix4fv(glGetUniformLocation(shader, "mdl2World"), 1, GL_TRUE, transSkybox.m);
+  glUniform1i(glGetUniformLocation(*shader, "cubeMap"), 16); // Texture unit 16: skybox
+  glUniformMatrix4fv(glGetUniformLocation(*shader, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
+  glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, transSkybox.m);
 }
 
 void Skybox::draw(mat4 camMatrix)
@@ -141,6 +141,6 @@ void Skybox::draw(mat4 camMatrix)
   world2ViewSky.m[7] = 0;
   world2ViewSky.m[11] = 0;
 
-  glUniformMatrix4fv(glGetUniformLocation(shader, "world2View"), 1, GL_TRUE, world2ViewSky.m);
-  DrawModel(model,shader,"vertices",NULL,NULL);
+  glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, world2ViewSky.m);
+  DrawModel(model, *shader,"vertices",NULL,NULL);
 }

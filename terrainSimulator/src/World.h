@@ -24,11 +24,14 @@ class World
     long worldSeed;
 
     void initWorld();
-    Camera camera;
-    Skybox skybox;
-    TerrainPatch terrainGenerator;
+    Camera* camera;
+    Skybox* skybox;
+    TerrainPatch terrainPatch;
   public:
     World();
+    ~World();
+    GLuint phongShader;
+    GLuint skyboxShader;
 
 };
 
