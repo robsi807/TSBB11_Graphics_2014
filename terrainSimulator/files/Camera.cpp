@@ -92,14 +92,22 @@ void Camera::handleMouse(int x, int y)
 {
   GLfloat xtemp = (GLfloat)(-x + windowWidth / 2) / (10000 / sensitivity);
   GLfloat ytemp = (GLfloat)(-y + windowHeight / 2) / (10000 / sensitivity);
+
   vec3 r = Normalize(VectorSub(lookAtPoint, position)); // Forward Direction
   vec3 d = Normalize(CrossProduct(r, upVector)); // Right direction
   mat4 phiRot = ArbRotate(upVector, xtemp);
   r = MultVec3(phiRot, r);
   mat4 thetaRot = ArbRotate(d, ytemp);
   r = MultVec3(thetaRot, r);
+
+  vec3 temp = CrossProduct(r, upVector);
+  //std::cout << "temp.x = " << std::abs(temp.x) << std::endl;
+  //std::cout << "temp.y = " << std::abs(temp.y) << std::endl;
+  //std::cout << "temp.z = " << std::abs(temp.z) << std::endl;
+  if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09) // Still possible to get 180 degree flip! But much better.
+    lookAtPoint = VectorAdd(position, r);
+
   //upVector = MultVec3(thetaRot,upVector); // for flight simulator
-  lookAtPoint = VectorAdd(position, r);
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
 #ifdef __APPLE__
@@ -113,12 +121,12 @@ void Camera::handleMouse(int x, int y)
 
 void Camera::update()
 {
-  vec3 r = Normalize(VectorSub(lookAtPoint, position)); // Forward Direction
-  vec3 temp = CrossProduct(upVector, r);
+  //vec3 r = Normalize(VectorSub(lookAtPoint, position)); // Forward Direction
+  //vec3 temp = CrossProduct(upVector, r);
   // std::cout << "temp.x = " << std::abs(temp.x) << std::endl;
   // std::cout << "temp.y = " << std::abs(temp.y) << std::endl;
   // std::cout << "temp.z = " << std::abs(temp.z) << std::endl;
 
-  if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09)
+  //if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09)
     cameraMatrix = lookAtv(position,lookAtPoint,upVector);
 }

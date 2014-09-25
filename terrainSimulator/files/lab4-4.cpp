@@ -21,7 +21,7 @@
 #include "TerrainGenerator.h"
 
 
-#include <math.h>
+#include <math.h> // Should be changed to <cmath>!
 #include <iostream>
 
 using namespace std;
@@ -35,17 +35,15 @@ using namespace std;
 Skybox skybox;
 GLuint skyboxProgram;
 Model *mSkybox;
+
 TerrainGenerator terrainGenerator;
 
 Camera cam;
 
 GLfloat t = 0;
 
-//mat4 projectionMatrix;
-
 const GLfloat lightSource[3] = {50.0f, 100.0f, 50.0f}; //Point3D
 GLfloat specularExponent = 50;
-
 
 // vertex array object
 Model *tm,*lSource,*sphere1;
@@ -61,8 +59,6 @@ void init(void)
   glEnable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
   printError("GL inits");
-
-  //projectionMatrix = frustum(left,right,bottom,top,near,far);
 
   // Init camera
   cam.init(vec3(24,20,24), WIDTH, HEIGHT, 0.7, 7);
@@ -175,8 +171,8 @@ int main(int argc, char **argv)
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutInitContextVersion(3, 2);
-  glutInitWindowSize (WIDTH,HEIGHT);
-  glutCreateWindow ("TSBK03 C++");
+  glutInitWindowSize(WIDTH,HEIGHT);
+  glutCreateWindow("TSBK03 C++");
   glutDisplayFunc(display);
   init();
   glutTimerFunc(20, &timer, 0);
