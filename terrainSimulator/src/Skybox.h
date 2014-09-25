@@ -40,11 +40,9 @@ class Skybox
   GLuint* shader;
 
  public:
-  Skybox();
-  Skybox(GLuint* skyboxShader);
+  Skybox(GLuint* skyboxShader,mat4 projectionMatrix, const char *imagePath);
   void loadImages(const char *imagePath);
   void generateCubeMap();
-  void init(mat4 projectionMatrix, const char *imagePath);
   void draw(mat4 camMatrix);
 };
 

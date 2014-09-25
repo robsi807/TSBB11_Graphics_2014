@@ -3,6 +3,8 @@
 
 Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
 {
+  SCREEN_WIDTH = 1024;
+  SCREEN_HEIGHT = 860;
   vec3 r = vec3(-0.5,0,-0.5);
   position = pos;
   lookAtPoint = VectorAdd(position,r);
@@ -20,7 +22,7 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
 
 
   initKeymapManager();
-  
+
   cameraMatrix = lookAtv(position,lookAtPoint,upVector);
   velocity = vel;
   sensitivity = sens;
@@ -77,7 +79,7 @@ void Camera::handleKeyPress()
     position = VectorAdd(position,ScalarMult(d,velocity));
   }
 
-//cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
+  //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
 }
 
@@ -109,7 +111,7 @@ void Camera::handleMouse(int x, int y)
 #else
   glutWarpPointer(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 #endif
- 
+
 }
 
 void Camera::update()
@@ -121,5 +123,5 @@ void Camera::update()
   // std::cout << "temp.z = " << std::abs(temp.z) << std::endl;
 
   //if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09)
-    cameraMatrix = lookAtv(position,lookAtPoint,upVector);
+  cameraMatrix = lookAtv(position,lookAtPoint,upVector);
 }

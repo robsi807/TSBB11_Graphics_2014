@@ -37,15 +37,15 @@ class Camera
   float projectionTop;
   float projectionNear;
   float projectionFar;
-  
+
  public:
 
-  const int SCREEN_WIDTH = 1024;
-  const int SCREEN_HEIGHT = 860;
+  int SCREEN_WIDTH;
+  int SCREEN_HEIGHT;
 
   mat4 cameraMatrix;
   mat4 projectionMatrix;
-  Camera(vec3 pos);
+  Camera(vec3 pos, GLfloat vel, GLfloat sens);
   Camera(float left, float right, float bottom, float top, float near, float far);
   void handleKeyPress();
   void handleMouse(int x, int y);

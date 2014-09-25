@@ -1,6 +1,13 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(TextureData *tex, long x, long y) : heightMap(tex), posX(x), posY(y){ 
+TerrainPatch::TerrainPatch(TextureData *tex, long x, long y, GLuint* phongShader) : heightMap(tex), posX(x), posY(y){ 
+  
+  shader = phongShader;
+  glActiveTexture(GL_TEXTURE0);
+  
+  LoadTGATextureSimple("../textures/grass.tga", &texture);
+
+  glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
   generateGeometry();
 }
 

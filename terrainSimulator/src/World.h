@@ -14,6 +14,10 @@
 	#include "../common/linux/MicroGlut.h"
 #endif
 
+#include "Camera.h"
+#include "Skybox.h"
+#include "TerrainPatch.h"
+
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
 
@@ -24,14 +28,15 @@ class World
     long worldSeed;
 
     void initWorld();
-    Camera* camera;
-    Skybox* skybox;
-    TerrainPatch terrainPatch;
   public:
     World();
     ~World();
     GLuint phongShader;
     GLuint skyboxShader;
+    void renderWorld();
+    Camera* camera;
+    Skybox* skybox;
+    TerrainPatch* terrainPatch;
 
 };
 
