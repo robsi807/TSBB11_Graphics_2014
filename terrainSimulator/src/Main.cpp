@@ -1,4 +1,3 @@
-// Lab 4, terrain generation
 
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
@@ -17,18 +16,14 @@
 
 #include "World.h"
 
-
 #include <cmath> 
-#include <iostream>
+//#include <iostream>
 
 using namespace std;
 
-#define PI 3.1415
-
-
 World* world;
 
-GLfloat t = 0;
+//GLfloat t = 0;
 
 vec3 lightSource = vec3(50.0f, 100.0f, 50.0f);
 GLfloat specularExponent = 50;
@@ -64,7 +59,7 @@ void init(void)
 
 void display(void)
 {
-  t = (GLfloat)glutGet(GLUT_ELAPSED_TIME) / 3000;
+  //t = (GLfloat)glutGet(GLUT_ELAPSED_TIME) / 3000;
   
   world->renderWorld();
   
@@ -98,19 +93,19 @@ void mouse(int x, int y)
 
 void timer(int i)
 {
-  glutTimerFunc(20, &timer, i);
   glutPostRedisplay();
   world->camera->handleKeyPress();
-  glutPassiveMotionFunc(mouse);
+  //glutPassiveMotionFunc(mouse);
+  glutTimerFunc(20, &timer, i);
 }
 
 int main(int argc, char **argv)
 {
-  cout << "Funkar nu!" << endl;
+  //cout << "Funkar nu!" << endl;
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutInitContextVersion(3, 2);
-  glutInitWindowSize(1024,860);
+  glutInitWindowSize(1024,860); //Change!
   glutCreateWindow("TSBK03 C++");
   glutDisplayFunc(display);
   init();

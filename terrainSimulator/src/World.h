@@ -37,6 +37,7 @@ class World
     Camera* camera;
     Skybox* skybox;
     TerrainPatch* terrainPatch;
+    TerrainPatch* terrainPatch2;
 
 };
 

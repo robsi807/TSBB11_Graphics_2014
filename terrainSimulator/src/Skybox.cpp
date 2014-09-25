@@ -127,12 +127,12 @@ void Skybox::generateCubeMap()
 }
 
 
-void Skybox::draw(mat4 camMatrix)
+void Skybox::draw(mat4 cameraMatrix)
 {
   glDisable(GL_DEPTH_TEST);
   glUseProgram(*shader);
 
-  mat4 world2ViewSky = camMatrix;
+  mat4 world2ViewSky = cameraMatrix;
   world2ViewSky.m[3] = 0;
   world2ViewSky.m[7] = 0;
   world2ViewSky.m[11] = 0;

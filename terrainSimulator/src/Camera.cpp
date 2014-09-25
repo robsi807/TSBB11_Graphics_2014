@@ -109,7 +109,7 @@ void Camera::handleMouse(int x, int y)
   glutWarpPointer(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)-520); // On mac the pointer is shifted 520 pixels (why?)
   glutHideCursor();
 #else
-  glutWarpPointer(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+  glutWarpPointer(SCREEN_WIDTH/2, SCREEN_HEIGHT/2); // Ger delay med linux!
 #endif
 
 }

@@ -43,7 +43,7 @@ class Skybox
   Skybox(GLuint* skyboxShader,mat4 projectionMatrix, const char *imagePath);
   void loadImages(const char *imagePath);
   void generateCubeMap();
-  void draw(mat4 camMatrix);
+  void draw(mat4 cameraMatrix);
 };
 
 #endif

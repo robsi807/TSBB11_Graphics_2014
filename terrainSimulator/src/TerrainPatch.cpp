@@ -1,11 +1,11 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(TextureData *tex, long x, long y, GLuint* phongShader) : heightMap(tex), posX(x), posY(y){ 
+TerrainPatch::TerrainPatch(TextureData *tex, long x, long y, GLuint* phongShader, char *imagePath) : heightMap(tex), posX(x), posY(y){ 
   
   shader = phongShader;
   glActiveTexture(GL_TEXTURE0);
   
-  LoadTGATextureSimple("../textures/grass.tga", &texture);
+  LoadTGATextureSimple(imagePath, &texture);
 
   glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
   generateGeometry();
@@ -157,4 +157,16 @@ float TerrainPatch::calcHeight(float x,float z,int texWidth)
 
 TerrainPatch::~TerrainPatch(){
   delete geometry;
+}
+
+
+void TerrainPatch::draw(mat4 cameraMatrix){
+
+  mat4 modelView = T(posX, posY, 0);
+  glUseProgram(*shader);
+  glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
+  glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+  //glBindTexture(GL_TEXTURE_2D, texture);	
+  DrawModel(geometry, *shader, "inPosition", "inNormal", "inTexCoord"); 
+
 }
