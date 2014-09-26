@@ -37,15 +37,13 @@ class Skybox
  private:
   TextureData texture[6];
   Model* model;
-  GLuint shader;
+  GLuint* shader;
 
  public:
-  Skybox();
-  Skybox(Model *model, GLuint shader);
+  Skybox(GLuint* skyboxShader,mat4 projectionMatrix, const char *imagePath);
   void loadImages(const char *imagePath);
   void generateCubeMap();
-  void init(mat4 projectionMatrix, const char *imagePath);
-  void draw(mat4 camMatrix);
+  void draw(mat4 cameraMatrix);
 };
 
 #endif

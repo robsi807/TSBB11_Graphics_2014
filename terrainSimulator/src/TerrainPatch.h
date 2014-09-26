@@ -22,16 +22,19 @@ class TerrainPatch
 {
   
   private:
-    long posX, posY;
+    float posX, posY;
     void generateGeometry();
+    GLuint* shader;
 
   public:
-    TerrainPatch(TextureData *tex, long x, long y);
+    TerrainPatch(TextureData *tex, int x, int y, GLuint* phongShader, char *imagePath);
     vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
     float calcHeight(float x,float z,int texWidth);
     Model* geometry;
     ~TerrainPatch();
     TextureData *heightMap;
+    GLuint texture;
+    void draw(mat4 cameraMatrix);
 };
 
 

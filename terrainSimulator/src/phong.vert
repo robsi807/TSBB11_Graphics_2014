@@ -13,7 +13,6 @@ out vec3 surf;
 uniform mat4 projMatrix;
 uniform mat4 mdl2World;
 uniform mat4 world2View;
-uniform mat4 mdlMatrix;
 
 void main(void)
 {
