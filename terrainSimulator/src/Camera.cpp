@@ -3,8 +3,6 @@
 
 Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
 {
-  SCREEN_WIDTH = 1024;
-  SCREEN_HEIGHT = 860;
   vec3 r = vec3(-0.5,0,-0.5);
   position = pos;
   lookAtPoint = VectorAdd(position,r);
@@ -14,7 +12,7 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
   velocity = 0.5;
 
   projectionNear = 0.8;
-  projectionFar = 250.0;
+  projectionFar = 2250.0;
   projectionRight = 0.5;
   projectionLeft = -0.5;
   projectionTop = 0.5;

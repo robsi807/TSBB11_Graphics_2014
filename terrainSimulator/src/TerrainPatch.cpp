@@ -1,6 +1,6 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(TextureData *tex, long x, long y, GLuint* phongShader, char *imagePath) : heightMap(tex), posX(x), posY(y){ 
+TerrainPatch::TerrainPatch(TextureData *tex, int x, int y, GLuint* phongShader, char *imagePath) : heightMap(tex), posX(x), posY(y){ 
   
   shader = phongShader;
   glActiveTexture(GL_TEXTURE0);
@@ -162,7 +162,7 @@ TerrainPatch::~TerrainPatch(){
 
 void TerrainPatch::draw(mat4 cameraMatrix){
 
-  mat4 modelView = T(posX, posY, 0);
+  mat4 modelView = T(posX,0, posY);
   glUseProgram(*shader);
   glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
   glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);

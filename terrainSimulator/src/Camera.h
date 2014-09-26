@@ -40,8 +40,8 @@ class Camera
 
  public:
 
-  int SCREEN_WIDTH;
-  int SCREEN_HEIGHT;
+  static const int SCREEN_WIDTH = 1024;
+  static const int SCREEN_HEIGHT = 860;
 
   mat4 cameraMatrix;
   mat4 projectionMatrix;

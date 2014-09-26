@@ -10,25 +10,46 @@ void World::init(){
   phongShader = loadShaders("phong.vert", "phong.frag");
   skyboxShader = loadShaders("skybox.vert", "skybox.frag");
 
-  // Load height map
-  TextureData heightMap;
-  LoadTGATextureData("../textures/fft-terrain.tga", &heightMap);
-
   // Init objects
+  
+  patchGenerator = new MockupPatchGenerator("../textures/fft-terrain.tga");
+  
   camera = new Camera(vec3(24,20,24), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/sky%d.tga");
-  terrainPatch = new TerrainPatch(&heightMap, 0.0 ,0.0, &phongShader,"../textures/grass.tga");
-  terrainPatch2 = new TerrainPatch(&heightMap,heightMap.width-1,0.0, &phongShader,"../textures/grass.tga");
 
   // Init light
+  glUseProgram(phongShader);
+
   vec3 lightSource = vec3(50.0f, 100.0f, 50.0f);
   GLfloat specularExponent = 50;
-  
-  glUseProgram(phongShader);
-  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   glUniform3fv(glGetUniformLocation(phongShader, "lightSource"), 1, &lightSource.x);
   glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
+  
+  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
 
+  int x, y;
+  for(y = 0; y < 3; y++){
+    for(x = 0; x < 3; x++){
+      printf("Adding patch @ %i, %i\n", x, y);
+      generatePatch(x, y, 255);
+    }
+  }
+
+}
+
+
+void World::generatePatch(int patchX, int patchY, float patchSize){
+
+  TextureData heightMap = patchGenerator->generatePatch(patchSize);
+
+  TerrainPatch* terrainPatch = new TerrainPatch(&heightMap, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
+
+  terrainVector.push_back(terrainPatch);
+}
+
+
+void World::drawTerrainVector(TerrainPatch* t){
+  t->draw(camera->cameraMatrix);
 }
 
 void World::draw(){
@@ -37,13 +58,19 @@ void World::draw(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   skybox->draw(camera->cameraMatrix);
-  terrainPatch->draw(camera->cameraMatrix);
-  terrainPatch2->draw(camera->cameraMatrix);
+  
+  //for_each(terrainVector.begin(), terrainVector.end(), drawTerrainVector);
+  printf("size of vector = %i\n", terrainVector.size());
+  for(int i = 0; i < terrainVector.size(); i++){
+    terrainVector.at(i)->draw(camera->cameraMatrix);
+  }   
 
 }
+
 
 World::~World(){
   delete camera;
   delete skybox;
-  delete terrainPatch;
+  terrainVector.clear();
+  delete patchGenerator;
 }

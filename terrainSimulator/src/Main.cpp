@@ -15,6 +15,7 @@
 #include "../common/LoadTGA.h"
 
 #include "World.h"
+#include "Camera.h"
 
 #include <cmath> 
 
@@ -36,10 +37,6 @@ void init(void)
   
   world = new World();
 
-  // Should be moved to world
-  //lSource = LoadModelPlus("../objects/groundsphere.obj");
-  //sphere1 = LoadModelPlus("../objects/groundsphere.obj");
-
 }
 
 void display(void)
@@ -47,32 +44,11 @@ void display(void)
   //t = (GLfloat)glutGet(GLUT_ELAPSED_TIME) / 3000;
   
   world->draw();
-
-/*
-  // Light source sphere
-  modelView = T(50,105,50);
-  glUniformMatrix4fv(glGetUniformLocation(world->phongShader, "mdl2World"), 1, GL_TRUE, modelView.m);
-  DrawModel(lSource,world->phongShader,"inPosition","inNormal","inTexCoord");
-  printError("display 1");
-
-  // Sphere1
-  float xs,zs,ys;
-  int texWidth = ttex.width;
-  xs = 70+20*cos(t);
-  zs = 70+20*sin(t);
-  ys = terrainPatch->calcHeight(xs,zs,texWidth);
-  modelView = T(xs,ys,zs);
-  glUniformMatrix4fv(glGetUniformLocation(world->phongShader, "mdl2World"), 1, GL_TRUE, modelView.m);
-  DrawModel(sphere1,world->phongShader,"inPosition","inNormal","inTexCoord");
-  printError("display 2");
- */
-
   glutSwapBuffers();
 }
 
 void mouse(int x, int y)
 {
-  //printf("%d %d\n", x, y);
   world->camera->handleMouse(x,y);
 }
 
@@ -89,7 +65,7 @@ int main(int argc, char **argv)
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutInitContextVersion(3, 2);
-  glutInitWindowSize(1024,860); //Change! Do not hard code!
+  glutInitWindowSize(Camera::SCREEN_WIDTH,Camera::SCREEN_HEIGHT);
   glutCreateWindow("TSBK03 C++");
   glutDisplayFunc(display);
   init();
