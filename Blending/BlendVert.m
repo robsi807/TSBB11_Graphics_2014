@@ -1,47 +1,46 @@
 
-function [linBlend,linBlendCut] = BlendHorz(imMid,imLeft,imRight,overlap)
+function [linBlend] = BlendHorz(imMid,imTop,imBottom,overlap)
 [H,W] = size(imMid);
-Hnew = H;
-Wnew = 3*W-2*overlap;
+Hnew = 3*H-2*overlap;
+Wnew = W;
 
 % Create linear weighting windows
 % One for each image
 slope = [0:overlap]/overlap;
-midWeight = zeros(1,Wnew);
+midWeight = zeros(Hnew,1);
 midWeight(W-overlap:W) = slope;
 midWeight(W+1:2*W-overlap) = 1;
 midWeight(2*W-2*overlap:2*W-overlap) = 1-slope; 
-midWindow = repmat(midWeight,H,1);
+midWindow = repmat(midWeight,1,W);
 figure(20); imagesc(midWindow); colormap gray;
 
-rightWeight = zeros(1,Wnew);
-rightWeight(2*W-2*overlap:2*W-overlap) = slope;
-rightWeight(2*W-overlap+1:end) = 1;
-rightWindow = repmat(rightWeight,H,1);
-figure(21); imagesc(rightWindow); colormap gray;
+bottomWeight = zeros(Hnew,1);
+bottomWeight(2*W-2*overlap:2*W-overlap) = slope;
+bottomWeight(2*W-overlap+1:end) = 1;
+bottomWindow = repmat(bottomWeight,1,W);
+figure(21); imagesc(bottomWindow); colormap gray;
 
-leftWeight = zeros(1,Wnew);
+leftWeight = zeros(Hnew,1);
 leftWeight(W-overlap:W) = 1-slope;
 leftWeight(1:W-overlap-1) = 1;
-leftWindow = repmat(leftWeight,H,1);
+leftWindow = repmat(leftWeight,1,W);
 
 % Extend all images to same size
-midExt = [zeros(H,W-overlap),imMid,zeros(H,W-overlap)];
+midExt = [zeros(H-overlap,W);imMid;zeros(H-overlap,W)];
 figure(29); imagesc(midExt); colormap gray;
-leftExt = [imLeft,zeros(H,2*W-2*overlap)];
-rightExt = [zeros(H,2*W-2*overlap),imRight];
+topExt = [imTop;zeros(2*H-2*overlap,W)];
+bottomExt = [zeros(2*H-2*overlap,W);imBottom];
 
 % Blend images together
 midWeighted = midExt.*midWindow;
-leftWeighted = leftExt.*leftWindow;
-rightWeighted = rightExt.*rightWindow;
+topWeighted = topExt.*leftWindow;
+bottomWeighted = bottomExt.*bottomWindow;
 
-figure(30); imagesc(leftWeighted); colormap gray;
+figure(30); imagesc(topWeighted); colormap gray;
 figure(31); imagesc(midWeighted); colormap gray;
-figure(32); imagesc(rightWeighted); colormap gray;
+figure(32); imagesc(bottomWeighted); colormap gray;
 
-linBlend = midWeighted + leftWeighted + rightWeighted;
-linBlendCut = linBlend(:,W-overlap+1:2*W-overlap);
+linBlend = midWeighted + topWeighted + bottomWeighted;
 
 end
 
