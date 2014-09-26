@@ -27,3 +27,6 @@
 *.app
 
 .DS_Store
+
+# Temporary files
+*~
