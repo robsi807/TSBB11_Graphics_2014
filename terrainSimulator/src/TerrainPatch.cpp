@@ -1,13 +1,13 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(TextureData *tex, int x, int y, GLuint* phongShader, char *imagePath) : heightMap(tex), posX(x), posY(y){ 
+TerrainPatch::TerrainPatch(TextureData *tex, int x, int y, GLuint *phongShader, char *imagePath) : heightMap(tex), posX(x), posY(y){ 
   
   shader = phongShader;
-  glActiveTexture(GL_TEXTURE0);
+  //glActiveTexture(GL_TEXTURE0);
   
-  LoadTGATextureSimple(imagePath, &texture);
+  //LoadTGATextureSimple(imagePath, &texture);
 
-  glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
+  //glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
   generateGeometry();
 }
 
@@ -109,13 +109,13 @@ void TerrainPatch::generateGeometry(){
     }
 
   geometry = LoadDataToModel(
-      vertexArray,
-      normalArray,
-      texCoordArray,
-      NULL,
-      indexArray,
-      vertexCount,
-      triangleCount*3);
+    vertexArray,
+    normalArray,
+    texCoordArray,
+    NULL,
+    indexArray,
+    vertexCount,
+    triangleCount*3);
 
 }
 

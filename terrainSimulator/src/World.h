@@ -22,6 +22,9 @@
 
 #include <vector>
 #include <algorithm>
+#include <thread>
+#include <iostream>
+#include <time.h>
 
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"

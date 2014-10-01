@@ -4,6 +4,27 @@ World::World(){
   init();
 }
 
+void addToVector(World *w, float patchX, float patchY, float patchSize){
+	TextureData heightMap = w->patchGenerator->generatePatch(patchSize);
+
+	//printf("heightMap @ %li\n", &heightMap);
+	//printf("w-phongShader %li\n", w->phongShader);
+
+	TerrainPatch* terrainPatch = new TerrainPatch(&heightMap, patchX*patchSize , patchY*patchSize, &(w->phongShader),"../textures/grass.tga"); // TODO: dont load the texture for each patch
+	//w->terrainVector.push_back(terrainPatch);
+}
+
+void World::generatePatch(int patchX, int patchY, float patchSize){
+
+  //TextureData heightMap = patchGenerator->generatePatch(patchSize);
+
+  //TerrainPatch* terrainPatch = new TerrainPatch(&heightMap, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
+
+	thread first (addToVector, this, patchX, patchY, patchSize);
+	first.join();
+  //terrainVector.push_back(terrainPatch);   // took 0.61
+}
+
 void World::init(){
 
   // Load shaders
@@ -26,27 +47,23 @@ void World::init(){
   glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
   
   glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+	
+	
+	clock_t t;
+  t = clock();
 
-  int x, y;
-  for(y = 0; y < 3; y++){
-    for(x = 0; x < 3; x++){
+
+  for(int y = 0; y < 3; y++){
+    for(int x = 0; x < 3; x++){
       printf("Adding patch @ %i, %i\n", x, y);
-      generatePatch(x, y, 255);
+			generatePatch(x, y, 255);
     }
   }
+  t = clock() - t;
+  printf ("Time to generate terrain: %f seconds)\n",((float)t)/CLOCKS_PER_SEC);
+
 
 }
-
-
-void World::generatePatch(int patchX, int patchY, float patchSize){
-
-  TextureData heightMap = patchGenerator->generatePatch(patchSize);
-
-  TerrainPatch* terrainPatch = new TerrainPatch(&heightMap, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
-
-  terrainVector.push_back(terrainPatch);
-}
-
 
 void World::drawTerrainVector(TerrainPatch* t){
   t->draw(camera->cameraMatrix);
@@ -60,7 +77,6 @@ void World::draw(){
   skybox->draw(camera->cameraMatrix);
   
   //for_each(terrainVector.begin(), terrainVector.end(), drawTerrainVector);
-  printf("size of vector = %i\n", terrainVector.size());
   for(int i = 0; i < terrainVector.size(); i++){
     terrainVector.at(i)->draw(camera->cameraMatrix);
   }   

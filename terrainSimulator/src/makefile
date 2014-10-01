@@ -15,7 +15,7 @@ ifeq ($(UNAME), Linux)
 CXX     = gcc
 CCFLAGS = -g -std=c++0x -pedantic -Wall -Wextra -lGL -DGL_GLEXT_PROTOTYPES
 CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -lGL -DGL_GLEXT_PROTOTYPES
-LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -DGL_GLEXT_PROTOTYPES
+LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -lpthread -DGL_GLEXT_PROTOTYPES
 GLUTPATH = ../common/linux
 GLUT	= ../common/linux/MicroGlut.c
 endif
