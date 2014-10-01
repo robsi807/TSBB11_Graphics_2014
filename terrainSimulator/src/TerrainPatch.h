@@ -1,5 +1,5 @@
-#ifndef _TERRAIN_GENERATOR
-#define _TERRAIN_GENERATOR_
+#ifndef _TERRAINPATCH_
+#define _TERRAINPATCH_
 
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
@@ -18,18 +18,23 @@
 #include "../common/loadobj.h"
 #include "../common/VectorUtils3.h"
 
-class TerrainGenerator
+class TerrainPatch
 {
+  
   private:
-    long worldSeed;
+    float posX, posY;
+    void generateGeometry();
+    GLuint* shader;
 
   public:
-    TerrainGenerator();
-    TerrainGenerator(long seed);
+    TerrainPatch(TextureData *tex, int x, int y, GLuint* phongShader, char *imagePath);
     vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
-    Model* generateTerrain(TextureData *tex);
-    float calcHeight(Model* mod,float x,float z,int texWidth);
-
+    float calcHeight(float x,float z,int texWidth);
+    Model* geometry;
+    ~TerrainPatch();
+    TextureData *heightMap;
+    GLuint texture;
+    void draw(mat4 cameraMatrix);
 };
 
 
