@@ -43,11 +43,13 @@ class World
     Skybox* skybox;
     PatchGenerator* patchGenerator;
     std::vector<TerrainPatch*> terrainVector;
+    std::vector<TerrainPatch*> generatedTerrain;
 
     World();
     ~World();
     void draw();
     void generatePatch(int patchX, int patchY, float patchSize);
+    void addGeneratedTerrain();
 
 };
 

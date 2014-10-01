@@ -22,7 +22,6 @@ class TerrainPatch
 {
   
   private:
-    float posX, posY;
     GLuint* shader;
     void generateGeometry();
 
@@ -36,6 +35,7 @@ class TerrainPatch
     TextureData *heightMap;
     GLuint texture;
     void draw(mat4 cameraMatrix);
+    float posX, posY;
 };
 
 

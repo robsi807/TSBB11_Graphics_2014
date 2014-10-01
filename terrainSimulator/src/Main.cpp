@@ -11,7 +11,6 @@
 
 #include "../common/GL_utilities.h"
 #include "../common/VectorUtils3.h"
-#include "../common/loadobj.h"
 #include "../common/LoadTGA.h"
 
 #include "World.h"
