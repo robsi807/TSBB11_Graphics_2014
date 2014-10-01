@@ -1,6 +1,8 @@
-gridSize = 16;
+function finalGrid = cornerBlending(gridSize)
 
-finalGrid = zeros(gridSize,gridSize,3);
+%gridSize = 256;
+
+finalGrid = zeros(gridSize,gridSize,4);
 
 
 for i = 1:gridSize
@@ -24,14 +26,16 @@ for i = 1:gridSize
         
         finalGrid(i,j,3) = interpolateValues(interpolatedX1,interpolatedX2,diffY);
 
-        %interpolatedX1 = interpolateValues(0,0,diffX);
-        %interpolatedX2 = interpolateValues(0,1,diffX);
+        interpolatedX1 = interpolateValues(0,0,diffX);
+        interpolatedX2 = interpolateValues(0,1,diffX);
         
-        %finalGrid(i,j,4) = interpolateValues(interpolatedX1,interpolatedX2,diffY);
+        finalGrid(i,j,4) = interpolateValues(interpolatedX1,interpolatedX2,diffY);
         
     end
 end
 
 
 
-imagesc(finalGrid);
+%imagesc(finalGrid(:,:,1:3));
+
+end
