@@ -1,6 +1,7 @@
 #ifndef _PATCH_GENERATOR_
 #define _PATCH_GENERATOR_
 
+
 #include "../common/LoadTGA.h"
 
 class PatchGenerator{

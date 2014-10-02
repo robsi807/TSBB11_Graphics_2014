@@ -50,6 +50,7 @@ class World
     void draw();
     void generatePatch(int patchX, int patchY, float patchSize);
     void addGeneratedTerrain();
+	//void addToVector(World *w, float patchX, float patchY, float patchSize, Model terrain);
 
 };
 

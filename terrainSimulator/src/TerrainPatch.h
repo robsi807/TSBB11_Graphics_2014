@@ -14,6 +14,7 @@
 #include "../common/linux/MicroGlut.h"
 #endif
 
+#include <iostream>
 #include "../common/LoadTGA.h"
 #include "../common/loadobj.h"
 #include "../common/VectorUtils3.h"
@@ -27,7 +28,7 @@ class TerrainPatch
 
 
   public:
-    TerrainPatch(TextureData *tex, int x, int y, GLuint *phongShader, char *imagePath);
+    TerrainPatch(TextureData *tex, int x, int y, GLuint *phongShader, char *imagePath, Model *terrain);
     vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
     float calcHeight(float x,float z,int texWidth);
     Model* geometry;
