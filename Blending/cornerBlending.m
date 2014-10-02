@@ -1,15 +1,14 @@
-function finalGrid = cornerBlending(gridSize)
+function [finalGrid, finalGrid2] = cornerBlending(gridSize)
 
 %gridSize = 256;
 
 finalGrid = zeros(gridSize,gridSize,4);
 
-
 for i = 1:gridSize
     for j = 1:gridSize
         
-        diffX = i/gridSize;
-        diffY = j/gridSize;
+        diffX = (i-1)/(gridSize-1);
+        diffY = (j-1)/(gridSize-1);
         
         interpolatedX1 = interpolateValues(1,0,diffX);
         interpolatedX2 = interpolateValues(0,0,diffX);
