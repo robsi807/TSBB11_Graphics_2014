@@ -4,42 +4,53 @@ World::World(){
   init();
 }
 
+void printTerrain(TerrainPatch* t){
+  cout << "Patch @(" << t->posX << ", " << t->posY << ") has terrain data:\n";
+  for(int i = 0; i < 10; i++){
+    cout << &(t->geometry->vertexArray[i]) << "with value " << t->geometry->vertexArray[i] <<"\n";
+  }
+  cout << "The patch is allocated at " << t << "\n";
+  cout << "----------\n";
+}
 
+void addToVector(World *w, float patchX, float patchY, float patchSize, Model *terrain, TerrainPatch *terrainPatch){
 
-void addToVector(World *w, float patchX, float patchY, float patchSize, Model *terrain){
-	
-	TextureData heightMap = w->patchGenerator->generatePatch(patchSize);
-	TerrainPatch *terrainPatch = new TerrainPatch(&heightMap, patchX*patchSize , patchY*patchSize, &(w->phongShader),"../textures/grass.tga", terrain); // TODO: dont load the texture for each patch
-	w->generatedTerrain.push_back(terrainPatch);
+  TextureData heightMap = w->patchGenerator->generatePatch(patchSize);
+  terrainPatch = new TerrainPatch(&heightMap, patchX*patchSize , patchY*patchSize, &(w->phongShader),"../textures/grass.tga", terrain); // TODO: dont load the texture for each patch
+  w->generatedTerrain.push_back(terrainPatch);
+  
+  printTerrain(w->generatedTerrain.back());
 
-	
 }
 
 void World::generatePatch(int patchX, int patchY, float patchSize){
-	
-  Model *terrain = (Model *)malloc(sizeof(Model));
-//  memset(test, 0, sizeof(Model));
-  
-  
-  thread first (addToVector, this, patchX, patchY, patchSize, terrain);
-  first.join();
-	//addToVector(this, patchX, patchY, patchSize, terrain);
 
-  
+  Model *terrain = new Model();
+  //  memset(test, 0, sizeof(Model));
+  TerrainPatch *terrainPatch;
+
+  //thread first (addToVector, this, patchX, patchY, patchSize, terrain, terrainPatch);
+  //first.detach();
+  //first.join();
+  addToVector(this, patchX, patchY, patchSize, terrain, terrainPatch);
+
+
 }
 
 
 void World::addGeneratedTerrain(){
 
   if(generatedTerrain.size() > 0){
-	clock_t t;
-	t = clock();
+    clock_t t;
+    t = clock();
     for(int i = 0; i < generatedTerrain.size(); i++){
-		BuildModelVAO2(generatedTerrain.at(i)->geometry);
-      	terrainVector.push_back(generatedTerrain.at(i));	
+      BuildModelVAO2(generatedTerrain.at(i)->geometry);
+      terrainVector.push_back(generatedTerrain.at(i));	
+      
+      printTerrain(generatedTerrain.back());
     }
-	t = clock() - t;
-	printf ("Time to generate terrain: %f seconds)\n",((float)t)/CLOCKS_PER_SEC);
+    t = clock() - t;
+    printf ("Time to generate terrain: %f seconds)\n",((float)t)/CLOCKS_PER_SEC);
 
     generatedTerrain.clear();
   }
@@ -68,16 +79,16 @@ void World::init(){
 
   glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
 
-  	generatePatch(0, 0, 255);
+  generatePatch(1, 2, 255);
 
- 
+
 
   for(int y = 0; y < 3; y++){
     for(int x = 0; x < 3; x++){
-		//generatePatch(x, y, 255);
+      //generatePatch(x, y, 255);
     }
   }
-  
+
 
 
 }
