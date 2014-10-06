@@ -1,11 +1,11 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(TextureData *tex, int x, int y, GLuint* phongShader, char *imagePath) : heightMap(tex), posX(x), posY(y){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int y, GLuint* phongShader, char *imagePath) : heightMap(tex), posX(x), posY(y), patchWidth(width), patchHeight(height){ 
   
   shader = phongShader;
   glActiveTexture(GL_TEXTURE0);
   
-  LoadTGATextureSimple(imagePath, &texture);
+  //LoadTGATextureSimple(imagePath, &texture);
 
   glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
   generateGeometry();
@@ -20,9 +20,9 @@ vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
 }
 
 
-void TerrainPatch::generateGeometry(){
-  int vertexCount = heightMap->width * heightMap->height;
-  int triangleCount = (heightMap->width-1) * (heightMap->height-1) * 2;
+  void TerrainPatch::generateGeometry(){
+  int vertexCount = patchWidth * patchHeight;
+  int triangleCount = (patchWidth-1) * (patchHeight-1) * 2;
   int x, z;
 
   GLfloat vertexArray[3 * vertexCount];
@@ -30,13 +30,13 @@ void TerrainPatch::generateGeometry(){
   GLfloat texCoordArray[ 2 * vertexCount];
   GLuint indexArray[3 * triangleCount];
 
-  float hScale = 20.0;
+  float hScale = 0.005;
 
-  for (x = 0; x < heightMap->width; x++)
-    for (z = 0; z < heightMap->height; z++)
+  for (x = 0; x < patchWidth; x++)
+    for (z = 0; z < patchHeight; z++)
     {
       vec3 n = vec3(0.0,1.0,0.0);
-      if(!((x==0)||(x==heightMap->width - 1)||(z == 0)||(z==heightMap->height - 1)))
+      if(!((x==0)||(x==patchWidth - 1)||(z == 0)||(z==patchHeight - 1)))
       {
         float x0 = (float)(x-1);
         float z0 = (float)(z-1);
@@ -47,15 +47,15 @@ void TerrainPatch::generateGeometry(){
         float x2 = (float)(x+1);
         float z2 = (float)(z+1);
 
-        float y00 = heightMap->imageData[((int)x0 + (int)z0 * heightMap->width) * (heightMap->bpp/8)] / hScale;
-        float y01 = heightMap->imageData[((int)x1 + (int)z0 * heightMap->width) * (heightMap->bpp/8)] / hScale;
+        float y00 = heightMap.at(((int)x0 + (int)z0 * patchWidth)) / hScale;
+        float y01 = heightMap.at(((int)x1 + (int)z0 * patchWidth)) / hScale;
 
-        float y10 = heightMap->imageData[((int)x0 + (int)z1 * heightMap->width) * (heightMap->bpp/8)] / hScale;
-        float y11 = heightMap->imageData[((int)x1 + (int)z1 * heightMap->width) * (heightMap->bpp/8)] / hScale;
-        float y12 = heightMap->imageData[((int)x2 + (int)z1 * heightMap->width) * (heightMap->bpp/8)] / hScale;
+        float y10 = heightMap.at(((int)x0 + (int)z1 * patchWidth)) / hScale;
+        float y11 = heightMap.at(((int)x1 + (int)z1 * patchWidth)) / hScale;
+        float y12 = heightMap.at(((int)x2 + (int)z1 * patchWidth)) / hScale;
 
-        float y21 = heightMap->imageData[((int)x1 + (int)z2 * heightMap->width) * (heightMap->bpp/8)] / hScale;
-        float y22 = heightMap->imageData[((int)x2 + (int)z2 * heightMap->width) * (heightMap->bpp/8)] / hScale;
+        float y21 = heightMap.at(((int)x1 + (int)z2 * patchWidth)) / hScale;
+        float y22 = heightMap.at(((int)x2 + (int)z2 * patchWidth)) / hScale;
 
         vec3 p00 = vec3(x0,y00,z0);
         vec3 p01 = vec3(x1,y01,z0);
@@ -82,30 +82,30 @@ void TerrainPatch::generateGeometry(){
         n = Normalize(n);
       }
 
-      vertexArray[(x + z * heightMap->width)*3 + 0] = x / 1.0;
-      vertexArray[(x + z * heightMap->width)*3 + 1] = heightMap->imageData[(x + z * heightMap->width) * (heightMap->bpp/8)] / hScale;
-      vertexArray[(x + z * heightMap->width)*3 + 2] = z / 1.0;
+      vertexArray[(x + z * patchWidth)*3 + 0] = x / 1.0;
+      vertexArray[(x + z * patchWidth)*3 + 1] = heightMap.at((x + z * patchWidth)) / hScale;
+      vertexArray[(x + z * patchWidth)*3 + 2] = z / 1.0;
 
       // Normal vectors. You need to calculate these.
-      normalArray[(x + z * heightMap->width)*3 + 0] = n.x; //(y1-y0)*(z2-z0)-(y2-y0)*(z1-z0); //0.0;
-      normalArray[(x + z * heightMap->width)*3 + 1] = n.y; //(z1-z0)*(x2-x0)-(z2-z0)*(x1-x0); //1.0;
-      normalArray[(x + z * heightMap->width)*3 + 2] =n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
+      normalArray[(x + z * patchWidth)*3 + 0] = n.x; //(y1-y0)*(z2-z0)-(y2-y0)*(z1-z0); //0.0;
+      normalArray[(x + z * patchWidth)*3 + 1] = n.y; //(z1-z0)*(x2-x0)-(z2-z0)*(x1-x0); //1.0;
+      normalArray[(x + z * patchWidth)*3 + 2] =n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
 
       // Texture coordinates. You may want to scale them.
-      texCoordArray[(x + z * heightMap->width)*2 + 0] = x; // (float)x / heightMap->width;
-      texCoordArray[(x + z * heightMap->width)*2 + 1] = z; // (float)z / heightMap->height;
+      texCoordArray[(x + z * patchWidth)*2 + 0] = x; // (float)x / patchWidth;
+      texCoordArray[(x + z * patchWidth)*2 + 1] = z; // (float)z / patchHeight;
     }
-  for (x = 0; x < heightMap->width-1; x++)
-    for (z = 0; z < heightMap->height-1; z++)
+  for (x = 0; x < patchWidth-1; x++)
+    for (z = 0; z < patchHeight-1; z++)
     {
       // Triangle 1
-      indexArray[(x + z * (heightMap->width-1))*6 + 0] = x + z * heightMap->width;
-      indexArray[(x + z * (heightMap->width-1))*6 + 1] = x + (z+1) * heightMap->width;
-      indexArray[(x + z * (heightMap->width-1))*6 + 2] = x+1 + z * heightMap->width;
+      indexArray[(x + z * (patchWidth-1))*6 + 0] = x + z * patchWidth;
+      indexArray[(x + z * (patchWidth-1))*6 + 1] = x + (z+1) * patchWidth;
+      indexArray[(x + z * (patchWidth-1))*6 + 2] = x+1 + z * patchWidth;
       // Triangle 2
-      indexArray[(x + z * (heightMap->width-1))*6 + 3] = x+1 + z * heightMap->width;
-      indexArray[(x + z * (heightMap->width-1))*6 + 4] = x + (z+1) * heightMap->width;
-      indexArray[(x + z * (heightMap->width-1))*6 + 5] = x+1 + (z+1) * heightMap->width;
+      indexArray[(x + z * (patchWidth-1))*6 + 3] = x+1 + z * patchWidth;
+      indexArray[(x + z * (patchWidth-1))*6 + 4] = x + (z+1) * patchWidth;
+      indexArray[(x + z * (patchWidth-1))*6 + 5] = x+1 + (z+1) * patchWidth;
     }
 
   geometry = LoadDataToModel(

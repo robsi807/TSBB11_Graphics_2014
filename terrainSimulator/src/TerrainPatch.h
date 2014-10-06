@@ -18,21 +18,25 @@
 #include "../common/loadobj.h"
 #include "../common/VectorUtils3.h"
 
+#include<vector>
+using namespace std;
+
 class TerrainPatch
 {
   
   private:
-    float posX, posY;
+    int posX, posY;
+    int patchWidth, patchHeight;
     void generateGeometry();
     GLuint* shader;
 
   public:
-    TerrainPatch(TextureData *tex, int x, int y, GLuint* phongShader, char *imagePath);
+    TerrainPatch(vector<float> tex,int width, int height, int x, int y, GLuint* phongShader, char *imagePath);
     vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
     float calcHeight(float x,float z,int texWidth);
     Model* geometry;
     ~TerrainPatch();
-    TextureData *heightMap;
+    vector<float> heightMap;
     GLuint texture;
     void draw(mat4 cameraMatrix);
 };
