@@ -36,6 +36,7 @@ void main(void)
 
 	shade = (0.7*diffuseShade + 0.4*specularStrength);
 
-	outColor = clamp(shade*texture(tex, texCoord),0,1);
+	outColor = clamp(vec4(shade), 0,1);
+	//outColor = clamp(shade*texture(tex, texCoord),0,1);
 	//outColor = clamp(vec4(lightSource,1)*vec4(exNormal,1)*vec4(surf,1)*texture(tex, texCoord),0,1);
 }

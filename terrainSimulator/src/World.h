@@ -16,7 +16,7 @@
 
 #include "Camera.h"
 #include "PatchGenerator.h"
-#include "MockupPatchGenerator.h"
+#include "PerlinPatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
 
@@ -44,7 +44,7 @@ class World
     World();
     ~World();
     void draw();
-    void generatePatch(int patchX, int patchY, float patchSize);
+    void generatePatch(int patchX, int patchY, int patchSize);
 
 };
 

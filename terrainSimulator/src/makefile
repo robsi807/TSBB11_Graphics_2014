@@ -13,17 +13,21 @@ GLUT	= ../common/mac/MicroGlut.m
 endif
 ifeq ($(UNAME), Linux)
 CXX     = gcc
-CCFLAGS = -g -std=c++0x -pedantic -Wall -Wextra -lGL -DGL_GLEXT_PROTOTYPES
-CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -lGL -DGL_GLEXT_PROTOTYPES
+# with warning flags
+#CCFLAGS = -g -std=c++0x -pedantic -Wall -Wextra -lGL -DGL_GLEXT_PROTOTYPES
+#CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -lGL -DGL_GLEXT_PROTOTYPES
+# without warning flags
+CCFLAGS = -g -std=c++0x -lGL -DGL_GLEXT_PROTOTYPES
+CFLAGS  = -g -std=c99 -lGL -DGL_GLEXT_PROTOTYPES
 LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -DGL_GLEXT_PROTOTYPES
 GLUTPATH = ../common/linux
 GLUT	= ../common/linux/MicroGlut.c
 endif
 
-CCFILES = Main.cpp Skybox.cpp Camera.cpp TerrainPatch.cpp World.cpp MockupPatchGenerator.cpp
+CCFILES = Main.cpp Skybox.cpp Camera.cpp TerrainPatch.cpp World.cpp PerlinPatchGenerator.cpp
 
 UTILS = ../common/GL_utilities.c ../common/VectorUtils3.c ../common/loadobj.c ../common/zpr.c ../common/LoadTGA.c $(GLUT)
-OFILES = Main.o Skybox.o Camera.o TerrainPatch.o World.o MockupPatchGenerator.o ../common/GL_utilities.o ../common/loadobj.o ../common/LoadTGA.o ../common/VectorUtils3.o ../common/zpr.o $(GLUTPATH)/MicroGlut.o
+OFILES = Main.o Skybox.o Camera.o TerrainPatch.o World.o PerlinPatchGenerator.o ../common/GL_utilities.o ../common/loadobj.o ../common/LoadTGA.o ../common/VectorUtils3.o ../common/zpr.o $(GLUTPATH)/MicroGlut.o
 
 
 main: $(OFILES)
