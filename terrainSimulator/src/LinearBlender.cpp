@@ -4,17 +4,18 @@ LinearBlender::LinearBlender(int initOverlap){
   overlap = initOverlap;
 }
 
-void LinearBlender::blendCorners(TextureData* tex00,
-		  TextureData* tex01,
-		  TextureData* tex10,
-		  TextureData* tex11){
+void LinearBlender::blendCorners(vector<float>* tex00,
+				 vector<float>* tex01,
+				 vector<float>* tex10,
+				 vector<float>* tex11,
+				 int width){
   
 }
 
-void LinearBlender::blendHors(TextureData* texLeft,TextureData* texRight){
+void LinearBlender::blendHors(vector<float>* texWest,vector<float>* texEast,int width){
 
 }
 
-void LinearBlender::blendVert(TextureData* texTop,TextureData* texDown){
-
+void LinearBlender::blendVert(vector<float>* texNorth,vector<float>* texSouth,int width){
+  
 }

@@ -9,13 +9,13 @@ class LinearBlender : public Blender{
  public:
   LinearBlender(int initOverlap);
 
-  void blendCorners(TextureData* tex00,
-		    TextureData* tex01,
-		    TextureData* tex10,
-		    TextureData* tex11);
+  void blendCorners(vector<float>* tex00,
+		    vector<float>* tex01,
+		    vector<float>* tex10,
+		    vector<float>* tex11);
 
-  void blendHors(TextureData* texLeft,TextureData* texRight);
-  void blendVert(TextureData* texTop,TextureData* texDown);
+  void blendHors(vector<float>* texWest,vector<float>* texEast);
+  void blendVert(vector<float>* texNorth,vector<float>* texSouth);
 };
 
 
