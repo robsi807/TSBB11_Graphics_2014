@@ -40,8 +40,6 @@ vector<float> PerlinPatchGenerator::createGradients(int gradientPoints) {
 
 	vector<float> gradients;
 
-    printf("INT_MAX is now %d \n", INT_MAX);
-
 	for(int row = 0; row < gradientPoints; row++) {
 		for(int col = 0; col < gradientPoints; col++) {
 			gradients.push_back(rand() / (float)INT_MAX);
@@ -51,11 +49,16 @@ vector<float> PerlinPatchGenerator::createGradients(int gradientPoints) {
 }
 
 vector<float> PerlinPatchGenerator::createPatch(int gridSize, float frequency, int gradientPoints, float amplitude){
+    //printf("begin createPatch\n");
 
 	vector<float> gradients;
-	gradients = createGradients(gradientPoints);
-	int numberOfPixels = gridSize/frequency;
-	vector<float> finalGrid;
+	//printf("begin createGradients\n");
+    gradients = createGradients(gradientPoints);
+    //printf("end createGradients\n");	
+    int numberOfPixels = gridSize/frequency;
+    //printf("numberOfPixels %d", numberOfPixels);
+	
+    vector<float> finalGrid;
 
 	for(int row = 0; row < gridSize; row++) {
 		float diffX = (float)(row % numberOfPixels)/numberOfPixels;
@@ -77,7 +80,9 @@ vector<float> PerlinPatchGenerator::createPatch(int gridSize, float frequency, i
 			
 		} 
 
-	} 
+	}
+    //printf("end createPatch\n");
+ 
 	return finalGrid;	
 }
 
@@ -106,6 +111,8 @@ vector<float> PerlinPatchGenerator::generatePatch(int x, int y, int size)
 
 		tempPatch = createPatch(size,frequency,gradientPoints, amplitude);  		
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch, size);
+
+        
 	}
 	return heightMapPatch;
 }

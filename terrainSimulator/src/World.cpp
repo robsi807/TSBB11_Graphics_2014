@@ -30,7 +30,6 @@ void World::init(){
   int x, y;
   for(y = 0; y < 3; y++){
     for(x = 0; x < 3; x++){
-      printf("Adding patch @ %i, %i\n", x, y);
       generatePatch(x, y, 256);
     }
   }
@@ -39,12 +38,13 @@ void World::init(){
 
 
 void World::generatePatch(int patchX, int patchY, int patchSize){
-
-    vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
     
-    //patchGenerator->printMatrix(heightMapPatch, patchSize);
-
-  TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
+    printf("before generatePatch");
+    vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
+    printf("after generatePatch, before terrainPatch");
+   
+   TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
+    printf("after terrainPatch");
 
   terrainVector.push_back(terrainPatch);
 }
