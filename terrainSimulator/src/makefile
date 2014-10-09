@@ -20,10 +20,10 @@ GLUTPATH = ../common/linux
 GLUT	= ../common/linux/MicroGlut.c
 endif
 
-CCFILES = Main.cpp Skybox.cpp Camera.cpp TerrainPatch.cpp World.cpp MockupPatchGenerator.cpp LinearBlender.cpp
+CCFILES = Main.cpp Skybox.cpp Camera.cpp TerrainPatch.cpp World.cpp PerlinPatchGenerator.cpp LinearBlender.cpp
 
 UTILS = ../common/GL_utilities.c ../common/VectorUtils3.c ../common/loadobj.c ../common/zpr.c ../common/LoadTGA.c $(GLUT)
-OFILES = Main.o Skybox.o Camera.o TerrainPatch.o World.o MockupPatchGenerator.o LinearBlender.o ../common/GL_utilities.o ../common/loadobj.o ../common/LoadTGA.o ../common/VectorUtils3.o ../common/zpr.o $(GLUTPATH)/MicroGlut.o
+OFILES = Main.o Skybox.o Camera.o TerrainPatch.o World.o PerlinPatchGenerator.o LinearBlender.o ../common/GL_utilities.o ../common/loadobj.o ../common/LoadTGA.o ../common/VectorUtils3.o ../common/zpr.o $(GLUTPATH)/MicroGlut.o
 
 
 main: $(OFILES)

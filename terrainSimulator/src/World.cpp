@@ -12,7 +12,7 @@ void World::init(){
 
   // Init objects
   
-  patchGenerator = new MockupPatchGenerator("../textures/fft-terrain.tga");
+  patchGenerator = new PerlinPatchGenerator();
   
   camera = new Camera(vec3(24,20,24), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/sky%d.tga");
@@ -31,18 +31,20 @@ void World::init(){
   for(y = 0; y < 3; y++){
     for(x = 0; x < 3; x++){
       printf("Adding patch @ %i, %i\n", x, y);
-      generatePatch(x, y, 255);
+      generatePatch(x, y, 256);
     }
   }
 
 }
 
 
-void World::generatePatch(int patchX, int patchY, float patchSize){
+void World::generatePatch(int patchX, int patchY, int patchSize){
 
-  TextureData heightMap = patchGenerator->generatePatch(patchSize);
+    vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
+    
+    //patchGenerator->printMatrix(heightMapPatch, patchSize);
 
-  TerrainPatch* terrainPatch = new TerrainPatch(&heightMap, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
+  TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
 
   terrainVector.push_back(terrainPatch);
 }
@@ -60,7 +62,7 @@ void World::draw(){
   skybox->draw(camera->cameraMatrix);
   
   //for_each(terrainVector.begin(), terrainVector.end(), drawTerrainVector);
-  printf("size of vector = %i\n", terrainVector.size());
+  //printf("size of vector = %i\n", terrainVector.size());
   for(int i = 0; i < terrainVector.size(); i++){
     terrainVector.at(i)->draw(camera->cameraMatrix);
   }   

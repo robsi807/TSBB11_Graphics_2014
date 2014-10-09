@@ -3,10 +3,14 @@
 
 #include "../common/LoadTGA.h"
 
+#include <vector>
+using namespace std;
+
 class PatchGenerator{
 
   public:
-    virtual TextureData generatePatch(int size) = 0;
+    virtual vector<float> generatePatch(int xPatch, int yPatch, int size) = 0;
+    virtual void printMatrix(vector<float> matrix, int matrixSize) = 0; // shouldn't be here, probably....... >^^<"
 };
 
 
