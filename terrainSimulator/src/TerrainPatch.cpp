@@ -13,14 +13,14 @@ TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int 
 
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
 {
-  vec3 n = CrossProduct(VectorSub(v1,v0),VectorSub(v2,v0));
-  if(n.y < 0)
-    n = ScalarMult(n,-1);
-  return Normalize(n);
+		vec3 n = CrossProduct(VectorSub(v1,v0),VectorSub(v2,v0));
+		if(n.y < 0)
+				n = ScalarMult(n,-1);
+		return Normalize(n);
 }
 
 
-  void TerrainPatch::generateGeometry(){
+void TerrainPatch::generateGeometry(){
   int vertexCount = patchWidth * patchHeight;
   int triangleCount = (patchWidth-1) * (patchHeight-1) * 2;
   int x, z;
@@ -156,6 +156,7 @@ float TerrainPatch::calcHeight(float x,float z,int texWidth)
 }
 
 TerrainPatch::~TerrainPatch(){
+  std::cout << "TerrainPatch destructor is used, geometry is deleted\n";
   delete geometry;
 }
 

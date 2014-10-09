@@ -22,6 +22,9 @@
 
 #include <vector>
 #include <algorithm>
+#include <thread>
+#include <iostream>
+#include <time.h>
 
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
@@ -30,8 +33,8 @@ class World
 {
   private:
     long worldSeed;
-    void init();
-    void drawTerrainVector(TerrainPatch* t);
+
+		GLfloat time;
 
   public:
     GLuint phongShader;
@@ -40,11 +43,15 @@ class World
     Skybox* skybox;
     PatchGenerator* patchGenerator;
     std::vector<TerrainPatch*> terrainVector;
+    std::vector<TerrainPatch*> generatedTerrain;
 
     World();
     ~World();
     void draw();
     void generatePatch(int patchX, int patchY, int patchSize);
+    void addGeneratedTerrain();
+    void update();
+		void updateTerrain(vec3 position, vec3 direction);
 
 };
 

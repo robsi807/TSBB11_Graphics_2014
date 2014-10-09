@@ -14,6 +14,7 @@
 #include "../common/linux/MicroGlut.h"
 #endif
 
+#include <iostream>
 #include "../common/LoadTGA.h"
 #include "../common/loadobj.h"
 #include "../common/VectorUtils3.h"
@@ -25,7 +26,6 @@ class TerrainPatch
 {
   
   private:
-    int posX, posY;
     int patchWidth, patchHeight;
     void generateGeometry();
     GLuint* shader;
@@ -39,6 +39,7 @@ class TerrainPatch
     vector<float> heightMap;
     GLuint texture;
     void draw(mat4 cameraMatrix);
+    int posX, posY;
 };
 
 

@@ -123,3 +123,11 @@ void Camera::update()
   //if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09)
   cameraMatrix = lookAtv(position,lookAtPoint,upVector);
 }
+
+vec3 Camera::getDirection(){
+	return VectorSub(lookAtPoint, position);
+}
+
+vec3 Camera::getPosition(){
+	return position;
+}

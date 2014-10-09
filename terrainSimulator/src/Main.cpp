@@ -11,7 +11,6 @@
 
 #include "../common/GL_utilities.h"
 #include "../common/VectorUtils3.h"
-#include "../common/loadobj.h"
 #include "../common/LoadTGA.h"
 
 #include "World.h"
@@ -25,6 +24,7 @@ World* world;
 
 // Should be a member of world
 //GLfloat t = 0;
+
 
 void init(void)
 {
@@ -41,8 +41,7 @@ void init(void)
 
 void display(void)
 {
-  //t = (GLfloat)glutGet(GLUT_ELAPSED_TIME) / 3000;
-  
+  world->update();
   world->draw();
   glutSwapBuffers();
 }
