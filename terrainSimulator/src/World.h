@@ -33,8 +33,9 @@ class World
 {
   private:
     long worldSeed;
-    void init();
     void drawTerrainVector(TerrainPatch* t);
+
+		GLfloat time;
 
   public:
     GLuint phongShader;
@@ -50,6 +51,8 @@ class World
     void draw();
     void generatePatch(int patchX, int patchY, float patchSize);
     void addGeneratedTerrain();
+    void update();
+		void updateTerrain(vec3 position, vec3 direction);
 	//void addToVector(World *w, float patchX, float patchY, float patchSize, Model terrain);
 
 };

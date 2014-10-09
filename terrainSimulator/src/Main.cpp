@@ -41,8 +41,7 @@ void init(void)
 
 void display(void)
 {
-  //t = (GLfloat)glutGet(GLUT_ELAPSED_TIME) / 3000;
-  
+  world->update();
   world->draw();
   glutSwapBuffers();
 }

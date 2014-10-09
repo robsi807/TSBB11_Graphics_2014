@@ -1,7 +1,35 @@
 #include "World.h"
 
 World::World(){
-  init();
+	
+	time = 0;
+	// Load shaders
+  phongShader = loadShaders("phong.vert", "phong.frag");
+  skyboxShader = loadShaders("skybox.vert", "skybox.frag");
+
+  // Init objects
+
+  patchGenerator = new MockupPatchGenerator("../textures/fft-terrain.tga");
+
+  camera = new Camera(vec3(24,20,24), 1, 7);
+  skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/sky%d.tga");
+
+  // Init light
+  glUseProgram(phongShader);
+
+  vec3 lightSource = vec3(50.0f, 100.0f, 50.0f);
+  GLfloat specularExponent = 50;
+  glUniform3fv(glGetUniformLocation(phongShader, "lightSource"), 1, &lightSource.x);
+  glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
+
+  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+
+  for(int y = 0; y < 3; y++){
+    for(int x = 0; x < 3; x++){
+      generatePatch(x, y, 255);
+    }
+  }
+
 }
 
 void printTerrain(TerrainPatch* t){
@@ -56,51 +84,23 @@ void World::addGeneratedTerrain(){
   }
 }
 
-void World::init(){
-
-  // Load shaders
-  phongShader = loadShaders("phong.vert", "phong.frag");
-  skyboxShader = loadShaders("skybox.vert", "skybox.frag");
-
-  // Init objects
-
-  patchGenerator = new MockupPatchGenerator("../textures/fft-terrain.tga");
-
-  camera = new Camera(vec3(24,20,24), 1, 7);
-  skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/sky%d.tga");
-
-  // Init light
-  glUseProgram(phongShader);
-
-  vec3 lightSource = vec3(50.0f, 100.0f, 50.0f);
-  GLfloat specularExponent = 50;
-  glUniform3fv(glGetUniformLocation(phongShader, "lightSource"), 1, &lightSource.x);
-  glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
-
-  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
-
-  generatePatch(1, 2, 255);
-
-
-
-  for(int y = 0; y < 3; y++){
-    for(int x = 0; x < 3; x++){
-      //generatePatch(x, y, 255);
-    }
-  }
-
-
-
-}
-
 void World::drawTerrainVector(TerrainPatch* t){
   t->draw(camera->cameraMatrix);
 }
 
-void World::draw(){
+void World::update(){
+	time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
+
+	updateTerrain(camera->getPosition(), camera->getDirection());
 
   addGeneratedTerrain();
   camera->update();
+	
+}
+
+void World::draw(){
+
+	update();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -112,6 +112,11 @@ void World::draw(){
 
   }   
 
+}
+
+
+void World::updateTerrain(vec3 position, vec3 direction){
+	
 }
 
 
