@@ -36,7 +36,8 @@ class TerrainPatch
     float calcHeight(float x,float z,int texWidth);
     Model* geometry;
     ~TerrainPatch();
-    vector<float> heightMap;
+    vector<float> rawHeightMap;
+    vector<float> blendedHeightMap;
     GLuint texture;
     void draw(mat4 cameraMatrix);
     int posX, posY;

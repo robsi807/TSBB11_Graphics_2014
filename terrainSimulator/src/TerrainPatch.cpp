@@ -1,6 +1,6 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int y, GLuint* phongShader, char *imagePath) : heightMap(tex), posX(x), posY(y), patchWidth(width), patchHeight(height){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int y, GLuint* phongShader, char *imagePath) : rawHeightMap(tex), posX(x), posY(y), patchWidth(width), patchHeight(height){ 
   
   shader = phongShader;
   glActiveTexture(GL_TEXTURE0);
@@ -47,15 +47,15 @@ void TerrainPatch::generateGeometry(){
         float x2 = (float)(x+1);
         float z2 = (float)(z+1);
 
-        float y00 = heightMap.at(((int)x0 + (int)z0 * patchWidth)) / hScale;
-        float y01 = heightMap.at(((int)x1 + (int)z0 * patchWidth)) / hScale;
+        float y00 = rawHeightMap.at(((int)x0 + (int)z0 * patchWidth)) / hScale;
+        float y01 = rawHeightMap.at(((int)x1 + (int)z0 * patchWidth)) / hScale;
 
-        float y10 = heightMap.at(((int)x0 + (int)z1 * patchWidth)) / hScale;
-        float y11 = heightMap.at(((int)x1 + (int)z1 * patchWidth)) / hScale;
-        float y12 = heightMap.at(((int)x2 + (int)z1 * patchWidth)) / hScale;
+        float y10 = rawHeightMap.at(((int)x0 + (int)z1 * patchWidth)) / hScale;
+        float y11 = rawHeightMap.at(((int)x1 + (int)z1 * patchWidth)) / hScale;
+        float y12 = rawHeightMap.at(((int)x2 + (int)z1 * patchWidth)) / hScale;
 
-        float y21 = heightMap.at(((int)x1 + (int)z2 * patchWidth)) / hScale;
-        float y22 = heightMap.at(((int)x2 + (int)z2 * patchWidth)) / hScale;
+        float y21 = rawHeightMap.at(((int)x1 + (int)z2 * patchWidth)) / hScale;
+        float y22 = rawHeightMap.at(((int)x2 + (int)z2 * patchWidth)) / hScale;
 
         vec3 p00 = vec3(x0,y00,z0);
         vec3 p01 = vec3(x1,y01,z0);
@@ -83,7 +83,7 @@ void TerrainPatch::generateGeometry(){
       }
 
       vertexArray[(x + z * patchWidth)*3 + 0] = x / 1.0;
-      vertexArray[(x + z * patchWidth)*3 + 1] = heightMap.at((x + z * patchWidth)) / hScale;
+      vertexArray[(x + z * patchWidth)*3 + 1] = rawHeightMap.at((x + z * patchWidth)) / hScale;
       vertexArray[(x + z * patchWidth)*3 + 2] = z / 1.0;
 
       // Normal vectors. You need to calculate these.
