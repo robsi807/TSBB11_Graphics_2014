@@ -56,7 +56,7 @@ vector<float> PerlinPatchGenerator::createPatch(int gridSize, float frequency, i
     gradients = createGradients(gradientPoints);
     //printf("end createGradients\n");	
     int numberOfPixels = gridSize/frequency;
-    //printf("numberOfPixels %d", numberOfPixels);
+    printf("numberOfPixels %d", numberOfPixels);
 	
     vector<float> finalGrid;
 

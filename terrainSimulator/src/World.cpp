@@ -30,7 +30,7 @@ void World::init(){
   int x, y;
   for(y = 0; y < 3; y++){
     for(x = 0; x < 3; x++){
-      generatePatch(x, y, 256);
+      generatePatch(x, y, 512);
     }
   }
 
