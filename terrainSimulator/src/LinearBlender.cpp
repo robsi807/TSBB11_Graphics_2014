@@ -11,10 +11,10 @@ void LinearBlender::blendCorners(TextureData* tex00,
   
 }
 
-void LinearBlender::blendX(TextureData* texLeft,TextureData* texRight){
+void LinearBlender::blendHors(TextureData* texLeft,TextureData* texRight){
 
 }
 
-void LinearBlender::blendY(TextureData* texTop,TextureData* texDown){
+void LinearBlender::blendVert(TextureData* texTop,TextureData* texDown){
 
 }

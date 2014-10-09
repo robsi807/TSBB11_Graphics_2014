@@ -14,8 +14,8 @@ class LinearBlender : public Blender{
 		    TextureData* tex10,
 		    TextureData* tex11);
 
-  void blendX(TextureData* texLeft,TextureData* texRight);
-  void blendY(TextureData* texTop,TextureData* texDown);
+  void blendHors(TextureData* texLeft,TextureData* texRight);
+  void blendVert(TextureData* texTop,TextureData* texDown);
 };
 
 
