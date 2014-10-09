@@ -1,21 +1,19 @@
 #ifndef _BLENDER_
 #define _BLENDER_
 
-#include "../common/LoadTGA.h"
+#include "TerrainPatch.h"
 
 class Blender{
 
- protected:
-  int overlap;
-
  public:
-  virtual void blendCorners(TextureData* tex00,
-			    TextureData* tex01,
-			    TextureData* tex10,
-			    TextureData* tex11) = 0;
+  int overlap;
+  virtual void blendCorners(TerrainPatch* patch00,
+		    TerrainPatch* patch01,
+		    TerrainPatch* patch10,
+		    TerrainPatch* patch11) = 0;
 
-  virtual void blendX(TextureData* texLeft,TextureData* texRight) = 0;
-  virtual void blendY(TextureData* texTop,TextureData* texDown) = 0;
+  virtual void blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast) = 0;
+  virtual void blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth) = 0;
 };
 
 #endif

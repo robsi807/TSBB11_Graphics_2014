@@ -16,6 +16,7 @@ void World::init(){
   
   camera = new Camera(vec3(24,20,24), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/sky%d.tga");
+  blender = new LinearBlender(PATCH_OVERLAP);
 
   // Init light
   glUseProgram(phongShader);

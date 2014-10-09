@@ -19,12 +19,15 @@
 #include "PerlinPatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
+#include "LinearBlender.h"
 
 #include <vector>
 #include <algorithm>
 
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
+
+#define PATCH_OVERLAP 16
 
 class World
 {
@@ -39,6 +42,7 @@ class World
     Camera* camera;
     Skybox* skybox;
     PatchGenerator* patchGenerator;
+    Blender* blender;
     std::vector<TerrainPatch*> terrainVector;
 
     World();
