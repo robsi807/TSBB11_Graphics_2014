@@ -36,12 +36,6 @@ void LinearBlender::initCornerWeight(){
       interpX = interpolateValues(0,1,diffX);
         
       cornerWeight.at(3).at(overlap*i + j) = interpolateValues(0,interpX,diffY);
-      
-      cout << "i=" << i << ", j=" << j << endl 
-	   << "w0: " << cornerWeight.at(0).at(overlap*i + j) << endl 
-	   << "w1: " << cornerWeight.at(1).at(overlap*i + j) << endl 
-	   << "w2: " << cornerWeight.at(2).at(overlap*i + j) << endl 
-	   << "w3: " << cornerWeight.at(3).at(overlap*i + j) << endl;
     }
   }
 }

@@ -67,9 +67,6 @@ void World::generatePatch(int patchX, int patchY, int patchSize){
 
     TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*(patchSize-PATCH_OVERLAP) , patchY*(patchSize-PATCH_OVERLAP),PATCH_OVERLAP, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
 
-  cout << "Init mem: " << &terrainPatch->blendedHeightMap << endl;
-  cout << "Init mem 2: " << &heightMapPatch << endl;
-
   terrainVector.push_back(terrainPatch);
 }
 
