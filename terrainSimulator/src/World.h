@@ -27,7 +27,7 @@
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
 
-#define PATCH_OVERLAP 16
+#define PATCH_OVERLAP 32
 
 class World
 {
@@ -35,6 +35,7 @@ class World
     long worldSeed;
     void init();
     void drawTerrainVector(TerrainPatch* t);
+    int patchOverlap;
 
   public:
     GLuint phongShader;
@@ -42,7 +43,7 @@ class World
     Camera* camera;
     Skybox* skybox;
     PatchGenerator* patchGenerator;
-    Blender* blender;
+    LinearBlender* blender;
     std::vector<TerrainPatch*> terrainVector;
 
     World();

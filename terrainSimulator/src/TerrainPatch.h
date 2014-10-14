@@ -27,11 +27,12 @@ class TerrainPatch
   private:
     int posX, posY;
     int patchWidth, patchHeight;
-    void generateGeometry();
+    int patchOverlap; 
     GLuint* shader;
 
   public:
-    TerrainPatch(vector<float> tex,int width, int height, int x, int y, GLuint* phongShader, char *imagePath);
+    void generateGeometry();
+    TerrainPatch(vector<float> initHeightMap,int width, int height, int x, int y, int overlap, GLuint* phongShader, char *imagePath);
     vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
     float calcHeight(float x,float z,int texWidth);
     Model* geometry;
@@ -40,6 +41,7 @@ class TerrainPatch
     vector<float> blendedHeightMap;
     GLuint texture;
     void draw(mat4 cameraMatrix);
+    int getPatchWidth();
 };
 
 

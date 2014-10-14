@@ -1,6 +1,6 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int y, GLuint* phongShader, char *imagePath) : rawHeightMap(tex), posX(x), posY(y), patchWidth(width), patchHeight(height){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int y, int overlap, GLuint* phongShader, char *imagePath) : rawHeightMap(tex), blendedHeightMap(tex), posX(x), posY(y), patchWidth(width), patchHeight(height), patchOverlap(overlap){ 
   
   shader = phongShader;
   glActiveTexture(GL_TEXTURE0);
@@ -8,7 +8,7 @@ TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int 
   //LoadTGATextureSimple(imagePath, &texture);
 
   glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
-  generateGeometry();
+  //generateGeometry();
 }
 
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
@@ -20,9 +20,14 @@ vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
 }
 
 
-  void TerrainPatch::generateGeometry(){
-  int vertexCount = patchWidth * patchHeight;
-  int triangleCount = (patchWidth-1) * (patchHeight-1) * 2;
+void TerrainPatch::generateGeometry(){
+  
+  int blendedWidth = patchWidth-patchOverlap+1;
+  int blendedHeight = patchHeight-patchOverlap+1;
+  int offset = patchOverlap/2;
+
+  int vertexCount = blendedWidth * blendedHeight;
+  int triangleCount = (blendedWidth-1) * (blendedHeight-1) * 2;
   int x, z;
 
   GLfloat vertexArray[3 * vertexCount];
@@ -32,90 +37,90 @@ vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
 
   float hScale = 0.005;
 
-  for (x = 0; x < patchWidth; x++)
-    for (z = 0; z < patchHeight; z++)
-    {
-      vec3 n = vec3(0.0,1.0,0.0);
-      if(!((x==0)||(x==patchWidth - 1)||(z == 0)||(z==patchHeight - 1)))
+  for (x = 0; x < blendedWidth; x++)
+    for (z = 0; z < blendedHeight; z++)
       {
-        float x0 = (float)(x-1);
-        float z0 = (float)(z-1);
+	vec3 n = vec3(0.0,1.0,0.0);
+	//if(!((x==0)||(x==patchWidth - 1)||(z == 0)||(z==patchHeight - 1)))
+	//  {
+	    int x0 = (x+offset-1);
+	    int z0 = (z+offset-1);
 
-        float x1 = (float)x;
-        float z1 = (float)z;
+	    int x1 = x+offset;
+	    int z1 = z+offset;
 
-        float x2 = (float)(x+1);
-        float z2 = (float)(z+1);
+	    int x2 = (x+offset+1);
+	    int z2 = (z+offset+1);
 
-        float y00 = rawHeightMap.at(((int)x0 + (int)z0 * patchWidth)) / hScale;
-        float y01 = rawHeightMap.at(((int)x1 + (int)z0 * patchWidth)) / hScale;
+	    float y00 = blendedHeightMap.at((x0 + z0 * patchWidth)) / hScale;
+	    float y01 = blendedHeightMap.at((x1 + z0 * patchWidth)) / hScale;
 
-        float y10 = rawHeightMap.at(((int)x0 + (int)z1 * patchWidth)) / hScale;
-        float y11 = rawHeightMap.at(((int)x1 + (int)z1 * patchWidth)) / hScale;
-        float y12 = rawHeightMap.at(((int)x2 + (int)z1 * patchWidth)) / hScale;
+	    float y10 = blendedHeightMap.at((x0 + z1 * patchWidth)) / hScale;
+	    float y11 = blendedHeightMap.at((x1 + z1 * patchWidth)) / hScale;
+	    float y12 = blendedHeightMap.at((x2 + z1 * patchWidth)) / hScale;
 
-        float y21 = rawHeightMap.at(((int)x1 + (int)z2 * patchWidth)) / hScale;
-        float y22 = rawHeightMap.at(((int)x2 + (int)z2 * patchWidth)) / hScale;
+	    float y21 = blendedHeightMap.at((x1 + z2 * patchWidth)) / hScale;
+	    float y22 = blendedHeightMap.at((x2 + z2 * patchWidth)) / hScale;
 
-        vec3 p00 = vec3(x0,y00,z0);
-        vec3 p01 = vec3(x1,y01,z0);
+	    vec3 p00 = vec3(x0,y00,z0);
+	    vec3 p01 = vec3(x1,y01,z0);
 
-        vec3 p10 = vec3(x0,y10,z1);
-        vec3 p11 = vec3(x1,y11,z1);
-        vec3 p12 = vec3(x2,y12,z1);
+	    vec3 p10 = vec3(x0,y10,z1);
+	    vec3 p11 = vec3(x1,y11,z1);
+	    vec3 p12 = vec3(x2,y12,z1);
 
-        vec3 p21 = vec3(x1,y21,z2);
-        vec3 p22 = vec3(x2,y22,z2);
+	    vec3 p21 = vec3(x1,y21,z2);
+	    vec3 p22 = vec3(x2,y22,z2);
 
-        vec3 n0 = calcNormal(p11,p10,p00);
-        vec3 n1 = calcNormal(p11,p00,p01);
-        vec3 n2 = calcNormal(p11,p01,p12);
-        vec3 n3 = calcNormal(p11,p12,p22);
-        vec3 n4 = calcNormal(p11,p21,p22);
-        vec3 n5 = calcNormal(p11,p10,p21);
+	    vec3 n0 = calcNormal(p11,p10,p00);
+	    vec3 n1 = calcNormal(p11,p00,p01);
+	    vec3 n2 = calcNormal(p11,p01,p12);
+	    vec3 n3 = calcNormal(p11,p12,p22);
+	    vec3 n4 = calcNormal(p11,p21,p22);
+	    vec3 n5 = calcNormal(p11,p10,p21);
 
-        n = VectorAdd(n0,n1);
-        n = VectorAdd(n,n2);
-        n = VectorAdd(n,n3);
-        n = VectorAdd(n,n4);
-        n = VectorAdd(n,n5);
-        n = Normalize(n);
+	    n = VectorAdd(n0,n1);
+	    n = VectorAdd(n,n2);
+	    n = VectorAdd(n,n3);
+	    n = VectorAdd(n,n4);
+	    n = VectorAdd(n,n5);
+	    n = Normalize(n);
+	    // }
+
+	vertexArray[(x + z * blendedWidth)*3 + 0] = x1 / 1.0;
+	vertexArray[(x + z * blendedWidth)*3 + 1] = blendedHeightMap.at((x1 + z1 * patchWidth)) / hScale;
+	vertexArray[(x + z * blendedWidth)*3 + 2] = z1 / 1.0;
+
+	// Normal vectors. You need to calculate these.
+	normalArray[(x + z * blendedWidth)*3 + 0] = n.x; //(y1-y0)*(z2-z0)-(y2-y0)*(z1-z0); //0.0;
+	normalArray[(x + z * blendedWidth)*3 + 1] = n.y; //(z1-z0)*(x2-x0)-(z2-z0)*(x1-x0); //1.0;
+	normalArray[(x + z * blendedWidth)*3 + 2] = n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
+
+	// Texture coordinates. You may want to scale them.
+	texCoordArray[(x + z * blendedWidth)*2 + 0] = x1; // (float)x / patchWidth;
+	texCoordArray[(x + z * blendedWidth)*2 + 1] = z1; // (float)z / patchHeight;
+      }
+  for (x = 0; x < blendedWidth-1; x++)
+    for (z = 0; z < blendedHeight-1; z++)
+      {
+	// Triangle 1
+	indexArray[(x + z * (blendedWidth-1))*6 + 0] = x + z * blendedWidth;
+	indexArray[(x + z * (blendedWidth-1))*6 + 1] = x + (z+1) * blendedWidth;
+	indexArray[(x + z * (blendedWidth-1))*6 + 2] = x+1 + z * blendedWidth;
+	// Triangle 2
+	indexArray[(x + z * (blendedWidth-1))*6 + 3] = x+1 + z * blendedWidth;
+	indexArray[(x + z * (blendedWidth-1))*6 + 4] = x + (z+1) * blendedWidth;
+	indexArray[(x + z * (blendedWidth-1))*6 + 5] = x+1 + (z+1) * blendedWidth;
       }
 
-      vertexArray[(x + z * patchWidth)*3 + 0] = x / 1.0;
-      vertexArray[(x + z * patchWidth)*3 + 1] = rawHeightMap.at((x + z * patchWidth)) / hScale;
-      vertexArray[(x + z * patchWidth)*3 + 2] = z / 1.0;
-
-      // Normal vectors. You need to calculate these.
-      normalArray[(x + z * patchWidth)*3 + 0] = n.x; //(y1-y0)*(z2-z0)-(y2-y0)*(z1-z0); //0.0;
-      normalArray[(x + z * patchWidth)*3 + 1] = n.y; //(z1-z0)*(x2-x0)-(z2-z0)*(x1-x0); //1.0;
-      normalArray[(x + z * patchWidth)*3 + 2] =n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
-
-      // Texture coordinates. You may want to scale them.
-      texCoordArray[(x + z * patchWidth)*2 + 0] = x; // (float)x / patchWidth;
-      texCoordArray[(x + z * patchWidth)*2 + 1] = z; // (float)z / patchHeight;
-    }
-  for (x = 0; x < patchWidth-1; x++)
-    for (z = 0; z < patchHeight-1; z++)
-    {
-      // Triangle 1
-      indexArray[(x + z * (patchWidth-1))*6 + 0] = x + z * patchWidth;
-      indexArray[(x + z * (patchWidth-1))*6 + 1] = x + (z+1) * patchWidth;
-      indexArray[(x + z * (patchWidth-1))*6 + 2] = x+1 + z * patchWidth;
-      // Triangle 2
-      indexArray[(x + z * (patchWidth-1))*6 + 3] = x+1 + z * patchWidth;
-      indexArray[(x + z * (patchWidth-1))*6 + 4] = x + (z+1) * patchWidth;
-      indexArray[(x + z * (patchWidth-1))*6 + 5] = x+1 + (z+1) * patchWidth;
-    }
-
   geometry = LoadDataToModel(
-      vertexArray,
-      normalArray,
-      texCoordArray,
-      NULL,
-      indexArray,
-      vertexCount,
-      triangleCount*3);
+			     vertexArray,
+			     normalArray,
+			     texCoordArray,
+			     NULL,
+			     indexArray,
+			     vertexCount,
+			     triangleCount*3);
 
 }
 
@@ -138,20 +143,20 @@ float TerrainPatch::calcHeight(float x,float z,int texWidth)
   y11 = geometry->vertexArray[(x1 + z1 * texWidth)*3 + 1];
 
   if(dx0 > dz0)
-  {
-    // Upper triangle
-    float dyx = y01 - y00;
-    float dyz = y11 - y01;
-    yTot = y00 + dyx*dx0 + dyz*dz0*dx0;
-    //float tempYz = y01 + dyz*dz0;
-  }
+    {
+      // Upper triangle
+      float dyx = y01 - y00;
+      float dyz = y11 - y01;
+      yTot = y00 + dyx*dx0 + dyz*dz0*dx0;
+      //float tempYz = y01 + dyz*dz0;
+    }
   else
-  {
-    // Lower triangle
-    float dyx = y11 - y10;
-    float dyz = y10 - y00;
-    yTot = y10 + dyx*dx0 + dyz*(1.0-dz0)*dx0;
-  }
+    {
+      // Lower triangle
+      float dyx = y11 - y10;
+      float dyz = y10 - y00;
+      yTot = y10 + dyx*dx0 + dyz*(1.0-dz0)*dx0;
+    }
   return yTot;
 }
 
@@ -169,4 +174,8 @@ void TerrainPatch::draw(mat4 cameraMatrix){
   //glBindTexture(GL_TEXTURE_2D, texture);	
   DrawModel(geometry, *shader, "inPosition", "inNormal", "inTexCoord"); 
 
+}
+
+int TerrainPatch::getPatchWidth(){
+  return patchWidth;
 }

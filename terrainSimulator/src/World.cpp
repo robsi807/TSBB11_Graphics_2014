@@ -5,18 +5,18 @@ World::World(){
 }
 
 void World::init(){
+  patchOverlap = PATCH_OVERLAP;
 
   // Load shaders
   phongShader = loadShaders("phong.vert", "phong.frag");
   skyboxShader = loadShaders("skybox.vert", "skybox.frag");
 
   // Init objects
-  
   patchGenerator = new PerlinPatchGenerator();
   
   camera = new Camera(vec3(24,20,24), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/sky%d.tga");
-  blender = new LinearBlender(PATCH_OVERLAP);
+  blender = new LinearBlender(patchOverlap);
 
   // Init light
   glUseProgram(phongShader);
@@ -28,14 +28,34 @@ void World::init(){
   
   glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
 
+  // Initiate height maps
   int x, y;
-  for(y = 0; y < 3; y++){
-    for(x = 0; x < 3; x++){
+  for(y = 0; y < 2; y++){
+    for(x = 0; x < 2; x++){
       printf("Adding patch @ %i, %i\n", x, y);
       generatePatch(x, y, 256);
     }
   }
 
+  // Blend height maps
+  // Such hard code, very re-do prez. 
+  TerrainPatch *p00,*p01,*p10,*p11;
+  p00 = terrainVector.at(0*2 + 0);
+  p01 = terrainVector.at(0*2 + 1);
+  p10 = terrainVector.at(1*2 + 0);
+  p11 = terrainVector.at(1*2 + 1);
+  blender->blendCorners(p00,p01,p10,p11);
+  blender->blendHors(p00,p01);
+  blender->blendHors(p10,p11);
+  blender->blendVert(p00,p10);
+  blender->blendVert(p01,p11);
+
+  // Generate geometry
+  for(y = 0; y < 2; y++){
+    for(x = 0; x < 2; x++){
+      terrainVector.at(y*2 + x)->generateGeometry();
+    }
+  }
 }
 
 
@@ -45,7 +65,10 @@ void World::generatePatch(int patchX, int patchY, int patchSize){
     
     //patchGenerator->printMatrix(heightMapPatch, patchSize);
 
-  TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
+    TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*(patchSize-PATCH_OVERLAP) , patchY*(patchSize-PATCH_OVERLAP),PATCH_OVERLAP, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
+
+  cout << "Init mem: " << &terrainPatch->blendedHeightMap << endl;
+  cout << "Init mem 2: " << &heightMapPatch << endl;
 
   terrainVector.push_back(terrainPatch);
 }
