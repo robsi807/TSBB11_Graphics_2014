@@ -23,8 +23,8 @@ using namespace std;
 class PerlinPatchGenerator : public PatchGenerator{
 
   private:
-
-	int INT_MAX;
+  //int INT_MAX;
+  //int intMax = INT_MAX;
 
 	
 	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize);

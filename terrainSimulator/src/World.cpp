@@ -35,13 +35,16 @@ World::World(){
 
 void World::generatePatch(int patchX, int patchY, int patchSize){
 
-  printf("before generatePatch");
+  //printf("before generatePatch\n");
   vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
-  printf("after generatePatch, before terrainPatch");
+  //printf("after generatePatch, before terrainPatch\n");
+
+  //terrainPatch = (TerrainPatch*)malloc(sizeof(TerrainPatch));
+  //memset(terrainPatch, 0, sizeof(TerrainPatch));
 
   TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
   terrainVector.push_back(terrainPatch);
-  printf("after terrainPatch");
+  //printf("after terrainPatch\n");
 
 }
 
@@ -77,6 +80,7 @@ void World::updateTerrain(vec3 position, vec3 direction){
 World::~World(){
   delete camera;
   delete skybox;
+  delete blender;
   terrainVector.clear();
   delete patchGenerator;
 }
