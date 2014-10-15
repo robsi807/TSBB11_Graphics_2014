@@ -34,13 +34,6 @@ main: $(OFILES)
 
 %.o: %.cpp
 	$(CXX) -c $(CCFILES) $(CCFLAGS) $<
-#skybox.o: skybox.cpp
-	#$(CXX) -c skybox.cpp $(CCFLAGS)
-#Camera.o: Camera.cpp
-	#$(CXX) -c Camera.cpp $(CCFLAGS)
-#TerrainPatch.o: TerrainPatch.cpp
-	#$(CXX) -c TerrainPatch.cpp $(CCFLAGS)
-
 
 clean:
 	@ \rm -f *.o *.gch ../common/*.o ../common/mac/*.o ../common/linux/*.o main
