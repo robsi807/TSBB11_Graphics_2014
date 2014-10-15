@@ -16,22 +16,28 @@
 
 #include "Camera.h"
 #include "PatchGenerator.h"
-#include "MockupPatchGenerator.h"
+#include "PerlinPatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
+#include "LinearBlender.h"
 
 #include <vector>
 #include <algorithm>
+#include <thread>
+#include <iostream>
+#include <time.h>
 
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
+
+#define PATCH_OVERLAP 16
 
 class World
 {
   private:
     long worldSeed;
-    void init();
-    void drawTerrainVector(TerrainPatch* t);
+
+		GLfloat time;
 
   public:
     GLuint phongShader;
@@ -39,12 +45,17 @@ class World
     Camera* camera;
     Skybox* skybox;
     PatchGenerator* patchGenerator;
+    Blender* blender;
     std::vector<TerrainPatch*> terrainVector;
+    std::vector<TerrainPatch*> generatedTerrain;
 
     World();
     ~World();
     void draw();
-    void generatePatch(int patchX, int patchY, float patchSize);
+    void generatePatch(int patchX, int patchY, int patchSize);
+    void addGeneratedTerrain();
+    void update();
+		void updateTerrain(vec3 position, vec3 direction);
 
 };
 

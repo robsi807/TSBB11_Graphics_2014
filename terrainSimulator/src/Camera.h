@@ -50,6 +50,8 @@ class Camera
   void handleKeyPress();
   void handleMouse(int x, int y);
   void update();
+	vec3 getDirection();
+	vec3 getPosition();
 };
 
 #endif

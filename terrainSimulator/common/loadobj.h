@@ -64,13 +64,10 @@ Model* LoadDataToModel(
 			GLuint program,
 			char* vertexVariableName,
 			char* normalVariableName,
-			char* texCoordVariableName);
-void BuildModelVAO(Model *m,
-			GLuint program,
-			char* vertexVariableName,
-			char* normalVariableName,
-			char* texCoordVariableName);
-*/
+			char* texCoordVariableName);*/
+
+void BuildModelVAO2(Model *m);
+
 
 void CenterModel(Model *m);
 void ScaleModel(Model *m, float sx, float sy, float sz);
