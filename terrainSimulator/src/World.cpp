@@ -15,7 +15,7 @@ void World::init(){
   patchGenerator = new MockupPatchGenerator("../textures/fft-terrain.tga");
   
   camera = new Camera(vec3(24,20,24), 1, 7);
-  skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/sky%d.tga");
+  skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
 
   // Init light
   glUseProgram(phongShader);
