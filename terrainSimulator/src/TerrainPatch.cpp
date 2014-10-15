@@ -25,10 +25,14 @@ void TerrainPatch::generateGeometry(){
   int triangleCount = (patchWidth-1) * (patchHeight-1) * 2;
   int x, z;
 
-  GLfloat vertexArray[3 * vertexCount];
-  GLfloat normalArray[3 * vertexCount];
-  GLfloat texCoordArray[ 2 * vertexCount];
-  GLuint indexArray[3 * triangleCount];
+  GLfloat *vertexArray = (GLfloat *)malloc(sizeof(GLfloat) * 3 * vertexCount);
+  GLfloat *normalArray = (GLfloat *)malloc(sizeof(GLfloat) * 3 * vertexCount);
+  GLfloat *texCoordArray = (GLfloat *)malloc(sizeof(GLfloat) * 2 * vertexCount);
+  GLuint *indexArray = (GLuint *)malloc(sizeof(GLuint) * triangleCount*3);
+  // GLfloat vertexArray[3 * vertexCount];
+  // GLfloat normalArray[3 * vertexCount];
+  // GLfloat texCoordArray[ 2 * vertexCount];
+  // GLuint indexArray[3 * triangleCount];
 
   float hScale = 0.005;
 

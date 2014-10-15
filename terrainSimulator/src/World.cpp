@@ -27,7 +27,7 @@ World::World(){
 
   for(int y = 0; y < 3; y++){
     for(int x = 0; x < 3; x++){
-      generatePatch(x, y, 256);
+      generatePatch(x, y, 512);
     }
   }
 
