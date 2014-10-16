@@ -40,6 +40,7 @@ class World
   public:
     GLuint phongShader;
     GLuint skyboxShader;
+    GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
     PatchGenerator* patchGenerator;

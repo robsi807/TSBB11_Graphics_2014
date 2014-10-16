@@ -1,13 +1,14 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int y, int overlap, GLuint* phongShader, char *imagePath) : rawHeightMap(tex), blendedHeightMap(tex), posX(x), posY(y), patchWidth(width), patchHeight(height), patchOverlap(overlap){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture) : rawHeightMap(tex), blendedHeightMap(tex), posX(x), posY(y), patchWidth(width), patchHeight(height), patchOverlap(overlap){ 
   
   shader = phongShader;
-  glActiveTexture(GL_TEXTURE0);
+  texture = terrainTexture;
+  //glActiveTexture(GL_TEXTURE0);
   
   //LoadTGATextureSimple(imagePath, &texture);
 
-  glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
+  //glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
   //generateGeometry();
 }
 
@@ -35,57 +36,55 @@ void TerrainPatch::generateGeometry(){
   GLfloat texCoordArray[ 2 * vertexCount];
   GLuint indexArray[3 * triangleCount];
 
-  float hScale = 0.005;
+  float hScale = 0.0025;
 
   for (x = 0; x < blendedWidth; x++)
     for (z = 0; z < blendedHeight; z++)
       {
-	vec3 n = vec3(0.0,1.0,0.0);
-	//if(!((x==0)||(x==patchWidth - 1)||(z == 0)||(z==patchHeight - 1)))
-	//  {
-	    int x0 = (x+offset-1);
-	    int z0 = (z+offset-1);
+	vec3 n = vec3(0.0,0.0,0.0);
 
-	    int x1 = x+offset;
-	    int z1 = z+offset;
+	int x0 = (x+offset-1);
+	int z0 = (z+offset-1);
 
-	    int x2 = (x+offset+1);
-	    int z2 = (z+offset+1);
+	int x1 = x+offset;
+	int z1 = z+offset;
 
-	    float y00 = blendedHeightMap.at((x0 + z0 * patchWidth)) / hScale;
-	    float y01 = blendedHeightMap.at((x1 + z0 * patchWidth)) / hScale;
+	int x2 = (x+offset+1);
+	int z2 = (z+offset+1);
 
-	    float y10 = blendedHeightMap.at((x0 + z1 * patchWidth)) / hScale;
-	    float y11 = blendedHeightMap.at((x1 + z1 * patchWidth)) / hScale;
-	    float y12 = blendedHeightMap.at((x2 + z1 * patchWidth)) / hScale;
+	float y00 = blendedHeightMap.at((x0 + z0 * patchWidth)) / hScale;
+	float y01 = blendedHeightMap.at((x1 + z0 * patchWidth)) / hScale;
 
-	    float y21 = blendedHeightMap.at((x1 + z2 * patchWidth)) / hScale;
-	    float y22 = blendedHeightMap.at((x2 + z2 * patchWidth)) / hScale;
+	float y10 = blendedHeightMap.at((x0 + z1 * patchWidth)) / hScale;
+	float y11 = blendedHeightMap.at((x1 + z1 * patchWidth)) / hScale;
+	float y12 = blendedHeightMap.at((x2 + z1 * patchWidth)) / hScale;
 
-	    vec3 p00 = vec3(x0,y00,z0);
-	    vec3 p01 = vec3(x1,y01,z0);
+	float y21 = blendedHeightMap.at((x1 + z2 * patchWidth)) / hScale;
+	float y22 = blendedHeightMap.at((x2 + z2 * patchWidth)) / hScale;
 
-	    vec3 p10 = vec3(x0,y10,z1);
-	    vec3 p11 = vec3(x1,y11,z1);
-	    vec3 p12 = vec3(x2,y12,z1);
+	vec3 p00 = vec3(x0,y00,z0);
+	vec3 p01 = vec3(x1,y01,z0);
 
-	    vec3 p21 = vec3(x1,y21,z2);
-	    vec3 p22 = vec3(x2,y22,z2);
+	vec3 p10 = vec3(x0,y10,z1);
+	vec3 p11 = vec3(x1,y11,z1);
+	vec3 p12 = vec3(x2,y12,z1);
 
-	    vec3 n0 = calcNormal(p11,p10,p00);
-	    vec3 n1 = calcNormal(p11,p00,p01);
-	    vec3 n2 = calcNormal(p11,p01,p12);
-	    vec3 n3 = calcNormal(p11,p12,p22);
-	    vec3 n4 = calcNormal(p11,p21,p22);
-	    vec3 n5 = calcNormal(p11,p10,p21);
+	vec3 p21 = vec3(x1,y21,z2);
+	vec3 p22 = vec3(x2,y22,z2);
 
-	    n = VectorAdd(n0,n1);
-	    n = VectorAdd(n,n2);
-	    n = VectorAdd(n,n3);
-	    n = VectorAdd(n,n4);
-	    n = VectorAdd(n,n5);
-	    n = Normalize(n);
-	    // }
+	vec3 n0 = calcNormal(p11,p10,p00);
+	vec3 n1 = calcNormal(p11,p00,p01);
+	vec3 n2 = calcNormal(p11,p01,p12);
+	vec3 n3 = calcNormal(p11,p12,p22);
+	vec3 n4 = calcNormal(p11,p21,p22);
+	vec3 n5 = calcNormal(p11,p10,p21);
+
+	n = VectorAdd(n0,n1);
+	n = VectorAdd(n,n2);
+	n = VectorAdd(n,n3);
+	n = VectorAdd(n,n4);
+	n = VectorAdd(n,n5);
+	n = Normalize(n);
 
 	vertexArray[(x + z * blendedWidth)*3 + 0] = x1 / 1.0;
 	vertexArray[(x + z * blendedWidth)*3 + 1] = blendedHeightMap.at((x1 + z1 * patchWidth)) / hScale;
@@ -171,7 +170,7 @@ void TerrainPatch::draw(mat4 cameraMatrix){
   glUseProgram(*shader);
   glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
   glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
-  //glBindTexture(GL_TEXTURE_2D, texture);	
+  // glBindTexture(GL_TEXTURE_2D, *texture);	
   DrawModel(geometry, *shader, "inPosition", "inNormal", "inTexCoord"); 
 
 }

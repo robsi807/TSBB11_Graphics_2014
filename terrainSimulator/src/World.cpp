@@ -11,6 +11,11 @@ void World::init(){
   phongShader = loadShaders("phong.vert", "phong.frag");
   skyboxShader = loadShaders("skybox.vert", "skybox.frag");
 
+  // Init terrain textures
+  // LoadTGATextureSimple("../textures/grass.tga", &terrainTexture);
+  //glActiveTexture(GL_TEXTURE0);
+  //glUniform1i(glGetUniformLocation(phongShader, "tex"), 0);
+
   // Init objects
   patchGenerator = new PerlinPatchGenerator();
   
@@ -65,7 +70,7 @@ void World::generatePatch(int patchX, int patchY, int patchSize){
     
     //patchGenerator->printMatrix(heightMapPatch, patchSize);
 
-    TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*(patchSize-PATCH_OVERLAP) , patchY*(patchSize-PATCH_OVERLAP),PATCH_OVERLAP, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
+    TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*(patchSize-PATCH_OVERLAP) , patchY*(patchSize-PATCH_OVERLAP),PATCH_OVERLAP, &phongShader, &terrainTexture); // TODO: dont load the texture for each patch
 
   terrainVector.push_back(terrainPatch);
 }
