@@ -30,21 +30,25 @@
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
 
-#define PATCH_OVERLAP 16
+#define PATCH_OVERLAP 32
 
 class World
 {
   private:
     long worldSeed;
     GLfloat time;
+    void init();
+    void drawTerrainVector(TerrainPatch* t);
+    int patchOverlap;
 
   public:
     GLuint phongShader;
     GLuint skyboxShader;
+    GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
     PatchGenerator* patchGenerator;
-    Blender* blender;
+    LinearBlender* blender;
     std::vector<TerrainPatch*> terrainVector;
     std::vector<TerrainPatch*> generatedTerrain;
 

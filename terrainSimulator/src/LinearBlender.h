@@ -4,6 +4,7 @@
 #include "../common/LoadTGA.h"
 #include "Blender.h"
 #include "TerrainPatch.h"
+#include <iostream>
 
 class LinearBlender : public Blender{
  private:
