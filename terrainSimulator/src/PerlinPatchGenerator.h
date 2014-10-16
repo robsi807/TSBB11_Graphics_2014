@@ -17,16 +17,13 @@
 #include "PatchGenerator.h"
 #include <cmath>
 #include <vector>
-#include <limits>
+#include <climits>
 using namespace std;
 
 class PerlinPatchGenerator : public PatchGenerator{
 
   private:
-  //int INT_MAX;
-  //int intMax = INT_MAX;
 
-	
 	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize);
 	float interpolateValues(float a, float b, float x);
 	vector<float> createGradients(int gradientPoints);

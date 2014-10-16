@@ -1,9 +1,6 @@
 #include "PerlinPatchGenerator.h"
 
 PerlinPatchGenerator::PerlinPatchGenerator(){
-
-  //int INT_MAX = std::numeric_limits<unsigned int>::max();
-
   
 }
 
