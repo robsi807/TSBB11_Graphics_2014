@@ -11,7 +11,7 @@ void World::init(){
   patchOverlap = PATCH_OVERLAP;
 
   // Load shaders
-  phongShader = loadShaders("phong.vert", "phong.frag");
+  phongShader = loadShaders("terrain.vert", "terrain.frag");
   skyboxShader = loadShaders("skybox.vert", "skybox.frag");
 
   // Init terrain textures
@@ -40,7 +40,7 @@ void World::init(){
   for(int y = 0; y < 2; y++){
     for(int x = 0; x < 2; x++){
       printf("Adding patch @ %i, %i\n", x, y);
-      generatePatch(x, y, 256);
+      generatePatch(x, y, 1024);
     }
   }
 

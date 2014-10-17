@@ -18,6 +18,7 @@
 #include <cmath>
 #include <vector>
 #include <climits>
+#include <iostream>
 using namespace std;
 
 class PerlinPatchGenerator : public PatchGenerator{
