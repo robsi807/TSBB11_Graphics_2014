@@ -3,13 +3,13 @@
 
 Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
 {
-  vec3 r = vec3(-0.5,0,-0.5);
+  vec3 r = vec3(0.5,0,0.5);
   position = pos;
   lookAtPoint = VectorAdd(position,r);
   upVector = vec3(0,1,0);
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector);
-  velocity = 0.5;
+  velocity = 1.5;
 
   projectionNear = 0.8;
   projectionFar = 1024.0;

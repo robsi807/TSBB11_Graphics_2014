@@ -42,13 +42,12 @@ class World
     int patchOverlap;
 
   public:
-    GLuint phongShader;
-    GLuint skyboxShader;
+    GLuint phongShader,skyboxShader,terrainShader;
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
     PatchGenerator* patchGenerator;
-    LinearBlender* blender;
+    Blender* blender;
     std::vector<TerrainPatch*> terrainVector;
     std::vector<TerrainPatch*> generatedTerrain;
 

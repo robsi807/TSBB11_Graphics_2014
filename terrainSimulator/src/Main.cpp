@@ -9,9 +9,9 @@
 #include "../common/linux/MicroGlut.h"
 #endif
 
-#include "../common/GL_utilities.h"
-#include "../common/VectorUtils3.h"
-#include "../common/LoadTGA.h"
+#include "GL_utilities.h"
+#include "VectorUtils3.h"
+#include "LoadTGA.h"
 
 #include "World.h"
 #include "Camera.h"

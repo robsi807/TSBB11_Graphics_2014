@@ -21,9 +21,9 @@
 	#include "../common/linux/MicroGlut.h"
 #endif
 
-#include "../common/VectorUtils3.h"
-#include "../common/loadobj.h"
-#include "../common/LoadTGA.h"
+#include "VectorUtils3.h"
+#include "loadobj.h"
+#include "LoadTGA.h"
 
 //#include <cmath>
 #include <stdio.h> // Inkluderas i LoadTGA.h men kan vara bra att ha ändå (?)

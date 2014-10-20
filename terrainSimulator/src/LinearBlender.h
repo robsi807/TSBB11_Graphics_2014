@@ -1,7 +1,7 @@
 #ifndef _LINEAR_BLENDER_
 #define _LINEAR_BLENDER_
 
-#include "../common/LoadTGA.h"
+#include "LoadTGA.h"
 #include "Blender.h"
 #include "TerrainPatch.h"
 #include <iostream>

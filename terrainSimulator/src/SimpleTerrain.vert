@@ -12,9 +12,7 @@ out vec2 texCoord;
 out vec3 exNormal;
 out vec3 exPosition;
 out vec3 surf;
-out vec3 terrainNormal;
-out vec3 terrainPosition;
-out vec3 cameraPos;
+out float cameraDist;
 
 // NY
 uniform mat4 projMatrix;
@@ -26,18 +24,14 @@ void main(void)
 	mat3 normalMatrix = mat3(world2View * mdl2World);
 	exNormal = normalMatrix*inNormal;
 	texCoord = inTexCoord;
-	// Displacement
-	gl_Position = projMatrix * world2View * mdl2World * vec4(inPosition, 1.0);
+	vec4 worldPosition =  mdl2World * vec4(inPosition, 1.0);
+	gl_Position = projMatrix * world2View * worldPosition;
 	surf = normalize(vec3(world2View * mdl2World * vec4(inPosition, 1.0)));
 	exPosition = vec3(world2View * mdl2World * vec4(inPosition, 1.0));
-
-	//Pass on model coordinates for use in fragment
-	// And also camera position.
-	terrainPosition = vec3(mdl2World*vec4(inPosition,1.0));
-	terrainNormal = inNormal;
 
 	// TODO: Better to upload as uniform once ??
 	mat4 viewModel = inverse(world2View);
   	vec4 homogCameraPos = viewModel[3];
-	cameraPos = homogCameraPos.xyz/homogCameraPos.w;
+	vec3 cameraPos = homogCameraPos.xyz/homogCameraPos.w;
+	cameraDist = length(cameraPos - vec3(worldPosition));
 }

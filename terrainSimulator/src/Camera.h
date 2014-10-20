@@ -14,8 +14,8 @@
 	#include "../common/linux/MicroGlut.h"
 #endif
 
-#include "../common/VectorUtils3.h"
-#include "../common/GL_utilities.h"
+#include "VectorUtils3.h"
+#include "GL_utilities.h"
 
 #include <cmath>
 #include <iostream>

@@ -34,7 +34,7 @@ void main(void)
 		specularStrength = pow(specularStrength, specularExponent);
 	}
 
-	shade = (0.7*diffuseShade + 0.4*specularStrength);
+	shade = (0.7*diffuseShade + 0.4*specularStrength) + 0.00001*texCoord.s;
 
 	outColor = clamp(vec4(shade), 0,1);
 	//outColor = clamp(shade*texture(tex, texCoord),0,1);

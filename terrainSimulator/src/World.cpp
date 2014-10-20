@@ -11,7 +11,8 @@ void World::init(){
   patchOverlap = PATCH_OVERLAP;
 
   // Load shaders
-  phongShader = loadShaders("terrain.vert", "terrain.frag");
+  terrainShader = loadShaders("SimpleTerrain.vert","SimpleTerrain.frag");
+  phongShader = loadShaders("phong.vert", "phong.frag");
   skyboxShader = loadShaders("skybox.vert", "skybox.frag");
 
   // Init terrain textures
@@ -21,36 +22,36 @@ void World::init(){
 
   // Init objects
   patchGenerator = new PerlinPatchGenerator();
-  
-  camera = new Camera(vec3(24,20,24), 1, 7);
+  camera = new Camera(vec3(24,120,24), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
-  // Init light
-  glUseProgram(phongShader);
+  // Init light to terrain shader
+  glUseProgram(terrainShader);
 
   vec3 lightSource = vec3(50.0f, 100.0f, 50.0f);
-  GLfloat specularExponent = 50;
-  glUniform3fv(glGetUniformLocation(phongShader, "lightSource"), 1, &lightSource.x);
-  glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
+  GLfloat specularExponent = 20.0;
+  glUniform3fv(glGetUniformLocation(terrainShader, "lightSource"), 1, &lightSource.x);
+  glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
 
-  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
-
+  glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+  
+  int startSize = 3;
   // Initiate height maps
-  for(int y = 0; y < 2; y++){
-    for(int x = 0; x < 2; x++){
+  for(int y = 0; y < startSize; y++){
+    for(int x = 0; x < startSize; x++){
       printf("Adding patch @ %i, %i\n", x, y);
-      generatePatch(x, y, 1024);
+      generatePatch(x, y, 512);
     }
   }
 
   // Blend height maps
   // Such hard code, very re-do prez. 
   TerrainPatch *p00,*p01,*p10,*p11;
-  p00 = terrainVector.at(0*2 + 0);
-  p01 = terrainVector.at(0*2 + 1);
-  p10 = terrainVector.at(1*2 + 0);
-  p11 = terrainVector.at(1*2 + 1);
+  p00 = terrainVector.at(0*startSize + 0);
+  p01 = terrainVector.at(0*startSize + 1);
+  p10 = terrainVector.at(1*startSize + 0);
+  p11 = terrainVector.at(1*startSize + 1);
   blender->blendCorners(p00,p01,p10,p11);
   blender->blendHors(p00,p01);
   blender->blendHors(p10,p11);
@@ -58,9 +59,9 @@ void World::init(){
   blender->blendVert(p01,p11);
 
   // Generate geometry
-  for(int y = 0; y < 2; y++){
-    for(int x = 0; x < 2; x++){
-      terrainVector.at(y*2 + x)->generateGeometry();
+  for(int y = 0; y < startSize; y++){
+    for(int x = 0; x < startSize; x++){
+      terrainVector.at(y*startSize + x)->generateGeometry();
     }
   }
 }
@@ -74,7 +75,7 @@ void World::generatePatch(int patchX, int patchY, int patchSize){
   //terrainPatch = (TerrainPatch*)malloc(sizeof(TerrainPatch));
   //memset(terrainPatch, 0, sizeof(TerrainPatch));
 
-    TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*(patchSize-PATCH_OVERLAP) , patchY*(patchSize-PATCH_OVERLAP),PATCH_OVERLAP, &phongShader, &terrainTexture); // TODO: dont load the texture for each patch
+    TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*(patchSize-patchOverlap) , patchY*(patchSize-patchOverlap),patchOverlap, &terrainShader, &terrainTexture); // TODO: dont load the texture for each patch
 
     //  TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
   terrainVector.push_back(terrainPatch);
@@ -91,8 +92,6 @@ void World::update(){
 }
 
 void World::draw(){
-
-  update();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

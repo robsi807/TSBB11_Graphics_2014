@@ -1,5 +1,6 @@
 #Makefile by Carl Stejmar, 2014-09-11
 
+COMMONDIR = ../common/
 # Determine system and compiler
 UNAME := $(shell uname)
 
@@ -8,22 +9,21 @@ CXX     = gcc
 CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra
 CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra
 LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa
-GLUTPATH = ../common/mac
-GLUT	= ../common/mac/MicroGlut.m
+GLUTPATH = $(COMMONDIR)mac
+GLUT	= $(COMMONDIR)MicroGlut.m
 endif
 ifeq ($(UNAME), Linux)
 CXX     = gcc
-CCFLAGS = -g -std=c++0x  -lGL -DGL_GLEXT_PROTOTYPES
-CFLAGS  = -g -std=c99 -lGL -DGL_GLEXT_PROTOTYPES
-LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -DGL_GLEXT_PROTOTYPES -lX11
-GLUTPATH = ../common/linux
-GLUT	= ../common/linux/MicroGlut.c
+CCFLAGS = -g -std=c++0x  -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR)
+CFLAGS  = -g -std=c99 -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR)
+LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -DGL_GLEXT_PROTOTYPES -lX11 -I$(COMMONDIR)
+GLUTPATH = $(COMMONDIR)linux
+GLUT	= $(COMMONDIR)MicroGlut.c
 endif
 
 CCFILES = Main.cpp Skybox.cpp Camera.cpp TerrainPatch.cpp World.cpp PerlinPatchGenerator.cpp LinearBlender.cpp
-
-UTILS = ../common/GL_utilities.c ../common/VectorUtils3.c ../common/loadobj.c ../common/zpr.c ../common/LoadTGA.c $(GLUT)
-OFILES = Main.o Skybox.o Camera.o TerrainPatch.o World.o PerlinPatchGenerator.o LinearBlender.o ../common/GL_utilities.o ../common/loadobj.o ../common/LoadTGA.o ../common/VectorUtils3.o ../common/zpr.o $(GLUTPATH)/MicroGlut.o
+UTILS = $(COMMONDIR)GL_utilities.c $(COMMONDIR)VectorUtils3.c $(COMMONDIR)loadobj.c $(COMMONDIR)zpr.c $(COMMONDIR)LoadTGA.c $(GLUT)
+OFILES = Main.o Skybox.o Camera.o TerrainPatch.o World.o PerlinPatchGenerator.o LinearBlender.o $(COMMONDIR)GL_utilities.o $(COMMONDIR)loadobj.o $(COMMONDIR)LoadTGA.o $(COMMONDIR)VectorUtils3.o $(COMMONDIR)zpr.o $(GLUTPATH)/MicroGlut.o
 
 
 main: $(OFILES)

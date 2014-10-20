@@ -54,7 +54,6 @@ vector<float> PerlinPatchGenerator::createPatch(int gridSize, float frequency, i
     //printf("end createGradients\n");	
     int numberOfPixels = gridSize/frequency;
     //printf("numberOfPixels %d", numberOfPixels);
-    float mean = 0.0,max = 0.0,min = 1.0;
     vector<float> finalGrid;
 
 	for(int row = 0; row < gridSize; row++) {
@@ -74,17 +73,12 @@ vector<float> PerlinPatchGenerator::createPatch(int gridSize, float frequency, i
 													 diffX);
 			float finalInterp = interpolateValues(interpolatedX1,interpolatedX2,diffY);
 			finalGrid.push_back(finalInterp * amplitude);
-			mean += finalInterp;
-			if(finalInterp > max)
-			  max = finalInterp;
-			if(finalInterp < min)
-			  min = finalInterp;
+
 		} 
 
 	}
     //printf("end createPatch\n");
 	
-	cout << "Min: "<< min <<" Mean: " << mean/(gridSize*gridSize) << " Max: " << max << endl;
 	return finalGrid;	
 }
 

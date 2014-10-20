@@ -15,9 +15,9 @@
 #endif
 
 #include <iostream>
-#include "../common/LoadTGA.h"
-#include "../common/loadobj.h"
-#include "../common/VectorUtils3.h"
+#include "LoadTGA.h"
+#include "loadobj.h"
+#include "VectorUtils3.h"
 
 #include<vector>
 using namespace std;
