@@ -18,6 +18,7 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
   projectionTop = 0.5;
   projectionBottom = -0.5;
 
+  warpPointer = false;
 
   initKeymapManager();
 
@@ -45,37 +46,51 @@ Camera::Camera(float left, float right, float bottom, float top, float near, flo
   projectionTop = top;
   projectionNear = near;
   projectionFar = far;
+
+  warpPointer = false;
 }
 
 
 void Camera::handleKeyPress()
 {
   if(keyIsDown('w'))
-  {
-    vec3 w = Normalize(VectorSub(lookAtPoint,position));
-    lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(w,velocity));
-    position = VectorAdd(position,ScalarMult(w,velocity));
-  }
+    {
+      vec3 w = Normalize(VectorSub(lookAtPoint,position));
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(w,velocity));
+      position = VectorAdd(position,ScalarMult(w,velocity));
+    }
   if(keyIsDown('s'))
-  {
-    vec3 s = Normalize(VectorSub(position,lookAtPoint));
-    lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(s,velocity));
-    position = VectorAdd(position,ScalarMult(s,velocity));
-  }
+    {
+      vec3 s = Normalize(VectorSub(position,lookAtPoint));
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(s,velocity));
+      position = VectorAdd(position,ScalarMult(s,velocity));
+    }
   if(keyIsDown('a'))
-  {
-    vec3 w = VectorSub(lookAtPoint,position);
-    vec3 a = Normalize(CrossProduct(upVector,w));
-    lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(a,velocity));
-    position = VectorAdd(position,ScalarMult(a,velocity));
-  }
+    {
+      vec3 w = VectorSub(lookAtPoint,position);
+      vec3 a = Normalize(CrossProduct(upVector,w));
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(a,velocity));
+      position = VectorAdd(position,ScalarMult(a,velocity));
+    }
   if(keyIsDown('d'))
-  {
-    vec3 w = VectorSub(lookAtPoint,position);
-    vec3 d = Normalize(CrossProduct(w,upVector));
-    lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(d,velocity));
-    position = VectorAdd(position,ScalarMult(d,velocity));
-  }
+    {
+      vec3 w = VectorSub(lookAtPoint,position);
+      vec3 d = Normalize(CrossProduct(w,upVector));
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(d,velocity));
+      position = VectorAdd(position,ScalarMult(d,velocity));
+    }
+  if(keyIsDown('p'))
+    {
+      warpPointer = !warpPointer;
+    }
+  if(keyIsDown('+'))
+    {
+      velocity *= 1.1;
+    }
+  if(keyIsDown('-'))
+    {
+      velocity *= 0.9;
+    }
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
@@ -107,9 +122,10 @@ void Camera::handleMouse(int x, int y)
   glutWarpPointer(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)-520); // On mac the pointer is shifted 520 pixels (why?)
   glutHideCursor();
 #else
-  glutWarpPointer(SCREEN_WIDTH/2, SCREEN_HEIGHT/2); // Ger delay med linux!
+  if(warpPointer){
+    glutWarpPointer(SCREEN_WIDTH/2, SCREEN_HEIGHT/2); // Ger delay med linux!
+  }
 #endif
-
 }
 
 void Camera::update()
@@ -125,9 +141,9 @@ void Camera::update()
 }
 
 vec3 Camera::getDirection(){
-	return VectorSub(lookAtPoint, position);
+  return VectorSub(lookAtPoint, position);
 }
 
 vec3 Camera::getPosition(){
-	return position;
+  return position;
 }
