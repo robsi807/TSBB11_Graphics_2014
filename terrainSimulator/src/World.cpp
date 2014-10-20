@@ -11,9 +11,9 @@ void World::init(){
   patchOverlap = PATCH_OVERLAP;
 
   // Load shaders
-  terrainShader = loadShaders("SimpleTerrain.vert","SimpleTerrain.frag");
-  phongShader = loadShaders("phong.vert", "phong.frag");
-  skyboxShader = loadShaders("skybox.vert", "skybox.frag");
+  terrainShader = loadShaders("shaders/SimpleTerrain.vert","shaders/SimpleTerrain.frag");
+  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
+  skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
   // Init terrain textures
   // LoadTGATextureSimple("../textures/grass.tga", &terrainTexture);
