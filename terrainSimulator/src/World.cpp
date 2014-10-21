@@ -2,18 +2,14 @@
 
 World::World(){
 	
-	time = 0;
-	// Load shaders
-  init();
-}
+  time = 0;
 
-void World::init(){
   patchOverlap = PATCH_OVERLAP;
   patchSize = PATCH_SIZE;
   gridSize = GRID_BEGIN_SIZE;
 
   // Load shaders
-  terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
+  terrainShader = loadShaders("shaders/SimpleTerrain.vert","shaders/SimpleTerrain.frag");
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
@@ -24,7 +20,7 @@ void World::init(){
 
   // Init objects
   patchGenerator = new PerlinPatchGenerator();
-  camera = new Camera(vec3(24,120,24), 1, 7);
+  camera = new Camera(vec3(50,120,50), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
@@ -38,38 +34,73 @@ void World::init(){
 
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
-  int startSize = gridSize;
+  generateStartingPatches(GRID_BEGIN_SIZE);
+}
+
+void World::generateStartingPatches(int startSize){
+
   // Initiate height maps
   for(int y = 0; y < startSize; y++){
+    vector<TerrainPatch*> terrainRow;
     for(int x = 0; x < startSize; x++){
       printf("Adding patch @ %i, %i\n", x, y);
-      generatePatch(x, y, patchSize);
+      terrainRow.push_back(generatePatch(x,y));
+    }
+    terrainVector.push_back(terrainRow);
+  }
+
+  for(int y = 0; y < terrainVector.size(); y++){
+    for(int x = 0; x < terrainVector.at(y).size(); x++){
+      // Blend horizontal
+      if(x != 0){
+	TerrainPatch *pWest,*pEast;
+	pWest = terrainVector.at(y).at(x-1);
+	pEast = terrainVector.at(y).at(x);
+	blender->blendHors(pWest,pEast);
+      }
+      // Blend vertical
+      if(y != 0){
+	TerrainPatch *pSouth,*pNorth;
+	pSouth = terrainVector.at(y-1).at(x);
+	pNorth = terrainVector.at(y).at(x);
+	blender->blendVert(pSouth,pNorth);
+      }
+      // Blend corners
+      if(y != 0 && x != 0){
+	TerrainPatch *p00,*p01,*p10,*p11;
+	p00 = terrainVector.at(y-1).at(x-1);
+	p01 = terrainVector.at(y-1).at(x);
+	p10 = terrainVector.at(y).at(x-1);
+	p11 = terrainVector.at(y).at(x);
+	blender->blendCorners(p00,p01,p10,p11);
+      }    
     }
   }
 
   // Blend height maps
   // Such hard code, very re-do prez. 
-  TerrainPatch *p00,*p01,*p10,*p11;
-  p00 = terrainVector.at(0*startSize + 0);
-  p01 = terrainVector.at(0*startSize + 1);
-  p10 = terrainVector.at(1*startSize + 0);
-  p11 = terrainVector.at(1*startSize + 1);
-  blender->blendCorners(p00,p01,p10,p11);
-  blender->blendHors(p00,p01);
-  blender->blendHors(p10,p11);
-  blender->blendVert(p00,p10);
-  blender->blendVert(p01,p11);
+  // TerrainPatch *p00,*p01,*p10,*p11;
+  // p00 = terrainVector.at(0).at(0);
+  // p01 = terrainVector.at(0).at(1);
+  // p10 = terrainVector.at(1).at(0);
+  // p11 = terrainVector.at(1).at(1);
+
+  // blender->blendCorners(p00,p01,p10,p11);
+  // blender->blendHors(p00,p01);
+  // blender->blendHors(p10,p11);
+  // blender->blendVert(p00,p10);
+  // blender->blendVert(p01,p11);
 
   // Generate geometry
   for(int y = 0; y < startSize; y++){
     for(int x = 0; x < startSize; x++){
-      terrainVector.at(y*startSize + x)->generateGeometry();
+      terrainVector.at(y).at(x)->generateGeometry();
       printf("Generating patch @ %i, %i\n", x, y);
     }
   }
 }
 
-void World::generatePatch(int patchX, int patchY, int patchSize){
+TerrainPatch* World::generatePatch(int patchX, int patchY){
 
   //printf("before generatePatch\n");
   vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
@@ -78,12 +109,10 @@ void World::generatePatch(int patchX, int patchY, int patchSize){
   //terrainPatch = (TerrainPatch*)malloc(sizeof(TerrainPatch));
   //memset(terrainPatch, 0, sizeof(TerrainPatch));
 
-    TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture); // TODO: dont load the texture for each patch
+    return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture); // TODO: dont load the texture for each patch
 
     //  TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
-  terrainVector.push_back(terrainPatch);
   //printf("after terrainPatch\n");
-
 }
 
 void World::update(){
@@ -99,12 +128,14 @@ void World::draw(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   skybox->draw(camera->cameraMatrix);
-  for(int i = 0; i < terrainVector.size(); i++){
-    if(camera->isInFrustum(terrainVector.at(i))){
-      terrainVector.at(i)->draw(camera->cameraMatrix);
+  
+  for(int y = 0; y < terrainVector.size(); y++){
+    for(int x = 0; x < terrainVector.at(y).size(); x++){
+      TerrainPatch *patch = terrainVector.at(y).at(x);
+      if(camera->isInFrustum(patch))
+	patch -> draw(camera->cameraMatrix);
     }
   }
-
 }
 
 
@@ -131,7 +162,7 @@ World::~World(){
 //   w->generatedTerrain.push_back(terrainPatch);
   
 // }
-
+/*
 void World::addGeneratedTerrain(){
 
   if(generatedTerrain.size() > 0){
@@ -147,6 +178,6 @@ void World::addGeneratedTerrain(){
     generatedTerrain.clear();
   }
 }
-
+*/
 //------------ ABOVE used by threding, broken code :( ----------------
 

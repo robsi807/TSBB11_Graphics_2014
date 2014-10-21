@@ -50,13 +50,14 @@ class World
     Skybox* skybox;
     PatchGenerator* patchGenerator;
     Blender* blender;
-    std::vector<TerrainPatch*> terrainVector;
+    std::vector<vector<TerrainPatch*>> terrainVector;
     std::vector<TerrainPatch*> generatedTerrain;
 
     World();
     ~World();
     void draw();
-    void generatePatch(int patchX, int patchY, int patchSize);
+    TerrainPatch* generatePatch(int patchX, int patchY);
+    void generateStartingPatches(int startSize);
     void addGeneratedTerrain();
     void update();
     void updateTerrain(vec3 position, vec3 direction);
