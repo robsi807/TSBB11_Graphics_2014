@@ -30,7 +30,9 @@
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
 
-#define PATCH_OVERLAP 32
+#define PATCH_OVERLAP 8
+#define PATCH_SIZE 128
+#define GRID_BEGIN_SIZE 5
 
 class World
 {
@@ -39,7 +41,7 @@ class World
     GLfloat time;
     void init();
     void drawTerrainVector(TerrainPatch* t);
-    int patchOverlap;
+    int patchOverlap,patchSize,gridSize;
 
   public:
     GLuint phongShader,skyboxShader,terrainShader;

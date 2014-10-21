@@ -9,6 +9,8 @@ World::World(){
 
 void World::init(){
   patchOverlap = PATCH_OVERLAP;
+  patchSize = PATCH_SIZE;
+  gridSize = GRID_BEGIN_SIZE;
 
   // Load shaders
   terrainShader = loadShaders("shaders/SimpleTerrain.vert","shaders/SimpleTerrain.frag");
@@ -36,12 +38,12 @@ void World::init(){
 
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
-  int startSize = 3;
+  int startSize = gridSize;
   // Initiate height maps
   for(int y = 0; y < startSize; y++){
     for(int x = 0; x < startSize; x++){
       printf("Adding patch @ %i, %i\n", x, y);
-      generatePatch(x, y, 512);
+      generatePatch(x, y, patchSize);
     }
   }
 
@@ -96,11 +98,11 @@ void World::draw(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   skybox->draw(camera->cameraMatrix);
-
   for(int i = 0; i < terrainVector.size(); i++){
-    terrainVector.at(i)->draw(camera->cameraMatrix);
-
-  }   
+    if(camera->isInFrustum(terrainVector.at(i))){
+      terrainVector.at(i)->draw(camera->cameraMatrix);
+    }
+  }
 
 }
 

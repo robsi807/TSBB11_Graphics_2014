@@ -28,6 +28,8 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
 
   projectionMatrix = frustum(projectionLeft, projectionRight, projectionBottom, projectionTop,projectionNear, projectionFar);
 
+  frustumPlanes = new Frustum(this);
+
 }
 
 Camera::Camera(float left, float right, float bottom, float top, float near, float far)
@@ -91,6 +93,14 @@ void Camera::handleKeyPress()
     {
       velocity *= 0.9;
     }
+  if(keyIsDown('1'))
+    {
+      lockFrustum = true;
+    }
+  if(keyIsDown('2'))
+    {
+      lockFrustum = false;
+    }
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
@@ -138,6 +148,8 @@ void Camera::update()
 
   //if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09)
   cameraMatrix = lookAtv(position,lookAtPoint,upVector);
+  if(!lockFrustum)
+    frustumPlanes->update(this);
 }
 
 vec3 Camera::getDirection(){
@@ -146,4 +158,8 @@ vec3 Camera::getDirection(){
 
 vec3 Camera::getPosition(){
   return position;
+}
+
+bool Camera::isInFrustum(TerrainPatch* patch){
+  return frustumPlanes->containsPatch(patch);
 }
