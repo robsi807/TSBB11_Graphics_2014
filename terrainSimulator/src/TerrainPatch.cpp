@@ -1,7 +1,13 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int width, int height, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture) : rawHeightMap(tex), blendedHeightMap(tex), posX(x), posY(y), patchWidth(width), patchHeight(height), patchOverlap(overlap){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
   
+  blendedSize = patchSize-overlap+1;
+
+  // Calculate positions
+  xPos = x * (patchSize - overlap);
+  yPos = y * (patchSize - overlap);
+
   shader = phongShader;
   texture = terrainTexture;
   //glActiveTexture(GL_TEXTURE0);
@@ -23,8 +29,8 @@ vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
 
 void TerrainPatch::generateGeometry(){
   
-  int blendedWidth = patchWidth-patchOverlap+1;
-  int blendedHeight = patchHeight-patchOverlap+1;
+  int blendedWidth = size-patchOverlap+1;
+  int blendedHeight = size-patchOverlap+1;
   int offset = patchOverlap/2;
 
   int vertexCount = blendedWidth * blendedHeight;
@@ -57,15 +63,15 @@ void TerrainPatch::generateGeometry(){
 	int x2 = (x+offset+1);
 	int z2 = (z+offset+1);
 
-	float y00 = blendedHeightMap.at((x0 + z0 * patchWidth)) / hScale;
-	float y01 = blendedHeightMap.at((x1 + z0 * patchWidth)) / hScale;
+	float y00 = blendedHeightMap.at((x0 + z0 * size)) / hScale;
+	float y01 = blendedHeightMap.at((x1 + z0 * size)) / hScale;
 
-	float y10 = blendedHeightMap.at((x0 + z1 * patchWidth)) / hScale;
-	float y11 = blendedHeightMap.at((x1 + z1 * patchWidth)) / hScale;
-	float y12 = blendedHeightMap.at((x2 + z1 * patchWidth)) / hScale;
+	float y10 = blendedHeightMap.at((x0 + z1 * size)) / hScale;
+	float y11 = blendedHeightMap.at((x1 + z1 * size)) / hScale;
+	float y12 = blendedHeightMap.at((x2 + z1 * size)) / hScale;
 
-	float y21 = blendedHeightMap.at((x1 + z2 * patchWidth)) / hScale;
-	float y22 = blendedHeightMap.at((x2 + z2 * patchWidth)) / hScale;
+	float y21 = blendedHeightMap.at((x1 + z2 * size)) / hScale;
+	float y22 = blendedHeightMap.at((x2 + z2 * size)) / hScale;
 
 	vec3 p00 = vec3(x0,y00,z0);
 	vec3 p01 = vec3(x1,y01,z0);
@@ -92,7 +98,7 @@ void TerrainPatch::generateGeometry(){
 	n = Normalize(n);
 
 	vertexArray[(x + z * blendedWidth)*3 + 0] = x1 / 1.0;
-	vertexArray[(x + z * blendedWidth)*3 + 1] = blendedHeightMap.at((x1 + z1 * patchWidth)) / hScale;
+	vertexArray[(x + z * blendedWidth)*3 + 1] = blendedHeightMap.at((x1 + z1 * size)) / hScale;
 	vertexArray[(x + z * blendedWidth)*3 + 2] = z1 / 1.0;
 
 	// Normal vectors. You need to calculate these.
@@ -101,7 +107,7 @@ void TerrainPatch::generateGeometry(){
 	normalArray[(x + z * blendedWidth)*3 + 2] = n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
 
 	// Texture coordinates. You may want to scale them.
-	texCoordArray[(x + z * blendedWidth)*2 + 0] = x1; // (float)x / patchWidth;
+	texCoordArray[(x + z * blendedWidth)*2 + 0] = x1; // (float)x / size;
 	texCoordArray[(x + z * blendedWidth)*2 + 1] = z1; // (float)z / patchHeight;
       }
   for (x = 0; x < blendedWidth-1; x++)
@@ -172,15 +178,11 @@ TerrainPatch::~TerrainPatch(){
 
 void TerrainPatch::draw(mat4 cameraMatrix){
 
-  mat4 modelView = T(posX,0, posY);
+  mat4 modelView = T(xPos,0, yPos);
   glUseProgram(*shader);
   glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
   glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
   // glBindTexture(GL_TEXTURE_2D, *texture);	
   DrawModel(geometry, *shader, "inPosition", "inNormal", "inTexCoord"); 
 
-}
-
-int TerrainPatch::getPatchWidth(){
-  return patchWidth;
 }

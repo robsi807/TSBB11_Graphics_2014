@@ -68,8 +68,8 @@ bool Frustum::containsPatch(TerrainPatch* patch){
 */
 
 bool Frustum::containsPatch(TerrainPatch* patch){
-  vec3 patchPos = vec3(patch->posX,0.0,patch->posY);
-  float patchWidth = patch->getPatchWidth();
+  vec3 patchPos = vec3(patch->xPos,0.0,patch->yPos);
+  float patchWidth = patch->blendedSize;
   patchPos.x += patchWidth/2;
   patchPos.z += patchWidth/2;
   float patchRadius = patchWidth/2 * sqrt(2);

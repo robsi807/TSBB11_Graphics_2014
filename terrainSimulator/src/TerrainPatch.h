@@ -24,27 +24,37 @@ using namespace std;
 
 class TerrainPatch
 {
+ private:
+  GLuint* shader;
+  GLuint* texture;
+
+  vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
+
+ public:
+  int size,blendedSize,patchOverlap; 
+
+  // Position in world coordinates
+  int xPos, yPos;
+
+  // Position in grid
+  int xGrid,yGrid;
+
+  // The height maps
+  vector<float> rawHeightMap;
+  vector<float> blendedHeightMap;
   
-  private:
-    int patchWidth, patchHeight;
-    int patchOverlap; 
-    GLuint* shader;
-    GLuint* texture;
+  // Geometry
+  Model* geometry;
 
-  public:
-    void generateGeometry();
-    TerrainPatch(vector<float> initHeightMap,int width, int height, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture);
-    vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
-    float calcHeight(float x,float z,int texWidth);
-    Model* geometry;
-    ~TerrainPatch();
-    vector<float> rawHeightMap;
-    vector<float> blendedHeightMap;
-    //GLuint texture;
-    void draw(mat4 cameraMatrix);
-    int posX, posY;
-    int getPatchWidth();
+  // Constructor and destructor
+  TerrainPatch(vector<float> initHeightMap,int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture);
+  ~TerrainPatch();
+
+  // Functions
+  float calcHeight(float x,float z,int texWidth);
+  void generateGeometry();
+  void draw(mat4 cameraMatrix);
+
 };
-
 
 #endif

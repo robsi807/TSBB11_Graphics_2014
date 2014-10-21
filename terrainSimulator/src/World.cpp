@@ -78,7 +78,7 @@ void World::generatePatch(int patchX, int patchY, int patchSize){
   //terrainPatch = (TerrainPatch*)malloc(sizeof(TerrainPatch));
   //memset(terrainPatch, 0, sizeof(TerrainPatch));
 
-    TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*(patchSize-patchOverlap) , patchY*(patchSize-patchOverlap),patchOverlap, &terrainShader, &terrainTexture); // TODO: dont load the texture for each patch
+    TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture); // TODO: dont load the texture for each patch
 
     //  TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
   terrainVector.push_back(terrainPatch);

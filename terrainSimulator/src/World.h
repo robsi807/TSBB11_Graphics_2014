@@ -32,7 +32,7 @@
 
 #define PATCH_OVERLAP 32
 #define PATCH_SIZE 256
-#define GRID_BEGIN_SIZE 10 
+#define GRID_BEGIN_SIZE 5 
 
 class World
 {
