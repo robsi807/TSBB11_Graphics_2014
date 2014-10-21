@@ -30,9 +30,9 @@
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
 
-#define PATCH_OVERLAP 8
-#define PATCH_SIZE 128
-#define GRID_BEGIN_SIZE 5
+#define PATCH_OVERLAP 32
+#define PATCH_SIZE 256
+#define GRID_BEGIN_SIZE 10 
 
 class World
 {

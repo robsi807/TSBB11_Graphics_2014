@@ -24,7 +24,7 @@ class Plane{
  public:
   float a,b,c,d;
   void planeNormalize();
-} ;
+};
 
 typedef enum Halfspace{
   NEGATIVE = -1,
@@ -45,7 +45,7 @@ float planeDistanceToPoint(Plane plane, vec3 pos);
 vec3 planeProjectionOfPoint(Plane plane, vec3 p);
 Halfspace planeClassifyPoint(Plane plane, vec3 pos);
 Halfspace planeClassifySphere(Plane plane, vec3 pos, float radius);
-Halfspace planeClassifyInifiniteCylinder(Plane plane, vec3 pos, float radius);
+Halfspace planeClassifyInfiniteCylinder(Plane plane, vec3 pos, float radius);
 
 #endif
 

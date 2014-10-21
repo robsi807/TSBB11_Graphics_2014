@@ -45,6 +45,8 @@ void Frustum::update(Camera* cam){
   planes[5].planeNormalize();
 }
 
+/*
+// Deprecated version using sphere as bounding shape
 bool Frustum::containsPatch(TerrainPatch* patch){
   vec3 patchPos = vec3(patch->posX,0,patch->posY);
   float patchWidth = patch->getPatchWidth();
@@ -63,13 +65,30 @@ bool Frustum::containsPatch(TerrainPatch* patch){
     }
   return found;
 }
+*/
 
-bool Frustum::checkPatch(TerrainPatch* patch){
-  vec3 patchPos = vec3(patch->posX,0,patch->posY);
+bool Frustum::containsPatch(TerrainPatch* patch){
+  vec3 patchPos = vec3(patch->posX,0.0,patch->posY);
   float patchWidth = patch->getPatchWidth();
   patchPos.x += patchWidth/2;
   patchPos.z += patchWidth/2;
   float patchRadius = patchWidth/2 * sqrt(2);
+
+  bool found = true;
+  int i = 0;
+  while(i<6 && found == true)
+    {
+      if(planeClassifyInfiniteCylinder(planes[i],patchPos,patchRadius) < 0)
+	{
+	  found = false;
+	}
+      i++;
+
+      // Skip bottom and top plane
+      if(i == 2)
+	i = 4;
+    }
+  return found;
 }
 // ------------------------ Plane functions -----------------------------
 void Plane::planeNormalize()
@@ -126,15 +145,24 @@ Halfspace planeClassifySphere(Plane plane, vec3 pos, float radius)
   return ON_PLANE;
 }
 
+// Infinite cylinder along y-axis
 Halfspace planeClassifyInfiniteCylinder(Plane plane, vec3 pos, float radius)
 {
-
-  float d = 0;
-  d = planeDistanceToPoint(plane,pos);
-  //printf ("d %f \n",d);
-  if(d < -radius)
-    return NEGATIVE;
-  if(d > -radius)
+  // Check if center position is on positive side
+  float d = planeDistanceToPoint(plane,pos);
+  if(d > 0){
     return POSITIVE;
-  return ON_PLANE;
+  }
+  else {
+    // Check if outmost point on cylinder is on positive side
+    vec3 posProj = planeProjectionOfPoint(plane,pos);
+    float dProj = Norm(posProj - pos);
+
+    if(dProj < radius)
+      return POSITIVE;
+    else if(dProj > radius)
+      return NEGATIVE;
+    else 
+      return ON_PLANE;
+  }
 }

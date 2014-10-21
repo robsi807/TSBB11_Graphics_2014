@@ -32,7 +32,7 @@ class Camera
   GLfloat velocity;
   GLfloat sensitivity;
 
-  bool warpPointer=true,lockFrustum=false;
+  bool warpPointer,lockFrustum;
 
   // Perspective
   float projectionLeft;

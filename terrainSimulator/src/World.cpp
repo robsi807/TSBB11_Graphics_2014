@@ -13,7 +13,7 @@ void World::init(){
   gridSize = GRID_BEGIN_SIZE;
 
   // Load shaders
-  terrainShader = loadShaders("shaders/SimpleTerrain.vert","shaders/SimpleTerrain.frag");
+  terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
@@ -64,6 +64,7 @@ void World::init(){
   for(int y = 0; y < startSize; y++){
     for(int x = 0; x < startSize; x++){
       terrainVector.at(y*startSize + x)->generateGeometry();
+      printf("Generating patch @ %i, %i\n", x, y);
     }
   }
 }

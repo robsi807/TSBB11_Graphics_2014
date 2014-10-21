@@ -12,14 +12,14 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
   velocity = 1.5;
 
   projectionNear = 0.8;
-  projectionFar = 1024.0;
+  projectionFar = 1324.0;
   projectionRight = 0.5;
   projectionLeft = -0.5;
   projectionTop = 0.5;
   projectionBottom = -0.5;
 
-  warpPointer = false;
-
+  warpPointer=true;
+  lockFrustum=false;
   initKeymapManager();
 
   cameraMatrix = lookAtv(position,lookAtPoint,upVector);
