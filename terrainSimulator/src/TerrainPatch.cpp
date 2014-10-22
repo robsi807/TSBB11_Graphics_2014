@@ -16,6 +16,7 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
 
   //glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
   //generateGeometry();
+  geometry = NULL;
 }
 
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
@@ -178,11 +179,15 @@ TerrainPatch::~TerrainPatch(){
 
 void TerrainPatch::draw(mat4 cameraMatrix){
 
-  mat4 modelView = T(xPos,0, yPos);
-  glUseProgram(*shader);
-  glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
-  glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
-  // glBindTexture(GL_TEXTURE_2D, *texture);	
-  DrawModel(geometry, *shader, "inPosition", "inNormal", "inTexCoord"); 
-
+  if(geometry != NULL){
+    mat4 modelView = T(xPos,0, yPos);
+    glUseProgram(*shader);
+    glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
+    glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+    // glBindTexture(GL_TEXTURE_2D, *texture);	
+    DrawModel(geometry, *shader, "inPosition", "inNormal", "inTexCoord"); 
+  }
+  else {
+    //printf("Warning, patch (%i,%i) has no geometry to draw.\n",xGrid,yGrid); 
+  }
 }

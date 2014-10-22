@@ -30,9 +30,16 @@
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
 
+// Patch specific defines
 #define PATCH_OVERLAP 32
 #define PATCH_SIZE 256
-#define GRID_BEGIN_SIZE 5 
+#define GRID_BEGIN_SIZE 5
+
+// Direction specific defines
+#define NORTH 8
+#define SOUTH 2
+#define EAST 6
+#define WEST 4
 
 class World
 {
@@ -58,6 +65,7 @@ class World
     void draw();
     TerrainPatch* generatePatch(int patchX, int patchY);
     void generateStartingPatches(int startSize);
+    void addPatchRow(int direction);
     void addGeneratedTerrain();
     void update();
     void updateTerrain(vec3 position, vec3 direction);

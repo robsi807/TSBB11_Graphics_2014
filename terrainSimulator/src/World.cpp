@@ -9,7 +9,7 @@ World::World(){
   gridSize = GRID_BEGIN_SIZE;
 
   // Load shaders
-  terrainShader = loadShaders("shaders/SimpleTerrain.vert","shaders/SimpleTerrain.frag");
+  terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
@@ -49,6 +49,8 @@ void World::generateStartingPatches(int startSize){
     terrainVector.push_back(terrainRow);
   }
 
+  // Blend!
+  cout << "Blending patches... " << endl;
   for(int y = 0; y < terrainVector.size(); y++){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       // Blend horizontal
@@ -77,26 +79,152 @@ void World::generateStartingPatches(int startSize){
     }
   }
 
-  // Blend height maps
-  // Such hard code, very re-do prez. 
-  // TerrainPatch *p00,*p01,*p10,*p11;
-  // p00 = terrainVector.at(0).at(0);
-  // p01 = terrainVector.at(0).at(1);
-  // p10 = terrainVector.at(1).at(0);
-  // p11 = terrainVector.at(1).at(1);
-
-  // blender->blendCorners(p00,p01,p10,p11);
-  // blender->blendHors(p00,p01);
-  // blender->blendHors(p10,p11);
-  // blender->blendVert(p00,p10);
-  // blender->blendVert(p01,p11);
-
-  // Generate geometry
-  for(int y = 0; y < startSize; y++){
-    for(int x = 0; x < startSize; x++){
+  // Generate geometry for all but the edge patches
+  for(int y = 1; y < startSize-1; y++){
+    for(int x = 1; x < startSize-1; x++){
       terrainVector.at(y).at(x)->generateGeometry();
       printf("Generating patch @ %i, %i\n", x, y);
     }
+  }
+}
+
+// Adds terrain patches in the direction specified
+void World::addPatchRow(int direction){
+  int xSize = terrainVector.at(0).size();
+  int ySize = terrainVector.size();
+  vector<TerrainPatch*> newTerrainVec;
+
+  printf("Terrain grid size: (%i,%i)\n",xSize,ySize);
+
+  if(direction == NORTH){
+    // Calculate new coordinates in grid
+    int yGrid = terrainVector.at(ySize-1).at(0)->yGrid + 1;
+    int xGridBegin = terrainVector.at(ySize-1).at(0)->xGrid;
+    for(int x = 0; x < xSize; x++){
+      int xGrid = xGridBegin + x;
+      TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+      newTerrainVec.push_back(newPatch);
+    }
+    terrainVector.push_back(newTerrainVec);
+
+    // Blend in the new terrain
+    for(int x = 0; x < xSize; x++){
+      TerrainPatch *p00,*p01,*p10,*p11;
+      p01 = terrainVector.at(ySize-1).at(x);
+      p11 = terrainVector.at(ySize).at(x);
+      blender->blendVert(p01,p11);
+      
+      if(x != 0){
+	p00 = terrainVector.at(ySize-1).at(x-1);
+	p10 = terrainVector.at(ySize).at(x-1);
+      
+	blender->blendHors(p10,p11);
+	blender->blendCorners(p00,p01,p10,p11);
+      }
+    }
+    // TODO: Geometry generation should be moved from here
+    for(int x = 1; x < xSize-1; x++){
+      terrainVector.at(ySize-1).at(x) -> generateGeometry();
+    }
+    printf("Terrain added north at yGrid = %i.\n",yGrid);
+    
+  }
+  else if(direction == SOUTH){
+    // Calculate new coordinates in grid
+    int yGrid = terrainVector.at(0).at(0)->yGrid - 1;
+    int xGridBegin = terrainVector.at(ySize-1).at(0)->xGrid;
+    for(int x = 0; x < xSize; x++){
+      int xGrid = xGridBegin + x;
+      TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+      newTerrainVec.push_back(newPatch);
+    }
+    terrainVector.insert(terrainVector.begin(),newTerrainVec);
+
+    // Blend in the new terrain
+    for(int x = 0; x < xSize; x++){
+      TerrainPatch *p00,*p01,*p10,*p11;
+      p01 = terrainVector.at(0).at(x);
+      p11 = terrainVector.at(1).at(x);
+      blender->blendVert(p01,p11);
+      
+      if(x != 0){
+	p00 = terrainVector.at(0).at(x-1);
+	p10 = terrainVector.at(1).at(x-1);
+      
+	blender->blendHors(p10,p11);
+	blender->blendCorners(p00,p01,p10,p11);
+      }
+    }
+    // TODO: Geometry generation should be moved from here
+    for(int x = 1; x < xSize-1; x++){
+      terrainVector.at(1).at(x) -> generateGeometry();
+    }
+    printf("Terrain added south at yGrid = %i.\n",yGrid);
+  }
+  else if(direction == WEST){
+    // Calculate new coordinates in grid
+    int yGridBegin = terrainVector.at(0).at(0)->yGrid;
+    int xGrid = terrainVector.at(ySize-1).at(0)->xGrid - 1;
+
+    for(int y = 0; y < ySize; y++){
+      int yGrid = yGridBegin + y;
+      TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+      terrainVector.at(y).insert(terrainVector.at(y).begin(),newPatch);
+    }
+
+    // Blend in the new terrain
+    for(int y = 0; y < ySize; y++){
+      TerrainPatch *p00,*p01,*p10,*p11;
+      p10 = terrainVector.at(y).at(0);
+      p11 = terrainVector.at(y).at(1);
+      blender->blendHors(p10,p11);
+      
+      if(y != 0){
+	p00 = terrainVector.at(y-1).at(0);
+	p01 = terrainVector.at(y-1).at(1);
+	blender->blendVert(p01,p11);
+	blender->blendCorners(p00,p01,p10,p11);
+      }
+    }
+    
+    // TODO: Geometry generation should be moved from here
+    for(int y = 1; y < ySize-1; y++){
+      terrainVector.at(y).at(1) -> generateGeometry();
+    }
+    printf("Terrain added west at xGrid = %i\n",xGrid);
+  }
+  else if(direction == EAST){
+    // Calculate new coordinates in grid
+    int yGridBegin = terrainVector.at(0).at(0)->yGrid;
+    int xGrid = terrainVector.at(ySize-1).at(xSize-1)->xGrid + 1;
+
+    for(int y = 0; y < ySize; y++){
+      int yGrid = yGridBegin + y;
+      TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+      terrainVector.at(y).push_back(newPatch);
+    }
+
+    // Blend in the new terrain
+    for(int y = 0; y < ySize; y++){
+      TerrainPatch *p00,*p01,*p10,*p11;
+      p10 = terrainVector.at(y).at(xSize-1);
+      p11 = terrainVector.at(y).at(xSize);
+      blender->blendHors(p10,p11);
+      
+      if(y != 0){
+	p00 = terrainVector.at(y-1).at(xSize-1);
+	p01 = terrainVector.at(y-1).at(xSize);
+	blender->blendVert(p01,p11);
+	blender->blendCorners(p00,p01,p10,p11);
+      }
+    }
+    
+    // TODO: Geometry generation should be moved from here
+    for(int y = 1; y < ySize-1; y++){
+      terrainVector.at(y).at(xSize-1) -> generateGeometry();
+    }
+    printf("Terrain added east at xGrid = %i\n",xGrid);
+    
   }
 }
 
@@ -121,6 +249,26 @@ void World::update(){
   camera->update();
   //addGeneratedTerrain();
 
+  // DEBUGGING PURPOSE CODE START
+  if(camera->addTerrain != 0){
+    if(camera->addTerrain == NORTH){
+      camera->addTerrain = 0;
+      addPatchRow(NORTH);
+    } 
+    if(camera->addTerrain == SOUTH){
+      camera->addTerrain = 0;
+      addPatchRow(SOUTH);
+    }
+    if(camera->addTerrain == EAST){
+      camera->addTerrain = 0;
+      addPatchRow(EAST);
+    }
+    if(camera->addTerrain == WEST){
+      camera->addTerrain = 0;
+      addPatchRow(WEST);
+    }
+  }
+  // DEBUGGING PURPOSE CODE END
 }
 
 void World::draw(){

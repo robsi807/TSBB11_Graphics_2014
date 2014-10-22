@@ -30,6 +30,10 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
 
   frustumPlanes = new Frustum(this);
 
+  // DEBUGGING PURPOSE CODE START
+  addTerrain = 0;
+  terrainTimer = 0; 
+  // DEBUGGING PURPOSE CODE END
 }
 
 Camera::Camera(float left, float right, float bottom, float top, float near, float far)
@@ -104,6 +108,31 @@ void Camera::handleKeyPress()
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
+  // DEBUGGING PURPOSE CODE START
+  if(terrainTimer > 40){
+    if(keyIsDown('8'))
+      {
+	addTerrain = 8;
+	terrainTimer = 0; 
+      }
+    if(keyIsDown('6'))
+      {
+	addTerrain = 6;
+	terrainTimer = 0; 
+      }
+    if(keyIsDown('2'))
+      {
+	addTerrain = 2;
+	terrainTimer = 0; 
+      }
+    if(keyIsDown('4'))
+      {
+	addTerrain = 4;
+	terrainTimer = 0; 
+      }
+  }
+  terrainTimer++; 
+  // DEBUGGING PURPOSE CODE END
 }
 
 void Camera::handleMouse(int x, int y)
