@@ -6,9 +6,9 @@ UNAME := $(shell uname)
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc
-CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra
-CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra
-LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa
+CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra -I$(COMMONDIR)
+CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -I$(COMMONDIR)
+LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa -I$(COMMONDIR)
 GLUTPATH = $(COMMONDIR)mac
 GLUT	= $(COMMONDIR)MicroGlut.m
 endif
