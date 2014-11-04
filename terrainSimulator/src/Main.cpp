@@ -9,10 +9,9 @@
 #include "../common/linux/MicroGlut.h"
 #endif
 
-#include "../common/GL_utilities.h"
-#include "../common/VectorUtils3.h"
-#include "../common/loadobj.h"
-#include "../common/LoadTGA.h"
+#include "GL_utilities.h"
+#include "VectorUtils3.h"
+#include "LoadTGA.h"
 
 #include "World.h"
 #include "Camera.h"
@@ -25,6 +24,7 @@ World* world;
 
 // Should be a member of world
 //GLfloat t = 0;
+
 
 void init(void)
 {
@@ -41,8 +41,7 @@ void init(void)
 
 void display(void)
 {
-  //t = (GLfloat)glutGet(GLUT_ELAPSED_TIME) / 3000;
-  
+  world->update();
   world->draw();
   glutSwapBuffers();
 }
@@ -66,7 +65,7 @@ int main(int argc, char **argv)
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutInitContextVersion(3, 2);
   glutInitWindowSize(Camera::SCREEN_WIDTH,Camera::SCREEN_HEIGHT);
-  glutCreateWindow("TSBK03 C++");
+  glutCreateWindow("THE GENERATOR");
   glutDisplayFunc(display);
   init();
   glutTimerFunc(20, &timer, 0);

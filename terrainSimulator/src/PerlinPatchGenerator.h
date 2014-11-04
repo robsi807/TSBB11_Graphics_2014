@@ -26,7 +26,7 @@ class PerlinPatchGenerator : public PatchGenerator{
 
   private:
 
-	
+
 	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize);
 	float interpolateValues(float a, float b, float x);
 	vector<float> createGradients(int gradientPoints);

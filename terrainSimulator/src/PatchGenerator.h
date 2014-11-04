@@ -1,7 +1,8 @@
 #ifndef _PATCH_GENERATOR_
 #define _PATCH_GENERATOR_
 
-#include "../common/LoadTGA.h"
+
+#include "LoadTGA.h"
 
 #include <vector>
 using namespace std;

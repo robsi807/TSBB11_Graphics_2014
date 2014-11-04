@@ -14,32 +14,47 @@
 #include "../common/linux/MicroGlut.h"
 #endif
 
-#include "../common/LoadTGA.h"
-#include "../common/loadobj.h"
-#include "../common/VectorUtils3.h"
+#include <iostream>
+#include "LoadTGA.h"
+#include "loadobj.h"
+#include "VectorUtils3.h"
 
 #include<vector>
 using namespace std;
 
 class TerrainPatch
 {
+ private:
+  GLuint* shader;
+  GLuint* texture;
+
+  vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
+
+ public:
+  int size,blendedSize,patchOverlap; 
+
+  // Position in world coordinates
+  int xPos, yPos;
+
+  // Position in grid
+  int xGrid,yGrid;
+
+  // The height maps
+  vector<float> rawHeightMap;
+  vector<float> blendedHeightMap;
   
-  private:
-    int posX, posY;
-    int patchWidth, patchHeight;
-    void generateGeometry();
-    GLuint* shader;
+  // Geometry
+  Model* geometry;
 
-  public:
-    TerrainPatch(vector<float> tex,int width, int height, int x, int y, GLuint* phongShader, char *imagePath);
-    vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
-    float calcHeight(float x,float z,int texWidth);
-    Model* geometry;
-    ~TerrainPatch();
-    vector<float> heightMap;
-    GLuint texture;
-    void draw(mat4 cameraMatrix);
+  // Constructor and destructor
+  TerrainPatch(vector<float> initHeightMap,int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture);
+  ~TerrainPatch();
+
+  // Functions
+  float calcHeight(float x,float z,int texWidth);
+  void generateGeometry();
+  void draw(mat4 cameraMatrix);
+
 };
-
 
 #endif

@@ -54,8 +54,7 @@ vector<float> PerlinPatchGenerator::createPatch(int gridSize, int frequency, int
     gradients = createGradients(gradientPoints);
     printf("end createGradients\n");	
     int numberOfPixels = gridSize/frequency;
-    printf("numberOfPixels %d\n", numberOfPixels);
-	
+
     vector<float> finalGrid;
 
 	for(int row = 0; row < gridSize; row++) {
@@ -76,14 +75,13 @@ vector<float> PerlinPatchGenerator::createPatch(int gridSize, int frequency, int
 			float interpolatedX2 = interpolateValues(gradients.at(gradientX*gradientPoints 	+ gradientY+1),
 													 gradients.at((gradientX+1)*gradientPoints + gradientY+1),
 													 diffX);
-			
-			finalGrid.push_back(interpolateValues(interpolatedX1,interpolatedX2,diffY) * amplitude);
-			
+			float finalInterp = interpolateValues(interpolatedX1,interpolatedX2,diffY);
+			finalGrid.push_back(finalInterp * amplitude);
+
 		} 
 
 	}
-    printf("end createPatch\n\n");
- 
+
 	return finalGrid;	
 }
 
@@ -107,17 +105,6 @@ vector<float> PerlinPatchGenerator::generatePatch(int x, int y, int size)
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch, size);
  
 	}
-    //printf("%d\n", (int)heightMapPatch.size());
-    //printf("%d\n", (int)heightMapPatch.capacity());
-    //printf("%d", INT_MAX);
-    //printMatrix(heightMapPatch, size);
-
-    printf("Max size of vector in generate: %d\n", (int)heightMapPatch.max_size());
-    printf("end generatePatch\n");
-
-    std::cout << "size: " << (int) heightMapPatch.size() << '\n';
-    std::cout << "capacity: " << (int) heightMapPatch.capacity() << '\n';
-    std::cout << "max_size: " << (int) heightMapPatch.max_size() << '\n';
 	return heightMapPatch;
 }
 

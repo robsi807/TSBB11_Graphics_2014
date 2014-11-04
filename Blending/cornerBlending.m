@@ -11,22 +11,22 @@ for i = 1:gridSize
         diffY = (j-1)/(gridSize-1);
         
         interpolatedX1 = interpolateValues(1,0,diffX);
-        interpolatedX2 = interpolateValues(0,0,diffX);
+        interpolatedX2 = 0;
         
         finalGrid(i,j,1) = interpolateValues(interpolatedX1,interpolatedX2,diffY);
         
-        interpolatedX1 = interpolateValues(0,1,diffX);
-        interpolatedX2 = interpolateValues(0,0,diffX);
+        interpolatedX1 = 1-interpolatedX1;
+        interpolatedX2 = 0;
         
         finalGrid(i,j,2) = interpolateValues(interpolatedX1,interpolatedX2,diffY);
 
-        interpolatedX1 = interpolateValues(0,0,diffX);
+        interpolatedX1 = 0;
         interpolatedX2 = interpolateValues(1,0,diffX);
         
         finalGrid(i,j,3) = interpolateValues(interpolatedX1,interpolatedX2,diffY);
 
-        interpolatedX1 = interpolateValues(0,0,diffX);
-        interpolatedX2 = interpolateValues(0,1,diffX);
+        interpolatedX1 = 0;
+        interpolatedX2 = 1-interpolatedX2;
         
         finalGrid(i,j,4) = interpolateValues(interpolatedX1,interpolatedX2,diffY);
         

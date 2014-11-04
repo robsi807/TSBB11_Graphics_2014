@@ -14,8 +14,10 @@
 	#include "../common/linux/MicroGlut.h"
 #endif
 
-#include "../common/VectorUtils3.h"
-#include "../common/GL_utilities.h"
+#include "VectorUtils3.h"
+#include "GL_utilities.h"
+#include "TerrainPatch.h"
+#include "Frustum.h"
 
 #include <cmath>
 #include <iostream>
@@ -30,6 +32,8 @@ class Camera
   GLfloat velocity;
   GLfloat sensitivity;
 
+  bool warpPointer,lockFrustum;
+
   // Perspective
   float projectionLeft;
   float projectionRight;
@@ -37,6 +41,8 @@ class Camera
   float projectionTop;
   float projectionNear;
   float projectionFar;
+
+  class Frustum* frustumPlanes;
 
  public:
 
@@ -50,6 +56,16 @@ class Camera
   void handleKeyPress();
   void handleMouse(int x, int y);
   void update();
+  vec3 getDirection();
+  vec3 getPosition();
+
+  // Frustum checks
+  bool isInFrustum(TerrainPatch* patch);
+
+  // DEBUGGING PURPOSE CODE START
+  int addTerrain;
+  int terrainTimer; // Causes wierd bugs without this
+  // DEBUGGING PURPOSE CODE END
 };
 
 #endif
