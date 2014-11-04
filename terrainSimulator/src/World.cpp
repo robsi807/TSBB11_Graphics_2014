@@ -14,7 +14,7 @@ void World::init(){
   
   patchGenerator = new PerlinPatchGenerator();
   
-  camera = new Camera(vec3(24,20,24), 1, 7);
+  camera = new Camera(vec3(50,50,50), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/sky%d.tga");
 
   // Init light
@@ -28,9 +28,9 @@ void World::init(){
   glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
 
   int x, y;
-  for(y = 0; y < 3; y++){
-    for(x = 0; x < 3; x++){
-      generatePatch(x, y, 512);
+  for(y = 0; y < 1; y++){
+    for(x = 0; x < 1; x++){
+      generatePatch(x, y, 256);
     }
   }
 
@@ -39,8 +39,12 @@ void World::init(){
 
 void World::generatePatch(int patchX, int patchY, int patchSize){
     
-    printf("before generatePatch");
-    vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
+    printf("before generatePatch\n");
+    vector<float> heightMapPatch;
+
+    heightMapPatch.assign(patchSize*patchSize,0);
+
+    heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
     printf("after generatePatch, before terrainPatch");
    
    TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch

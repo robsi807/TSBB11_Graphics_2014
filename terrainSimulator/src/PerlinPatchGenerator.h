@@ -17,21 +17,20 @@
 #include "PatchGenerator.h"
 #include <cmath>
 #include <vector>
-#include <limits>
+#include <climits>
+#include <iostream>
+
 using namespace std;
 
 class PerlinPatchGenerator : public PatchGenerator{
 
   private:
 
-	int INT_MAX;
-
 	
 	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize);
 	float interpolateValues(float a, float b, float x);
 	vector<float> createGradients(int gradientPoints);
-	vector<float> createPatch(int gridSize, float frequency, int gradientPoints, float amplitude);
-	vector<float> initHeightMap(vector<float> finalGrid, int gridSize);
+	vector<float> createPatch(int gridSize, int frequency, int gradientPoints, float amplitude);
 
   public:
 
