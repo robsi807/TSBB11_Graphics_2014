@@ -33,8 +33,14 @@ World::World(){
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
 
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
-  
   generateStartingPatches(GRID_BEGIN_SIZE);
+}
+
+void threadPatchGeneration(int direction, World *w)
+{
+  cout << "In!" << endl;
+  w->addPatchRow(direction);
+
 }
 
 void World::generateStartingPatches(int startSize){
@@ -98,6 +104,7 @@ void World::addPatchRow(int direction){
 
   if(direction == NORTH){
     // Calculate new coordinates in grid
+    
     int yGrid = terrainVector.at(ySize-1).at(0)->yGrid + 1;
     int xGridBegin = terrainVector.at(ySize-1).at(0)->xGrid;
     for(int x = 0; x < xSize; x++){
@@ -106,6 +113,7 @@ void World::addPatchRow(int direction){
       newTerrainVec.push_back(newPatch);
     }
     terrainVector.push_back(newTerrainVec);
+     cout << "After pushing to vector" << endl;
 
     // Blend in the new terrain
     for(int x = 0; x < xSize; x++){
@@ -124,7 +132,8 @@ void World::addPatchRow(int direction){
     }
     // TODO: Geometry generation should be moved from here
     for(int x = 1; x < xSize-1; x++){
-      terrainVector.at(ySize-1).at(x) -> generateGeometry();
+      cout << "Before generate geometry" << endl;
+      terrainVector.at(ySize-1).at(x) -> generateGeometry(); // This gives seg fault when threading
     }
     printf("Terrain added north at yGrid = %i.\n",yGrid);
     
@@ -230,17 +239,9 @@ void World::addPatchRow(int direction){
 
 TerrainPatch* World::generatePatch(int patchX, int patchY){
 
-  //printf("before generatePatch\n");
   vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
-  //printf("after generatePatch, before terrainPatch\n");
 
-  //terrainPatch = (TerrainPatch*)malloc(sizeof(TerrainPatch));
-  //memset(terrainPatch, 0, sizeof(TerrainPatch));
-
-    return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture); // TODO: dont load the texture for each patch
-
-    //  TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
-  //printf("after terrainPatch\n");
+  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture);
 }
 
 void World::update(){
@@ -248,12 +249,16 @@ void World::update(){
   updateTerrain(camera->getPosition(), camera->getDirection());
   camera->update();
   //addGeneratedTerrain();
-
+  //thread first;
   // DEBUGGING PURPOSE CODE START
   if(camera->addTerrain != 0){
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
-      addPatchRow(NORTH);
+      cout << "Before threading" << endl;
+      thread first(threadPatchGeneration,NORTH, this);
+      cout << "After threading" << endl;
+      first.detach();
+      //addPatchRow(NORTH);
     } 
     if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
@@ -299,33 +304,4 @@ World::~World(){
   terrainVector.clear();
   delete patchGenerator;
 }
-
-
-// -------  Was used by threading, not working after merge -------
-
-// void addToVector(World *w, int patchX, int patchY, int patchSize, Model *terrain){
-
-//   vector<float> heightMap = w->patchGenerator->generatePatch(patchX, patchY, patchSize);
-//   TerrainPatch* terrainPatch = new TerrainPatch(heightMap, patchX*patchSize , patchY*patchSize, patchSize, patchSize, &(w->phongShader),"../textures/grass.tga"); // TODO: dont load the texture for each patch
-//   w->generatedTerrain.push_back(terrainPatch);
-  
-// }
-/*
-void World::addGeneratedTerrain(){
-
-  if(generatedTerrain.size() > 0){
-    clock_t t;
-    t = clock();
-    for(int i = 0; i < generatedTerrain.size(); i++){
-      BuildModelVAO2(generatedTerrain.at(i)->geometry);
-      terrainVector.push_back(generatedTerrain.at(i));	
-    }
-    t = clock() - t;
-    printf ("Time to generate terrain: %f seconds)\n",((float)t)/CLOCKS_PER_SEC);
-
-    generatedTerrain.clear();
-  }
-}
-*/
-//------------ ABOVE used by threding, broken code :( ----------------
 
