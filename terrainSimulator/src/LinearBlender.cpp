@@ -54,7 +54,7 @@ void LinearBlender::blendCorners(TerrainPatch* patch00,
 				 TerrainPatch* patch10,
 				 TerrainPatch* patch11){
 
-  int patchSize = patch00->getPatchWidth();
+  int patchSize = patch00->size;
 
   // Row interators for each patch
   int i00,i01,i10,i11;
@@ -92,7 +92,7 @@ void LinearBlender::blendCorners(TerrainPatch* patch00,
 }
 
 void LinearBlender::blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast){
-  int patchSize = patchWest->getPatchWidth();
+  int patchSize = patchWest->size;
   int jWest; // jEast is always = j
   for(int i=overlap; i<patchSize-overlap; i++){
     for(int j=0; j<overlap; j++){
@@ -110,7 +110,7 @@ void LinearBlender::blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast){
 }
 
 void LinearBlender::blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth){
-  int patchSize = patchNorth->getPatchWidth();
+  int patchSize = patchNorth->size;
   int iNorth; // iSouth is always = i
   for(int i=0; i<overlap; i++){
     float linWeight = ((float)i)/(overlap-1);

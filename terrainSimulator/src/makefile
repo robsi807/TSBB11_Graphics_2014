@@ -6,9 +6,9 @@ UNAME := $(shell uname)
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc
-CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra
-CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra
-LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa
+CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra -I$(COMMONDIR)
+CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -I$(COMMONDIR)
+LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa -I$(COMMONDIR)
 GLUTPATH = $(COMMONDIR)mac
 GLUT	= $(COMMONDIR)MicroGlut.m
 endif
@@ -21,9 +21,9 @@ GLUTPATH = $(COMMONDIR)linux
 GLUT	= $(COMMONDIR)MicroGlut.c
 endif
 
-CCFILES = Main.cpp Skybox.cpp Camera.cpp TerrainPatch.cpp World.cpp PerlinPatchGenerator.cpp LinearBlender.cpp
+CCFILES = Main.cpp Skybox.cpp Camera.cpp Frustum.cpp TerrainPatch.cpp World.cpp PerlinPatchGenerator.cpp LinearBlender.cpp
 UTILS = $(COMMONDIR)GL_utilities.c $(COMMONDIR)VectorUtils3.c $(COMMONDIR)loadobj.c $(COMMONDIR)zpr.c $(COMMONDIR)LoadTGA.c $(GLUT)
-OFILES = Main.o Skybox.o Camera.o TerrainPatch.o World.o PerlinPatchGenerator.o LinearBlender.o $(COMMONDIR)GL_utilities.o $(COMMONDIR)loadobj.o $(COMMONDIR)LoadTGA.o $(COMMONDIR)VectorUtils3.o $(COMMONDIR)zpr.o $(GLUTPATH)/MicroGlut.o
+OFILES = Main.o Skybox.o Camera.o Frustum.o TerrainPatch.o World.o PerlinPatchGenerator.o LinearBlender.o $(COMMONDIR)GL_utilities.o $(COMMONDIR)loadobj.o $(COMMONDIR)LoadTGA.o $(COMMONDIR)VectorUtils3.o $(COMMONDIR)zpr.o $(GLUTPATH)/MicroGlut.o
 
 
 main: $(OFILES)

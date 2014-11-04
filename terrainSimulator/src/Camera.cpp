@@ -12,14 +12,14 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
   velocity = 1.5;
 
   projectionNear = 0.8;
-  projectionFar = 1024.0;
+  projectionFar = 1324.0;
   projectionRight = 0.5;
   projectionLeft = -0.5;
   projectionTop = 0.5;
   projectionBottom = -0.5;
 
-  warpPointer = false;
-
+  warpPointer=true;
+  lockFrustum=false;
   initKeymapManager();
 
   cameraMatrix = lookAtv(position,lookAtPoint,upVector);
@@ -28,6 +28,12 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
 
   projectionMatrix = frustum(projectionLeft, projectionRight, projectionBottom, projectionTop,projectionNear, projectionFar);
 
+  frustumPlanes = new Frustum(this);
+
+  // DEBUGGING PURPOSE CODE START
+  addTerrain = 0;
+  terrainTimer = 0; 
+  // DEBUGGING PURPOSE CODE END
 }
 
 Camera::Camera(float left, float right, float bottom, float top, float near, float far)
@@ -91,9 +97,42 @@ void Camera::handleKeyPress()
     {
       velocity *= 0.9;
     }
+  if(keyIsDown('1'))
+    {
+      lockFrustum = true;
+    }
+  if(keyIsDown('2'))
+    {
+      lockFrustum = false;
+    }
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
+  // DEBUGGING PURPOSE CODE START
+  if(terrainTimer > 40){
+    if(keyIsDown('8'))
+      {
+	addTerrain = 8;
+	terrainTimer = 0; 
+      }
+    if(keyIsDown('6'))
+      {
+	addTerrain = 6;
+	terrainTimer = 0; 
+      }
+    if(keyIsDown('2'))
+      {
+	addTerrain = 2;
+	terrainTimer = 0; 
+      }
+    if(keyIsDown('4'))
+      {
+	addTerrain = 4;
+	terrainTimer = 0; 
+      }
+  }
+  terrainTimer++; 
+  // DEBUGGING PURPOSE CODE END
 }
 
 void Camera::handleMouse(int x, int y)
@@ -138,6 +177,8 @@ void Camera::update()
 
   //if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09)
   cameraMatrix = lookAtv(position,lookAtPoint,upVector);
+  if(!lockFrustum)
+    frustumPlanes->update(this);
 }
 
 vec3 Camera::getDirection(){
@@ -146,4 +187,8 @@ vec3 Camera::getDirection(){
 
 vec3 Camera::getPosition(){
   return position;
+}
+
+bool Camera::isInFrustum(TerrainPatch* patch){
+  return frustumPlanes->containsPatch(patch);
 }

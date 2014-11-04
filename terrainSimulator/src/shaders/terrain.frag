@@ -21,7 +21,6 @@ uniform mat4 mdl2World;
 
 // From:
 // http://www.itn.liu.se/~stegu/simplexnoise/GLSL-noise-vs-noise.zip
-/*
 vec4 permute(vec4 x)
 {
   return mod(((x*34.0)+1.0)*x, 289.0);
@@ -105,14 +104,14 @@ float cnoise(vec3 P)
   float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
   return 2.2 * n_xyz;
 }
-*/
+
 
 // A function for procedural coloring of surfaces
 vec3 calculateColor(vec3 normal,vec3 position)
 {
 	const vec3 snow = vec3(0.8,0.8,1.0);
 	const vec3 rock = vec3(0.5,0.5,0.5);
-	const vec3 grass = vec3(0.2,0.8,0.2);
+	const vec3 grass = vec3(0.3,0.8,0.2);
 	const vec3 sand = vec3(0.8,0.6,0.2);
 	
 	// Calculate normalized height
@@ -120,13 +119,13 @@ vec3 calculateColor(vec3 normal,vec3 position)
 	float normalizedHeight = position.y * heightScale;
 
 	// Calculate slope
-	float slope = clamp(1.1-normal.y,0,1); // Shortcut for dot product with y-axis!
+	float slope = clamp(1.3-normal.y,0,1); // Shortcut for dot product with y-axis!
 	
 	// Calculate the height color
 	// TODO: Remove if statements and somehow weight
 	
 	vec3 heightColor = grass;
-	/*
+	
 	if(normalizedHeight < 0.2)
 	{
 		heightColor = sand;	
@@ -136,20 +135,20 @@ vec3 calculateColor(vec3 normal,vec3 position)
 		heightColor = snow;
 		slope = 0.1;
 	}
-	*/
+	
 	//heightColor = vec4(0,normalizedHeight,0,1.0);
-	//float noise1 = 0.0; //cnoise(position);
-	//float noiseTot = 0.0; //noise1;
-	//vec3 noiseVec = 0.15*vec3(noiseTot,noiseTot,noiseTot);
-	return slope*rock + (1-slope)*heightColor; // + noiseVec;
+	float noise1 = cnoise(position);
+	float noiseTot = noise1;
+	vec3 noiseVec = 0.20*vec3(noiseTot,noiseTot,noiseTot);
+	return slope*rock + (1-slope)*heightColor + noiseVec;
 }
 
 // Simply fades to gray
 vec3 applyDistanceFog(vec3 rgb){
      // fogColor should ideally be calculate from the skybox
-     const vec3 fogColor = vec3(.8,.8,0.95);
+     const vec3 fogColor = vec3(.6,.87,0.99);
      float dist = length(terrainPosition-cameraPos);
-     float fogAmount = clamp(dist*0.002,0.0,1.0);
+     float fogAmount = clamp(dist*0.001,0.0,1.0);
      return mix(rgb,fogColor,fogAmount);
 }
 
@@ -174,7 +173,7 @@ void main(void)
 		specularStrength = pow(specularStrength, specularExponent);
 	}
 	shade = (0.7*diffuseShade + 0.4*specularStrength) + 0.0001*texCoord.s;
-	vec3 color = shade*calculateColor(terrainNormal,terrainPosition);
+	vec3 color = applyDistanceFog(shade*calculateColor(terrainNormal,terrainPosition));
 	//vec3 color = applyDistanceFog(vec3(shade,shade,shade));
 	outColor = vec4(clamp(color, 0,1),1.0);
 	//outColor = clamp(shade*texture(tex, texCoord),0,1);

@@ -65,7 +65,7 @@ int main(int argc, char **argv)
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutInitContextVersion(3, 2);
   glutInitWindowSize(Camera::SCREEN_WIDTH,Camera::SCREEN_HEIGHT);
-  glutCreateWindow("TSBK03 C++");
+  glutCreateWindow("THE GENERATOR");
   glutDisplayFunc(display);
   init();
   glutTimerFunc(20, &timer, 0);

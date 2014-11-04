@@ -16,6 +16,8 @@
 
 #include "VectorUtils3.h"
 #include "GL_utilities.h"
+#include "TerrainPatch.h"
+#include "Frustum.h"
 
 #include <cmath>
 #include <iostream>
@@ -30,7 +32,7 @@ class Camera
   GLfloat velocity;
   GLfloat sensitivity;
 
-  bool warpPointer;
+  bool warpPointer,lockFrustum;
 
   // Perspective
   float projectionLeft;
@@ -39,6 +41,8 @@ class Camera
   float projectionTop;
   float projectionNear;
   float projectionFar;
+
+  class Frustum* frustumPlanes;
 
  public:
 
@@ -54,6 +58,14 @@ class Camera
   void update();
   vec3 getDirection();
   vec3 getPosition();
+
+  // Frustum checks
+  bool isInFrustum(TerrainPatch* patch);
+
+  // DEBUGGING PURPOSE CODE START
+  int addTerrain;
+  int terrainTimer; // Causes wierd bugs without this
+  // DEBUGGING PURPOSE CODE END
 };
 
 #endif
