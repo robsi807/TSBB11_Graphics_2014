@@ -1,7 +1,7 @@
 #include "PerlinPatchGenerator.h"
 
 PerlinPatchGenerator::PerlinPatchGenerator(){
-  
+
 }
 
 void PerlinPatchGenerator::printMatrix(vector<float> matrix, int matrixSize){
