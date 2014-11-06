@@ -110,38 +110,39 @@ float cnoise(vec3 P)
 // A function for procedural coloring of surfaces
 vec3 calculateColor(vec3 normal,vec3 position)
 {
-	const vec3 snow = vec3(0.8,0.8,1.0);
-	const vec3 rock = vec3(0.5,0.5,0.5);
-	const vec3 grass = vec3(0.3,0.8,0.2);
-	const vec3 sand = vec3(0.8,0.6,0.2);
+	const vec3 snow = vec3(0.9,0.9,1.0);
+	const vec3 rock = vec3(0.3,0.15,0.001);
+	const vec3 grass = vec3(0.4,0.8,0.2);
+	const vec3 sand = vec3(0.9,0.8,0.1);
 	
 	// Calculate normalized height
 	const float heightScale = 0.0025; // TODO: this should be uploaded to the shader
 	float normalizedHeight = position.y * heightScale;
 
 	// Calculate slope
-	float slope = clamp(1.3-normal.y,0,1); // Shortcut for dot product with y-axis!
+	float slope = clamp(1.2-normal.y,0,1); // Shortcut for dot product with y-axis!
 	
 	// Calculate the height color
 	// TODO: Remove if statements and somehow weight
 	
-	vec3 heightColor = grass;
+	float fnoise = cnoise(position*2);
+	vec3 noiseVec = 0.2 * vec3(2*fnoise,fnoise,fnoise);
 	
+	vec3 heightColor = grass + noiseVec;
 	if(normalizedHeight < 0.2)
 	{
-		heightColor = sand;	
+	    noiseVec = 0.15 * vec3(fnoise,fnoise,fnoise);
+		heightColor = sand + noiseVec;	
 	}
 	if(normalizedHeight > 0.37)
 	{
+	    noiseVec = 0.06 * vec3(fnoise,fnoise,fnoise);
 		heightColor = snow;
 		slope = 0.1;
 	}
 	
 	//heightColor = vec4(0,normalizedHeight,0,1.0);
-	float noise1 = cnoise(position);
-	float noiseTot = noise1;
-	vec3 noiseVec = 0.20*vec3(noiseTot,noiseTot,noiseTot);
-	return slope*rock + (1-slope)*heightColor + noiseVec;
+	return slope*rock + (1-slope)*heightColor;
 }
 
 // Simply fades to gray
@@ -173,9 +174,9 @@ void main(void)
 		specularStrength = max(specularStrength, 0.01);
 		specularStrength = pow(specularStrength, specularExponent);
 	}
-	shade = (0.7*diffuseShade + 0.4*specularStrength) + 0.0001*texCoord.s;
-	//vec3 color = applyDistanceFog(shade*calculateColor(terrainNormal,terrainPosition));
-	vec3 color = applyDistanceFog(vec3(shade,shade,shade));
+	shade = (0.7*diffuseShade + 0.4*specularStrength);
+	vec3 color = applyDistanceFog(shade*calculateColor(terrainNormal,terrainPosition));
+	//vec3 color = applyDistanceFog(vec3(shade,shade,shade));
 	outColor = vec4(clamp(color, 0,1),1.0);
 	  
 }
