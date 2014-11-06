@@ -1,10 +1,10 @@
-#include "PerlinPatchGenerator.h"
+#include "ValuePatchGenerator.h"
 
-PerlinPatchGenerator::PerlinPatchGenerator(){
+ValuePatchGenerator::ValuePatchGenerator(){
 
 }
 
-void PerlinPatchGenerator::printMatrix(vector<float> matrix, int matrixSize){
+void ValuePatchGenerator::printMatrix(vector<float> matrix, int matrixSize){
 	printf("[");
 	for(int row = 0; row < matrixSize; row++) {
 		for(int col = 0; col < matrixSize; col++) {
@@ -15,7 +15,7 @@ void PerlinPatchGenerator::printMatrix(vector<float> matrix, int matrixSize){
 	printf("]");
 }
 
-vector<float> PerlinPatchGenerator::addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize){
+vector<float> ValuePatchGenerator::addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize){
 
 	vector<float> outGrid;
 	for(int index = 0; index < gridSize * gridSize; index++){
@@ -24,7 +24,7 @@ vector<float> PerlinPatchGenerator::addMatrices(vector<float> inGrid1, vector<fl
 	return outGrid;
 }
 
-float PerlinPatchGenerator::interpolateValues(float a, float b, float x){
+float ValuePatchGenerator::interpolateValues(float a, float b, float x){
 
 	float ft = x*3.1415927;
 	float f = (1.0-cos(ft))*0.5;
@@ -33,21 +33,21 @@ float PerlinPatchGenerator::interpolateValues(float a, float b, float x){
 
 }
 
-vector<float> PerlinPatchGenerator::createGradients(int gradientPoints) {
+vector<float> ValuePatchGenerator::createGradients(int gradientPoints) {
 
 	vector<float> gradients;
     float value;
     
 	for(int row = 0; row < gradientPoints; row++) {
 		for(int col = 0; col < gradientPoints; col++) {
-            value = rand() / (float)INT_MAX;
+            value = (rand() / (float)INT_MAX)*(rand() / (float)INT_MAX);
             gradients.push_back(value);
        	} 
 	}
 	return gradients;
 }
 
-vector<float> PerlinPatchGenerator::createPatch(int gridSize, int frequency, int gradientPoints, float amplitude){
+vector<float> ValuePatchGenerator::createPatch(int gridSize, int frequency, int gradientPoints, float amplitude){
 
 	vector<float> gradients;
 	gradients = createGradients(gradientPoints);
@@ -79,7 +79,7 @@ vector<float> PerlinPatchGenerator::createPatch(int gridSize, int frequency, int
 	return finalGrid;	
 }
 
-vector<float> PerlinPatchGenerator::generatePatch(int x, int y, int size)
+vector<float> ValuePatchGenerator::generatePatch(int x, int y, int size)
 {
 	vector<float> tempPatch;
 	vector<float> heightMapPatch;
@@ -89,10 +89,15 @@ vector<float> PerlinPatchGenerator::generatePatch(int x, int y, int size)
     
 	heightMapPatch.assign(size*size,0);
 
-	for(int n = 2; n <= 4; n++){ //max value on n: 2^n <= size
+	for(int n = 2; n <= 8; n = n+2){ //max value on n: 2^n <= size
+
+        /*Biotopes:
+        
+        Sand: Set amplitude = amplitude^2:*/
+
 		frequency = pow(2,n);
 		gradientPoints = frequency + 1;
-    	amplitude = 1.0/(float)frequency;
+    	amplitude = 1.0/((float)frequency);
 
 		tempPatch = createPatch(size,frequency,gradientPoints, amplitude);
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch, size);

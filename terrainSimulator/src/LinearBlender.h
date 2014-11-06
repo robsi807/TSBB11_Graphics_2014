@@ -9,10 +9,8 @@
 class LinearBlender : public Blender{
  private:
   vector<vector<float>> cornerWeight;
-  vector<float> vertWeight,horsWeight;
 
   void initCornerWeight();
-  void initLinearWeights();
   float interpolateValues(float a,float b,float x);
   
  public:

@@ -17,6 +17,7 @@
 #include "Camera.h"
 #include "PatchGenerator.h"
 #include "PerlinPatchGenerator.h"
+#include "ValuePatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
@@ -31,8 +32,8 @@
 //#include "../common/GL_utilities.h"
 
 // Patch specific defines
-#define PATCH_OVERLAP 32
-#define PATCH_SIZE 256
+#define PATCH_OVERLAP 64
+#define PATCH_SIZE 512
 #define GRID_BEGIN_SIZE 5
 
 // Direction specific defines
