@@ -17,6 +17,7 @@
 #include "Camera.h"
 #include "PatchGenerator.h"
 #include "PerlinPatchGenerator.h"
+#include "ValuePatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
