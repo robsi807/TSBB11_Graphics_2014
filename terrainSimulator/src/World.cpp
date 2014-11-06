@@ -130,12 +130,7 @@ void World::addPatchRow(int direction){
 	blender->blendCorners(p00,p01,p10,p11);
       }
     }
-    // TODO: Geometry generation should be moved from here
-    for(int x = 1; x < xSize-1; x++){
-      cout << "Before generate geometry" << endl;
-      terrainVector.at(ySize-1).at(x) -> generateGeometry(); // This gives seg fault when threading
-    }
-    printf("Terrain added north at yGrid = %i.\n",yGrid);
+   
     
   }
   else if(direction == SOUTH){
@@ -254,10 +249,20 @@ void World::update(){
   if(camera->addTerrain != 0){
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
+
+      int xSize = terrainVector.at(0).size();
+      int ySize = terrainVector.size();
       cout << "Before threading" << endl;
       thread first(threadPatchGeneration,NORTH, this);
       cout << "After threading" << endl;
       first.detach();
+
+       // TODO: Geometry generation should be moved from here
+    for(int x = 1; x < xSize-1; x++){
+      cout << "Before generate geometry" << endl;
+      terrainVector.at(ySize-1).at(x) -> generateGeometry(); // This gives seg fault when threading
+    }
+    //printf("Terrain added north at yGrid = %i.\n",yGrid);
       //addPatchRow(NORTH);
     } 
     if(camera->addTerrain == SOUTH){
