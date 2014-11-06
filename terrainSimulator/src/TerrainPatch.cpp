@@ -10,11 +10,7 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
 
   shader = phongShader;
   texture = terrainTexture;
-  //glActiveTexture(GL_TEXTURE0);
   
-  //LoadTGATextureSimple(imagePath, &texture);
-
-  //glUniform1i(glGetUniformLocation(*shader, "tex"), 0); // Texture unit 0
   //generateGeometry();
   geometry = NULL;
 }
@@ -108,8 +104,8 @@ void TerrainPatch::generateGeometry(){
 	normalArray[(x + z * blendedWidth)*3 + 2] = n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
 
 	// Texture coordinates. You may want to scale them.
-	// texCoordArray[(x + z * blendedWidth)*2 + 0] = x1; // (float)x / size;
-	// texCoordArray[(x + z * blendedWidth)*2 + 1] = z1; // (float)z / patchHeight;
+	texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x1) / 9.0; // (float)x / size;
+	texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z1) / 9.0; // (float)z / patchHeight;
       }
   for (x = 0; x < blendedWidth-1; x++)
     for (z = 0; z < blendedHeight-1; z++)
@@ -185,7 +181,7 @@ void TerrainPatch::draw(mat4 cameraMatrix){
     glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
     glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
     // glBindTexture(GL_TEXTURE_2D, *texture);	
-    DrawModel(geometry, *shader, "inPosition", "inNormal",NULL); //"inTexCoord"); 
+    DrawModel(geometry, *shader, "inPosition", "inNormal","inTexCoord"); 
   }
   else {
     //printf("Warning, patch (%i,%i) has no geometry to draw.\n",xGrid,yGrid); 
