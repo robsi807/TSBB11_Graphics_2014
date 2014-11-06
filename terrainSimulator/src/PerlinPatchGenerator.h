@@ -33,7 +33,6 @@ class PerlinPatchGenerator : public PatchGenerator{
 	vector<float> createPatch(int gridSize, int frequency, int gradientPoints, float amplitude);
 
   public:
-
     PerlinPatchGenerator();
     void printMatrix(vector<float> matrix, int matrixSize);
     vector<float> generatePatch(int xPatch, int yPatch, int size);

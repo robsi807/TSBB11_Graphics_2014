@@ -174,8 +174,20 @@ void main(void)
 		specularStrength = pow(specularStrength, specularExponent);
 	}
 	shade = (0.7*diffuseShade + 0.4*specularStrength) + 0.0001*texCoord.s;
-	//vec3 color = applyDistanceFog(shade*calculateColor(terrainNormal,terrainPosition));
-	vec3 color = applyDistanceFog(vec3(shade,shade,shade));
-	outColor = vec4(clamp(color, 0,1),1.0);
+	vec3 color = applyDistanceFog(shade*calculateColor(terrainNormal,terrainPosition));
+	//vec3 color = applyDistanceFog(vec3(shade,shade,shade));
+//	outColor = vec4(clamp(color, 0,1),1.0);
+	
+	float red = 0.0;
+	float green = 0.0;
+	// DEBUGGING: remove colors to find artefacts
+	if(patchID.x <= 1.0) {
+	    red = 1.0;
+	}
+	if(patchID.y <= 1.0) {
+	    green = 1.0;
+	}
+	 
+	    outColor = vec4(shade*red,shade*green,shade,1.0);
 	  
 }
