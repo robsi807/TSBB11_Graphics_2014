@@ -32,8 +32,9 @@
 // ------- Application code --------
 
 // Expressed as float so gluPerspective division returns a float and not 0 (640/480 != 640.0/480.0).
-#define RENDER_WIDTH 640.0
-#define RENDER_HEIGHT 480.0
+#define RENDER_WIDTH 1024.0
+#define RENDER_HEIGHT 768.0
+#define SHADOW_MULTIPLY 1.0
 
 // We assign one texture unit in which to store the transformation.
 #define TEX_UNIT 0
@@ -79,8 +80,8 @@ void loadShadowShader()
 // This update only change the position of the light.
 void updatePositions(void)
 {
-  p_light.x = light_mvnt * cos(glutGet(GLUT_ELAPSED_TIME)/1000.0);
-  p_light.z = light_mvnt * sin(glutGet(GLUT_ELAPSED_TIME)/1000.0);
+  p_light.x = light_mvnt * cos(glutGet(GLUT_ELAPSED_TIME)/5000.0);
+  p_light.z = light_mvnt * sin(glutGet(GLUT_ELAPSED_TIME)/5000.0);
 }
 
 // Build the transformation sequence for the light source path,
@@ -106,6 +107,14 @@ GLfloat ground[] = {
   15,2, 15,
   15,2,-35
 };
+
+GLfloat groundNormals[] = {
+  0.0,1.0,0.0,
+  0.0,1.0,0.0,
+  0.0,1.0,0.0,
+  0.0,1.0,0.0,
+};
+
 GLuint groundIndices[] = {0, 1, 2, 0, 2, 3};
 
 Model *groundModel, *torusModel, *sphereModel;
@@ -118,7 +127,7 @@ void loadObjects(void)
 	
   groundModel = LoadDataToModel(
 				ground,
-				NULL,
+				groundNormals,
 				NULL,
 				NULL,
 				groundIndices,
@@ -126,59 +135,63 @@ void loadObjects(void)
 				6);
 
   torusModel = LoadModelPlus("torus.obj");
-  sphereModel = LoadModelPlus("sphere.obj");
+  sphereModel = LoadModelPlus("groundsphere.obj");
+}
+
+void init(void){
+	
+  // Setup projection matrix
+  projectionMatrix = perspective(45, RENDER_WIDTH/RENDER_HEIGHT, 10, 4000);
+
 }
 
 void drawObjects(GLuint shader)
 {
   mat4 mv2, tx2, trans, rot, scale;
 
-  glUniformMatrix4fv(glGetUniformLocation(projTexShaderId, "projectionMatrix"), 1, GL_TRUE, projectionMatrix.m);
+  glUniformMatrix4fv(glGetUniformLocation(shader, "projectionMatrix"), 1, GL_TRUE, projectionMatrix.m);
 
   // Ground
-  glUniform1f(glGetUniformLocation(projTexShaderId, "shade"), 0.3); // Dark ground
-  glUniformMatrix4fv(glGetUniformLocation(projTexShaderId, "modelViewMatrix"), 1, GL_TRUE, modelViewMatrix.m);
-  glUniformMatrix4fv(glGetUniformLocation(projTexShaderId, "textureMatrix"), 1, GL_TRUE, textureMatrix.m);
-  DrawModel(groundModel, projTexShaderId, "in_Position", NULL, NULL);
+  glUniform1f(glGetUniformLocation(shader, "shade"), 0.3); // Dark ground
+  glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, GL_TRUE, modelViewMatrix.m);
+  glUniformMatrix4fv(glGetUniformLocation(shader, "textureMatrix"), 1, GL_TRUE, textureMatrix.m);
+  DrawModel(groundModel, shader, "in_Position", "inNormal", NULL);
 	
-  glUniform1f(glGetUniformLocation(projTexShaderId, "shade"), 0.9); // Brighter objects
+  glUniform1f(glGetUniformLocation(shader, "shade"), 0.9); // Brighter objects
 	
   // One torus
   trans = Mult(T(0,4,-16), S(2.0, 2.0, 2.0)); // Apply on both
   mv2 = Mult(modelViewMatrix, trans); // Apply on both
   tx2 = Mult(textureMatrix, trans);
   // Upload both!
-  glUniformMatrix4fv(glGetUniformLocation(projTexShaderId, "modelViewMatrix"), 1, GL_TRUE, mv2.m);
-  glUniformMatrix4fv(glGetUniformLocation(projTexShaderId, "textureMatrix"), 1, GL_TRUE, tx2.m);
-  DrawModel(torusModel, projTexShaderId, "in_Position", NULL, NULL);
+  glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, GL_TRUE, mv2.m);
+  glUniformMatrix4fv(glGetUniformLocation(shader, "textureMatrix"), 1, GL_TRUE, tx2.m);
+  DrawModel(torusModel, shader, "in_Position", "inNormal", NULL);
 
   // The other torus
   trans = Mult(Mult(T(0,4,-16), Ry(3.14/2)), S(2.0, 2.0, 2.0)); // Apply on both
   mv2 = Mult(modelViewMatrix, trans);
   tx2 = Mult(textureMatrix, trans);
   // Upload both!
-  glUniformMatrix4fv(glGetUniformLocation(projTexShaderId, "modelViewMatrix"), 1, GL_TRUE, mv2.m);
-  glUniformMatrix4fv(glGetUniformLocation(projTexShaderId, "textureMatrix"), 1, GL_TRUE, tx2.m);
-  DrawModel(torusModel, projTexShaderId, "in_Position", NULL, NULL);
+  glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, GL_TRUE, mv2.m);
+  glUniformMatrix4fv(glGetUniformLocation(shader, "textureMatrix"), 1, GL_TRUE, tx2.m);
+  DrawModel(torusModel, shader, "in_Position", "inNormal", NULL);
 	
   // The sphere
-  trans = Mult(T(0,4,-5), S(5.0, 5.0, 5.0));
-  trans = Mult(T(0,4,-4), S(5.0, 5.0, 5.0));
+  //trans = Mult(T(0,4,-5), S(5.0, 5.0, 5.0));
+  trans = Mult(T(0,2,-4), S(1.5, 3.0, 1.5));
   mv2 = Mult(modelViewMatrix, trans); // Apply on both
   tx2 = Mult(textureMatrix, trans);
   // Upload both!
-  glUniformMatrix4fv(glGetUniformLocation(projTexShaderId, "modelViewMatrix"), 1, GL_TRUE, mv2.m);
-  glUniformMatrix4fv(glGetUniformLocation(projTexShaderId, "textureMatrix"), 1, GL_TRUE, tx2.m);
-  DrawModel(sphereModel, projTexShaderId, "in_Position", NULL, NULL);
+  glUniformMatrix4fv(glGetUniformLocation(shader, "modelViewMatrix"), 1, GL_TRUE, mv2.m);
+  glUniformMatrix4fv(glGetUniformLocation(shader, "textureMatrix"), 1, GL_TRUE, tx2.m);
+  DrawModel(sphereModel, shader, "in_Position", "inNormal", NULL);
 }
 
 void renderScene(void) 
 {
   // Change light positions
   updatePositions();
-	
-  // Setup projection matrix
-  projectionMatrix = perspective(45, RENDER_WIDTH/RENDER_HEIGHT, 10, 4000);
 	
   // Setup the modelview from the light source
   modelViewMatrix = lookAt(p_light.x, p_light.y, p_light.z,
@@ -189,12 +202,12 @@ void renderScene(void)
   // 1. Render scene to FBO
 
   useFBO(fbo, NULL, NULL);
-  glViewport(0,0,RENDER_WIDTH,RENDER_HEIGHT);
+  glViewport(0,0,SHADOW_MULTIPLY*RENDER_WIDTH,SHADOW_MULTIPLY*RENDER_HEIGHT);
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE); // Depth only
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   //Using the simple shader
-  glUseProgram(projTexShaderId);
+  glUseProgram(plainShaderId);
   glUniform1i(projTexMapUniform,TEX_UNIT);
   glActiveTexture(GL_TEXTURE0 + TEX_UNIT);
   glBindTexture(GL_TEXTURE_2D,0);
@@ -248,7 +261,8 @@ int main(int argc, char** argv)
 	
   loadShadowShader();
   loadObjects();
-  fbo = initFBO2(RENDER_WIDTH,RENDER_HEIGHT, 0, 1);
+  init();
+  fbo = initFBO2(SHADOW_MULTIPLY*RENDER_WIDTH,SHADOW_MULTIPLY*RENDER_HEIGHT, 0, 1);
 	
   glEnable(GL_DEPTH_TEST);
   glClearColor(0,0,0,1.0f);

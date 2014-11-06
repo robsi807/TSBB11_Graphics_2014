@@ -5,11 +5,40 @@
 
 uniform sampler2D textureUnit;
 in vec4 lightSourceCoord;
+in vec3 exNormal;
+in vec3 exSurface;
 out vec4 out_Color;
 uniform float shade;
 
+#define EPSILON 0.00001
+/*
+float CalcShadowFactor(vec4 LightSpacePos)
+{
+    vec3 ProjCoords = LightSpacePos.xyz / LightSpacePos.w;
+    vec2 UVCoords;
+    UVCoords.x = 0.5 * ProjCoords.x + 0.5;
+    UVCoords.y = 0.5 * ProjCoords.y + 0.5;
+    float z = 0.5 * ProjCoords.z + 0.5;
+
+    float xOffset = 1.0/1024;
+    float yOffset = 1.0/768;
+
+    float Factor = 0.0;
+
+    for (int y = -1 ; y <= 1 ; y++) {
+        for (int x = -1 ; x <= 1 ; x++) {
+            vec2 Offsets = vec2(x * xOffset, y * yOffset);
+            vec3 UVC = vec3(UVCoords + Offsets, z + EPSILON);
+            Factor += texture(textureUnit, UVC);
+        }
+    }
+
+    return (0.5 + (Factor / 18.0));
+}
+*/
 void main()
 {	
+	
 	// Perform perspective division to get the actual texture position
 	vec4 shadowCoordinateWdivide = lightSourceCoord / lightSourceCoord.w;
 	
@@ -30,10 +59,13 @@ void main()
 	
 	// Compare
 	float shadow = 1.0; // 1.0 = no shadow
-
+	float bias = 0.005 ; //tan(acos(clamp(dot(exNormal,exSurface-vec3(lightSourceCoord)),0,1)));
 	if (lightSourceCoord.w > 0.0)
-		if (distanceFromLight < shadowCoordinateWdivide.z) // shadow
+		if (distanceFromLight + bias < shadowCoordinateWdivide.z) // shadow
 			shadow = 0.5;
+	
+	//float shadow = CalcShadowFactor(lightSourceCoord);
+	
 	out_Color = vec4(shadow * shade);
 
 
