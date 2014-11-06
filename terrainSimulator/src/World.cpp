@@ -44,6 +44,11 @@ void threadPatchGeneration(int direction, World *w)
 
 }
 
+
+void threadGenerateGeometry(TerrainPatch *tp){
+  tp->generateGeometry();
+}
+
 void World::generateStartingPatches(int startSize){
 
 
@@ -90,10 +95,12 @@ void World::generateStartingPatches(int startSize){
   // Generate geometry for all but the edge patches
   for(int y = 1; y < startSize-1; y++){
     for(int x = 1; x < startSize-1; x++){
-      terrainVector.at(y).at(x)->generateGeometry();
       printf("Generating patch @ %i, %i\n", x, y);
+      terrainVector.at(y).at(x)->generateGeometry();
+      BuildModelVAO2(terrainVector.at(y).at(x)->geometry);
     }
   }
+
 }
 
 // Adds terrain patches in the direction specified
@@ -113,6 +120,10 @@ void World::addPatchRow(int direction){
       int xGrid = xGridBegin + x;
       TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
       newTerrainVec.push_back(newPatch);
+
+      geometryMutex.lock();
+      generatedTerrain.push_back(newPatch);
+      geometryMutex.unlock();
     }
     terrainVector.push_back(newTerrainVec);
      cout << "After pushing to vector" << endl;
@@ -143,6 +154,7 @@ void World::addPatchRow(int direction){
       int xGrid = xGridBegin + x;
       TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
       newTerrainVec.push_back(newPatch);
+
     }
     terrainVector.insert(terrainVector.begin(),newTerrainVec);
 
@@ -241,30 +253,50 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
   return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture);
 }
 
+
+
+// function called each update to see if there is any terrainpatches that need to have their geometry generated
+void World::addGeneratedTerrain(){
+  
+  // locking sync variable for terrainGeneration
+  geometryMutex.lock();
+  
+  if(generatedTerrain.size() > 0){
+    cout << "should generate terrain " << endl;
+    for(int i = 0; i < generatedTerrain.size(); i++){
+      thread test(threadGenerateGeometry, generatedTerrain.at(i));
+      test.detach();
+    }
+    generatedTerrain.clear();
+  }
+
+  geometryMutex.unlock();
+}
+
+
 void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
   updateTerrain(camera->getPosition(), camera->getDirection());
+
+  addGeneratedTerrain();
+
   camera->update();
-  //addGeneratedTerrain();
   //thread first;
   // DEBUGGING PURPOSE CODE START
   if(camera->addTerrain != 0){
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
 
-      int xSize = terrainVector.at(0).size();
-      int ySize = terrainVector.size();
       cout << "Before threading" << endl;
       thread first(threadPatchGeneration,NORTH, this);
       cout << "After threading" << endl;
       first.detach();
 
-       // TODO: Geometry generation should be moved from here
-    for(int x = 1; x < xSize-1; x++){
-      cout << "Before generate geometry" << endl;
-      terrainVector.at(ySize-1).at(x) -> generateGeometry(); // This gives seg fault when threading
-    }
-    //printf("Terrain added north at yGrid = %i.\n",yGrid);
+
+      // TODO: Geometry generation should be moved from here
+      //terrainVector.at(ySize-1).at(x)-> generateGeometry(); 
+      //BuildModelVAO2(terrainVector.at(ySize-1).at(x)->geometry);
+      //printf("Terrain added north at yGrid = %i.\n",yGrid);
       //addPatchRow(NORTH);
     } 
     if(camera->addTerrain == SOUTH){
@@ -288,12 +320,12 @@ void World::draw(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   skybox->draw(camera->cameraMatrix);
-  
+
   for(int y = 0; y < terrainVector.size(); y++){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       TerrainPatch *patch = terrainVector.at(y).at(x);
       if(camera->isInFrustum(patch))
-	patch->draw(camera->cameraMatrix);
+        patch->draw(camera->cameraMatrix);
     }
   }
 }

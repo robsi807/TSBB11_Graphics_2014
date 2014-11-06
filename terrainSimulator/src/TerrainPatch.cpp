@@ -124,15 +124,19 @@ void TerrainPatch::generateGeometry(){
 	indexArray[(x + z * (blendedWidth-1))*6 + 5] = x+1 + (z+1) * blendedWidth;
       }
 
-  geometry = LoadDataToModel(
-			     vertexArray,
-			     normalArray,
-			     texCoordArray,
-			     NULL,
-			     indexArray,
-			     vertexCount,
-			     triangleCount*3);
 
+
+	geometry = (Model*)malloc(sizeof(Model));
+	memset(geometry, 0, sizeof(Model));
+	
+	geometry->vertexArray = vertexArray;
+	geometry->texCoordArray = texCoordArray;
+	geometry->normalArray = normalArray;
+	geometry->indexArray = indexArray;
+  geometry->numVertices = vertexCount;
+  cout << " GEOMETRY GENERATED!! " << endl;
+  //geometry->numIndices = triangleCount*3;
+  //BuildModelVAO2(geometry);
 }
 
 
@@ -154,20 +158,20 @@ float TerrainPatch::calcHeight(float x,float z,int texWidth)
   y11 = geometry->vertexArray[(x1 + z1 * texWidth)*3 + 1];
 
   if(dx0 > dz0)
-    {
-      // Upper triangle
-      float dyx = y01 - y00;
-      float dyz = y11 - y01;
-      yTot = y00 + dyx*dx0 + dyz*dz0*dx0;
-      //float tempYz = y01 + dyz*dz0;
-    }
+  {
+    // Upper triangle
+    float dyx = y01 - y00;
+    float dyz = y11 - y01;
+    yTot = y00 + dyx*dx0 + dyz*dz0*dx0;
+    //float tempYz = y01 + dyz*dz0;
+  }
   else
-    {
-      // Lower triangle
-      float dyx = y11 - y10;
-      float dyz = y10 - y00;
-      yTot = y10 + dyx*dx0 + dyz*(1.0-dz0)*dx0;
-    }
+  {
+    // Lower triangle
+    float dyx = y11 - y10;
+    float dyz = y10 - y00;
+    yTot = y10 + dyx*dx0 + dyz*(1.0-dz0)*dx0;
+  }
   return yTot;
 }
 

@@ -27,6 +27,7 @@
 #include <thread>
 #include <iostream>
 #include <time.h>
+#include <mutex>
 
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
@@ -60,6 +61,7 @@ class World
     Blender* blender;
     std::vector<vector<TerrainPatch*>> terrainVector;
     std::vector<TerrainPatch*> generatedTerrain;
+    std::mutex geometryMutex;
 
     World();
     ~World();
