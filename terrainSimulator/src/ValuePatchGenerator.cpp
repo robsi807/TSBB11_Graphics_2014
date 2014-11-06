@@ -89,10 +89,15 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y, int size)
     
 	heightMapPatch.assign(size*size,0);
 
-	for(int n = 2; n <= 4; n++){ //max value on n: 2^n <= size
+	for(int n = 2; n <= 8; n = n+2){ //max value on n: 2^n <= size
+
+        /*Biotopes:
+        
+        Sand: Set amplitude = amplitude^2:*/
+
 		frequency = pow(2,n);
 		gradientPoints = frequency + 1;
-    	amplitude = 1.0/(float)frequency;
+    	amplitude = 1.0/((float)frequency);
 
 		tempPatch = createPatch(size,frequency,gradientPoints, amplitude);
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch, size);
