@@ -21,7 +21,7 @@ World::World(){
   // Init objects
   patchGenerator = new ValuePatchGenerator();
 
-  camera = new Camera(vec3(50,120,50), 1, 7);
+  camera = new Camera(vec3(0,60,0), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
@@ -42,9 +42,9 @@ void World::generateStartingPatches(int startSize){
 
 
   // Initiate height maps
-  for(int y = 0; y < startSize; y++){
+  for(int y = -(startSize-1)/2; y < startSize/2; y++){
     vector<TerrainPatch*> terrainRow;
-    for(int x = 0; x < startSize; x++){
+    for(int x = -(startSize-1)/2; x < startSize/2; x++){
       printf("Adding patch @ %i, %i\n", x, y);
       terrainRow.push_back(generatePatch(x,y));
     }
