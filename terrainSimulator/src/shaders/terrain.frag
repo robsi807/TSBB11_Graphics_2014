@@ -10,7 +10,6 @@ in vec3 exPosition;
 in vec3 terrainNormal;
 in vec3 terrainPosition;
 in vec3 cameraPos;
-in vec2 patchID;
 
 out vec4 outColor;
 
@@ -23,6 +22,7 @@ uniform mat4 mdl2World;
 uniform sampler2D tex1;
 uniform sampler2D tex2;
 uniform sampler2D tex3;
+uniform sampler2D tex4;
 
 // From:
 // http://www.itn.liu.se/~stegu/simplexnoise/GLSL-noise-vs-noise.zip
@@ -167,20 +167,28 @@ float cosInterpolate(float x,float beta){
       return res;
 }
 
-vec4 calculateColor(vec3 normal)
+vec4 calculateColor()
 {	
 	// Calculate slope
-	float wSlope = clamp(1.2-normal.y,0,1); // Shortcut for dot product with y-axis!
+	float wSlope = clamp(1.2-terrainNormal.y,0,1); // Shortcut for dot product with y-axis!
 	
-	vec4 grass = texture(tex1,texCoord);
-	vec4 rock1 = texture(tex2,texCoord);
-	vec4 rock2 = texture(tex3,texCoord);	
+	float texScale = 9.0; // Scale up the texture coordinates
+	vec4 grass1 = texture(tex1,texCoord / texScale);
+	vec4 grass2 = texture(tex2,texCoord / texScale);
+	vec4 rock1 = texture(tex3,texCoord / texScale);
+	vec4 rock2 = texture(tex4,texCoord / texScale);	
 
 	float perlNoise = cnoise(terrainPosition/150.0);
-	float wNoise = (perlNoise + 1) * 0.5;
+	float wRock = (perlNoise + 1) * 0.5;
 
 	// Weight the rock textures
-	vec4 rock = cosInterpolate(wNoise,0.3)*rock1 + cosInterpolate(1-wNoise,0.3)*rock2; 
+	vec4 rock = cosInterpolate(wRock,0.2)*rock1 +
+	cosInterpolate(1-wRock,0.2)*rock2; 
+
+	// Noise the grass
+	float wGrass = 0.5*(cnoise(terrainPosition/100.0) + 1);
+	vec4 grass = cosInterpolate(wGrass,0.6)*grass1 +
+	cosInterpolate(1-wGrass,0.6)*grass2;
 
 	return cosInterpolate(wSlope,0.3)*grass + cosInterpolate(1-wSlope,0.3)*rock;
 }
@@ -217,7 +225,7 @@ void main(void)
 	}
 
 	shade = (0.7*diffuseShade + 0.3*specularStrength);
-	vec4 color = applyDistanceFog(shade*calculateColor(terrainNormal));
+	vec4 color = applyDistanceFog(shade*calculateColor());
 	outColor = clamp(color, 0,1);
 	  
 }

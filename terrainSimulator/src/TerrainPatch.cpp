@@ -13,6 +13,7 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   
   //generateGeometry();
   geometry = NULL;
+
 }
 
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
@@ -44,7 +45,7 @@ void TerrainPatch::generateGeometry(){
   // GLfloat texCoordArray[ 2 * vertexCount];
   // GLuint indexArray[3 * triangleCount];
 
-  float hScale = 0.0025;
+  float heightScale = 0.0025;
 
   for (x = 0; x < blendedWidth; x++)
     for (z = 0; z < blendedHeight; z++)
@@ -60,15 +61,15 @@ void TerrainPatch::generateGeometry(){
 	int x2 = (x+offset+1);
 	int z2 = (z+offset+1);
 
-	float y00 = blendedHeightMap.at((x0 + z0 * size)) / hScale;
-	float y01 = blendedHeightMap.at((x1 + z0 * size)) / hScale;
+	float y00 = blendedHeightMap.at((x0 + z0 * size)) / heightScale;
+	float y01 = blendedHeightMap.at((x1 + z0 * size)) / heightScale;
 
-	float y10 = blendedHeightMap.at((x0 + z1 * size)) / hScale;
-	float y11 = blendedHeightMap.at((x1 + z1 * size)) / hScale;
-	float y12 = blendedHeightMap.at((x2 + z1 * size)) / hScale;
+	float y10 = blendedHeightMap.at((x0 + z1 * size)) / heightScale;
+	float y11 = blendedHeightMap.at((x1 + z1 * size)) / heightScale;
+	float y12 = blendedHeightMap.at((x2 + z1 * size)) / heightScale;
 
-	float y21 = blendedHeightMap.at((x1 + z2 * size)) / hScale;
-	float y22 = blendedHeightMap.at((x2 + z2 * size)) / hScale;
+	float y21 = blendedHeightMap.at((x1 + z2 * size)) / heightScale;
+	float y22 = blendedHeightMap.at((x2 + z2 * size)) / heightScale;
 
 	vec3 p00 = vec3(x0,y00,z0);
 	vec3 p01 = vec3(x1,y01,z0);
@@ -95,7 +96,7 @@ void TerrainPatch::generateGeometry(){
 	n = Normalize(n);
 
 	vertexArray[(x + z * blendedWidth)*3 + 0] = x1 / 1.0;
-	vertexArray[(x + z * blendedWidth)*3 + 1] = blendedHeightMap.at((x1 + z1 * size)) / hScale;
+	vertexArray[(x + z * blendedWidth)*3 + 1] = blendedHeightMap.at((x1 + z1 * size)) / heightScale;
 	vertexArray[(x + z * blendedWidth)*3 + 2] = z1 / 1.0;
 
 	// Normal vectors. You need to calculate these.
@@ -104,8 +105,8 @@ void TerrainPatch::generateGeometry(){
 	normalArray[(x + z * blendedWidth)*3 + 2] = n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
 
 	// Texture coordinates. You may want to scale them.
-	texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x1) / 9.0; // (float)x / size;
-	texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z1) / 9.0; // (float)z / patchHeight;
+	texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x1); // (float)x / size;
+	texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z1); // (float)z / patchHeight;
       }
   for (x = 0; x < blendedWidth-1; x++)
     for (z = 0; z < blendedHeight-1; z++)

@@ -35,20 +35,25 @@ World::World(){
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
   // Upload textures to terrain shader
-  GLuint grassTex;
+  GLuint grassTex1;
   glActiveTexture(GL_TEXTURE0);
-  LoadTGATextureSimple("../textures/grass1_1024.tga", &grassTex);
+  LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex1);
   glUniform1i(glGetUniformLocation(terrainShader, "tex1"), 0); 
   
-  GLuint rockTex;
+  GLuint grassTex2;
   glActiveTexture(GL_TEXTURE0+1);
-  LoadTGATextureSimple("../textures/rock2_1024.tga", &rockTex);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex2"), 1);
+  LoadTGATextureSimple("../textures/grass3_1024.tga", &grassTex2);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex2"), 1); 
+
+  GLuint rockTex1;
+  glActiveTexture(GL_TEXTURE0+2);
+  LoadTGATextureSimple("../textures/rock2_1024.tga", &rockTex1);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex3"), 2);
 
   GLuint rockTex2;
-  glActiveTexture(GL_TEXTURE0+2);
+  glActiveTexture(GL_TEXTURE0+3);
   LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex3"), 2);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex4"), 3); 
 
   generateStartingPatches(GRID_BEGIN_SIZE);
 }
