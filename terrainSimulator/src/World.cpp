@@ -62,9 +62,9 @@ void World::generateStartingPatches(int startSize){
 
 
   // Initiate height maps
-  for(int y = -(startSize-1)/2; y < startSize/2; y++){
+  for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
     vector<TerrainPatch*> terrainRow;
-    for(int x = -(startSize-1)/2; x < startSize/2; x++){
+    for(int x = -(startSize-1)/2; x <= (startSize-1)/2; x++){
       printf("Adding patch @ %i, %i\n", x, y);
       terrainRow.push_back(generatePatch(x,y));
     }
