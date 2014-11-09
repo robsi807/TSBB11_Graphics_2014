@@ -265,6 +265,12 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
   //printf("after terrainPatch\n");
 }
 
+void threadAddPatchRow(World *w, int dir){
+  makeWorkerCurrent();
+  w->addPatchRow(dir);
+  //makeMainContextCurrent();
+}
+
 void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
   updateTerrain(camera->getPosition(), camera->getDirection());
@@ -275,19 +281,24 @@ void World::update(){
   if(camera->addTerrain != 0){
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
-      addPatchRow(NORTH);
+      thread second(threadAddPatchRow, this, NORTH);
+      second.detach();
+      //addPatchRow(NORTH);
     } 
     if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
-      addPatchRow(SOUTH);
+      thread second(threadAddPatchRow, this, SOUTH);
+      second.detach();
     }
     if(camera->addTerrain == EAST){
       camera->addTerrain = 0;
-      addPatchRow(EAST);
+      thread second(threadAddPatchRow, this, EAST);
+      second.detach();
     }
     if(camera->addTerrain == WEST){
       camera->addTerrain = 0;
-      addPatchRow(WEST);
+      thread second(threadAddPatchRow, this, WEST);
+      second.detach();
     }
   }
   // DEBUGGING PURPOSE CODE END
