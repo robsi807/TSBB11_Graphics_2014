@@ -87,7 +87,11 @@ void Camera::handleKeyPress()
     }
   if(keyIsDown('p'))
     {
-      warpPointer = !warpPointer;
+      warpPointer = true;
+    }
+  if(keyIsDown('o'))
+    {
+      warpPointer = false;
     }
   if(keyIsDown('+'))
     {
@@ -101,7 +105,7 @@ void Camera::handleKeyPress()
     {
       lockFrustum = true;
     }
-  if(keyIsDown('2'))
+  if(keyIsDown('3'))
     {
       lockFrustum = false;
     }
