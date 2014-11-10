@@ -1,8 +1,6 @@
 #ifndef _MICROGLUT_
 #define _MICROGLUT_
 
-
-
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 
@@ -79,6 +77,5 @@ void makeMainContextCurrent();
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

@@ -166,8 +166,8 @@ make_window( Display *dpy, const char *name,
 	}
 	else
 #endif
-	   ctx = glXCreateContext( dpy, visinfo, NULL, True );
-	   workerCtx = glXCreateContext( dpy, visinfo, ctx, True );
+	  ctx = glXCreateContext( dpy, visinfo, NULL, True );
+	workerCtx = glXCreateContext( dpy, visinfo, ctx, True );
 // Register delete!
 	wmDeleteMessage = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(dpy, win, &wmDeleteMessage, 1); // Register
@@ -494,5 +494,5 @@ void makeWorkerCurrent(){
 }
 
 void makeMainContextCurrent(){
-   glXMakeCurrent(dpy, win, workerCtx);
+  glXMakeCurrent(dpy, win, workerCtx); // Fel va? ctx ska det nog vara.
 }

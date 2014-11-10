@@ -13,11 +13,6 @@ World::World(){
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
-  // Init terrain textures
-  // LoadTGATextureSimple("../textures/grass.tga", &terrainTexture);
-  //glActiveTexture(GL_TEXTURE0);
-  //glUniform1i(glGetUniformLocation(phongShader, "tex"), 0);
-
   // Init objects
   patchGenerator = new ValuePatchGenerator();
 
@@ -127,7 +122,6 @@ void World::addPatchRow(int direction){
 
   if(direction == NORTH){
     // Calculate new coordinates in grid
-    
     int yGrid = terrainVector.at(ySize-1).at(0)->yGrid + 1;
     int xGridBegin = terrainVector.at(ySize-1).at(0)->xGrid;
     for(int x = 0; x < xSize; x++){
@@ -136,7 +130,6 @@ void World::addPatchRow(int direction){
       newTerrainVec.push_back(newPatch);
     }
     terrainVector.push_back(newTerrainVec);
-     cout << "After pushing to vector" << endl;
 
     // Blend in the new terrain
     for(int x = 0; x < xSize; x++){
@@ -155,8 +148,7 @@ void World::addPatchRow(int direction){
     }
 
     for(int x = 1; x < xSize-1; x++){
-      cout << "Before generate geometry" << endl;
-      terrainVector.at(ySize-1).at(x) -> generateGeometry(); // This gives seg fault when threading
+      terrainVector.at(ySize-1).at(x)->generateGeometry();
     }
     printf("Terrain added north at yGrid = %i.\n",yGrid);  
   }
@@ -186,9 +178,9 @@ void World::addPatchRow(int direction){
 	blender->blendCorners(p00,p01,p10,p11);
       }
     }
-    // TODO: Geometry generation should be moved from here
+  
     for(int x = 1; x < xSize-1; x++){
-      terrainVector.at(1).at(x) -> generateGeometry();
+      terrainVector.at(1).at(x)->generateGeometry();
     }
     printf("Terrain added south at yGrid = %i.\n",yGrid);
   }
@@ -218,9 +210,8 @@ void World::addPatchRow(int direction){
       }
     }
     
-    // TODO: Geometry generation should be moved from here
     for(int y = 1; y < ySize-1; y++){
-      terrainVector.at(y).at(1) -> generateGeometry();
+      terrainVector.at(y).at(1)->generateGeometry();
     }
     printf("Terrain added west at xGrid = %i\n",xGrid);
   }
@@ -250,12 +241,10 @@ void World::addPatchRow(int direction){
       }
     }
     
-    // TODO: Geometry generation should be moved from here
     for(int y = 1; y < ySize-1; y++){
-      terrainVector.at(y).at(xSize-1) -> generateGeometry();
+      terrainVector.at(y).at(xSize-1)->generateGeometry();
     }
-    printf("Terrain added east at xGrid = %i\n",xGrid);
-    
+    printf("Terrain added east at xGrid = %i\n",xGrid); 
   }
 }
 
@@ -276,8 +265,7 @@ void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
   updateTerrain(camera->getPosition(), camera->getDirection());
   camera->update();
-  //addGeneratedTerrain();
-  //thread first;
+ 
   // DEBUGGING PURPOSE CODE START
   if(camera->addTerrain != 0){
 
