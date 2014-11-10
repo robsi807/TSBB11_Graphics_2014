@@ -53,13 +53,6 @@ World::World(){
   generateStartingPatches(GRID_BEGIN_SIZE);
 }
 
-void threadPatchGeneration(int direction, World *w)
-{
-  cout << "In!" << endl;
-  w->addPatchRow(direction);
-
-}
-
 void World::generateStartingPatches(int startSize){
 
 
@@ -258,7 +251,7 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 void threadAddPatchRow(World *w, int dir){
   makeWorkerCurrent();
   w->addPatchRow(dir);
-  //makeMainContextCurrent();
+  makeMainContextCurrent();
 }
 
 void World::update(){
@@ -271,23 +264,23 @@ void World::update(){
 
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
-      thread second(threadAddPatchRow, this, NORTH);
-      second.detach();
+      thread threadNorth(threadAddPatchRow, this, NORTH);
+      threadNorth.detach();
     }
     if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
-      thread second(threadAddPatchRow, this, SOUTH);
-      second.detach();
+      thread threadSouth(threadAddPatchRow, this, SOUTH);
+      threadSouth.detach();
     }
     if(camera->addTerrain == EAST){
       camera->addTerrain = 0;
-      thread second(threadAddPatchRow, this, EAST);
-      second.detach();
+      thread threadEast(threadAddPatchRow, this, EAST);
+      threadEast.detach();
     }
     if(camera->addTerrain == WEST){
       camera->addTerrain = 0;
-      thread second(threadAddPatchRow, this, WEST);
-      second.detach();
+      thread threadWest(threadAddPatchRow, this, WEST);
+      threadWest.detach();
     }
   }
   // DEBUGGING PURPOSE CODE END
