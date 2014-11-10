@@ -56,6 +56,53 @@ World::World(){
   glUniform1i(glGetUniformLocation(terrainShader, "tex4"), 3); 
 
   generateStartingPatches(GRID_BEGIN_SIZE);
+  
+  testGenerateStartingPatches(GRID_BEGIN_SIZE);
+}
+
+void World::testGenerateStartingPatches(int startSize) {
+
+  // Initiate height maps
+  cout << "generating test patches... \n";
+  for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
+    vector<vec3> testRow;
+    for(int x = -(startSize-1)/2; x <= (startSize-1)/2; x++){
+      printf("Adding test ''patch'' @ %i, %i\n", x, y);
+      testRow.push_back(vec3(x,y,0)); // hard coded for test case...
+    }
+    testVector.push_back(testRow);
+  }
+  
+  
+  cout << "DONE generating test patches... \n";
+  
+  printTestVector();
+  
+
+}
+
+void World::printTestVector() {
+
+  int size = testVector.size();
+    
+  vec3 value;
+  int xValue = 0;
+  int yValue = 0;
+    
+  for(int y = 0;y < size; y++){
+    for(int x = 0; x < size; x++){
+      value = testVector.at(y).at(x);
+      
+      //xValue = value % 10;
+      //yValue = (value - xValue) / 10;
+      
+      //cout << "(" << xValue << "," << yValue << ") " << value << " ";
+      
+      cout << "(" << value.x << "," << value.y << ") ";
+      
+    }
+    cout << "\n";
+  }
 }
 
 void World::generateStartingPatches(int startSize){
@@ -250,6 +297,70 @@ void World::addPatchRow(int direction){
   }
 }
 
+
+void World::testAddPatchRow(int direction) {
+
+}
+
+
+
+void World::addPatchRowNew(int direction) {
+
+  int xSize = terrainVector.at(0).size();
+  int ySize = terrainVector.size();
+  vector<TerrainPatch*> newTerrainVec;
+
+  printf("Terrain grid size: (%i,%i)\n",xSize,ySize);
+
+  int yOffSet = 0;
+  int xOffSet = 0;
+
+  if(direction == NORTH){
+    yOffSet = 1;
+  } else if(direction == SOUTH){
+    yOffSet = -1;
+  } else if(direction == EAST){
+    xOffSet = 1;
+  } else if(direction == WEST){
+    xOffSet = -1;
+  }
+  
+  // Calculate new coordinates in grid
+  int yGrid = terrainVector.at(ySize-1).at(0)->yGrid + 1;
+  int xGridBegin = terrainVector.at(ySize-1).at(0)->xGrid;
+  for(int x = 0; x < xSize; x++){
+    int xGrid = xGridBegin + x;
+    TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+    newTerrainVec.push_back(newPatch);
+  }
+  terrainVector.push_back(newTerrainVec);
+
+  // Blend in the new terrain
+  for(int x = 0; x < xSize; x++){
+    TerrainPatch *p00,*p01,*p10,*p11;
+    p01 = terrainVector.at(ySize-1).at(x);
+    p11 = terrainVector.at(ySize).at(x);
+    blender->blendVert(p01,p11);
+    
+    if(x != 0){
+      p00 = terrainVector.at(ySize-1).at(x-1);
+      p10 = terrainVector.at(ySize).at(x-1);
+          
+      blender->blendHors(p10,p11);
+      blender->blendCorners(p00,p01,p10,p11);
+    }
+  }
+  // TODO: Geometry generation should be moved from here
+  for(int x = 1; x < xSize-1; x++){
+    terrainVector.at(ySize-1).at(x) -> generateGeometry();
+  }
+  printf("Terrain added north at yGrid = %i.\n",yGrid);
+  
+}
+
+
+
+
 TerrainPatch* World::generatePatch(int patchX, int patchY){
 
   //printf("before generatePatch\n");
@@ -311,7 +422,212 @@ void World::draw(){
 
 void World::updateTerrain(vec3 position, vec3 direction){
 
+  /* first we construct a small test case!
+
+  // direction not needed (if we move backwards for example, it shouldn't affect where we remove and add patches).
+  
+  // check if position is in new patch.
+  int middlePatchIndex = 0 + (terrainVector.size() - 1)/2; // get the middle patch, zero indexed
+  
+  float cameraX = camera->getPosition().x;
+  float cameraY = camera->getPosition().z;
+  
+  float terrainX = terrainVector.at(middlePatchIndex).at(middlePatchIndex)->xPos;
+  float terrainY = terrainVector.at(middlePatchIndex).at(middlePatchIndex)->yPos;
+  float terrainSize = terrainVector.at(middlePatchIndex).at(middlePatchIndex)->size;
+  
+  //printf("updating terrain... %d is the middle index! \n" , middlePatchIndex);
+  //printf("current pos is: %d, %d \n", position.x, position.z);
+  //printf("current patch position is: %d, %d \n", terrainX, terrainY);
+  //cout << "current pos is: " << camera->getPosition().x << " " << camera->getPosition().z << "\n";
+   
+  //cout << "middle patch position is is: " << terrainX << " " << terrainY << "\n";
+  
+  if(cameraX < terrainX) {
+    //cout << "We will shortly update Western border \n";
+  
+  } else if (cameraX > terrainX + terrainSize) {
+    //cout << "We will shortly update Eastern border \n";
+  } // else do nothing.
+  
+  if(cameraY < terrainY) {
+    cout << "We will shortly update Southern border \n";
+    addPatchRow(SOUTH);
+  } else if (cameraY > terrainY + terrainSize) {
+    //cout << "We will shortly update Northern border \n";
+  } // else do nothing.
+  
+  
+  */
+    
+  float TEST_SIZE = 50.0;
+    
+  float cameraX = camera->getPosition().x;
+  float cameraY = camera->getPosition().z;
+  
+  int middleIndex = (testVector.size()-1)/2 + 0;
+  
+  vec3 gridPos = testVector.at(middleIndex).at(middleIndex);
+    
+  cout << "current position is: (" << cameraX << "," << cameraY << ") \n";
+  
+  cout << "\n\n\n\n\n\n\n\n\n\n";
+  
+  printTestVector();
+  
+  
+  
+  //cout << "current position is: (" << cameraX << "," << cameraY << ") \n";
+  
+  cout << "current grid position is: (" << gridPos.x*TEST_SIZE << "," << gridPos.y*TEST_SIZE << ") \n";
+  
+  if(cameraX < gridPos.x * TEST_SIZE) {
+    cout << "We will shortly update Western border \n";
+    moveTestWorld(WEST);
+  
+  } else if (cameraX > gridPos.x*TEST_SIZE + TEST_SIZE) {
+    cout << "We will shortly update Eastern border \n";
+    moveTestWorld(EAST);
+  } // else do nothing.
+  
+  if(cameraY < gridPos.y*TEST_SIZE) {
+    cout << "We will shortly update Southern border \n";
+    moveTestWorld(SOUTH);
+  } else if (cameraY > gridPos.y*TEST_SIZE + TEST_SIZE) {
+    cout << "We will shortly update Northern border \n";
+    
+    moveTestWorld(NORTH);
+  } 
+  
+  //terrainVector
+  
 }
+
+
+void World::moveTestWorld(int direction) {
+
+  
+  if(direction == SOUTH || direction == NORTH) {
+    moveTestWorldHor(direction);
+  } else {
+    moveTestWorldVer(direction);
+  }
+}
+
+void World::moveTestWorldVer(int direction) {
+  int originalSize = testVector.size();
+  
+  if(direction == WEST) {
+  
+    int dirOffSet = -1;
+  
+  
+    std::vector< std::vector<vec3> >::iterator row; 
+    std::vector<vec3>::iterator col; 
+
+    cout << "printing vector troll \n";
+
+    for (row = testVector.begin(); row != testVector.end(); ++row)
+    { 
+        cout << "Attempting to access element " << std::distance(testVector.begin(), row) << " of testVector \n";
+        //vector<vec3> testRow = *row; 
+        cout << "Erasaing first elem in row...\n";
+        row->erase(row->begin());
+        
+        cout << "accessing element nbr " << std::distance(row->begin(), row->end()-1)<< "...\n";
+        vec3 prevElem = row->at(std::distance(row->begin(), row->end()-1));
+        
+        row->push_back(vec3(prevElem.x+dirOffSet, prevElem.y, prevElem.z));
+    } 
+    
+    cout << "DONE printing vector troll \n";
+  
+  } else {
+    
+    int dirOffSet = 1;
+  
+  
+    std::vector< std::vector<vec3> >::iterator row; 
+    std::vector<vec3>::iterator col; 
+
+    cout << "printing vector troll \n";
+
+    for (row = testVector.begin(); row != testVector.end(); ++row)
+    { 
+        cout << "Attempting to access element " << std::distance(testVector.begin(), row) << " of testVector \n";
+        //vector<vec3> testRow = *row; 
+        cout << "Erasaing first elem in row...\n";
+        row->erase(row->end());
+        
+        cout << "accessing element nbr " << std::distance(row->begin(), row->begin())<< "...\n";
+        vec3 prevElem = row->at(std::distance(row->begin(), row->begin()));
+        
+        row->insert(row->begin(),vec3(prevElem.x+dirOffSet, prevElem.y, prevElem.z));
+    } 
+    
+    cout << "DONE printing vector troll \n";
+  
+  
+  }
+  
+
+}
+
+
+void World::moveTestWorldHor(int direction) {
+    // will turn into subfunction moveTestWorldHor...
+    
+    int originalSize = testVector.size();
+    
+    std::vector<vector<vec3>>::iterator eraseRowIter;
+    std::vector<vector<vec3>>::iterator prevRowIter;
+    int dirOffSet;
+
+    if(direction == SOUTH) {
+      eraseRowIter = testVector.begin();
+      prevRowIter = testVector.end() - 2; // -2 to compensate for erased vector.
+      dirOffSet = -1;
+    } else if (direction == NORTH) {
+    
+      eraseRowIter = testVector.end();
+      prevRowIter = testVector.begin(); // -2 to compensate for erased vector.
+      dirOffSet = +1;
+    
+    }
+  
+    testVector.erase(eraseRowIter);
+    
+    // construct and add another row
+    cout << "Trying the buggy one" << std::distance(testVector.begin(), prevRowIter) << "\n";
+    vector<vec3> prevRow = testVector.at(std::distance(testVector.begin(), prevRowIter));
+    
+    cout << "Tried the buggy one\n";
+    vector<vec3> testRow;
+    vec3 prevElement;
+    for (int i = 0; i < originalSize;i++) {
+      prevElement = prevRow.at(i);
+      
+    // if normal mode, we add patch
+      testRow.push_back(vec3(prevElement.x, prevElement.y+dirOffSet, prevElement.z));
+    }
+    
+    if(direction == SOUTH) {
+      testVector.push_back(testRow); // add to end if South.
+    } else {
+      testVector.insert(testVector.begin(), testRow); // add to start if North.
+    }
+    
+}
+
+
+
+
+
+
+
+
+
+
 
 
 World::~World(){

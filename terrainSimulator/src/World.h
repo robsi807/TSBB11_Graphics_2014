@@ -28,12 +28,12 @@
 #include <iostream>
 #include <time.h>
 
-//#include "../common/VectorUtils3.h"
-//#include "../common/GL_utilities.h"
+#include "../common/VectorUtils3.h"
+#include "../common/GL_utilities.h"
 
 // Patch specific defines
-#define PATCH_OVERLAP 64
-#define PATCH_SIZE 512
+#define PATCH_OVERLAP 32
+#define PATCH_SIZE 64
 #define GRID_BEGIN_SIZE 5
 
 // Direction specific defines
@@ -60,6 +60,8 @@ class World
     Blender* blender;
     std::vector<vector<TerrainPatch*>> terrainVector;
     std::vector<TerrainPatch*> generatedTerrain;
+    
+    std::vector<vector<vec3>> testVector;
 
     World();
     ~World();
@@ -67,9 +69,18 @@ class World
     TerrainPatch* generatePatch(int patchX, int patchY);
     void generateStartingPatches(int startSize);
     void addPatchRow(int direction);
+    void addPatchRowNew(int direction);
     void addGeneratedTerrain();
     void update();
     void updateTerrain(vec3 position, vec3 direction);
+    
+    // test functions
+    void testGenerateStartingPatches(int startSize);
+    void testAddPatchRow(int direction);
+    void printTestVector();
+    void moveTestWorld(int direction);
+    void moveTestWorldHor(int direction);
+    void moveTestWorldVer(int direction);
 
 };
 

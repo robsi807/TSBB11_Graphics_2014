@@ -85,6 +85,20 @@ void Camera::handleKeyPress()
       lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(d,velocity));
       position = VectorAdd(position,ScalarMult(d,velocity));
     }
+    
+  if(keyIsDown(' '))
+    {
+      vec3 d = upVector;
+      lookAtPoint = VectorAdd(lookAtPoint, ScalarMult(d, velocity));
+      position = VectorAdd(position, ScalarMult(d, velocity));
+    }    
+  if(keyIsDown('c'))
+    {
+      vec3 d = upVector;
+      lookAtPoint = VectorAdd(lookAtPoint, ScalarMult(d, -velocity));
+      position = VectorAdd(position, ScalarMult(d, -velocity));
+    }
+    
   if(keyIsDown('p'))
     {
       warpPointer = !warpPointer;

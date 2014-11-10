@@ -86,10 +86,19 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y, int size)
 	int frequency;
 	int gradientPoints;
 	float amplitude;
+  
+  int nbrOfFrequencies;
+  
+  nbrOfFrequencies = floor(log(size)/log(2));
+  
+  nbrOfFrequencies = min(nbrOfFrequencies, 8); // larger than 8 is probably unfeasible
+  
     
 	heightMapPatch.assign(size*size,0);
+	
+	
 
-	for(int n = 2; n <= 8; n = n+2){ //max value on n: 2^n <= size
+	for(int n = 2; n <= nbrOfFrequencies; n = n+2){ //max value on n: 2^n <= size
 
         /*Biotopes:
         
@@ -99,10 +108,14 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y, int size)
 		gradientPoints = frequency + 1;
     	amplitude = 1.0/((float)frequency);
 
-		tempPatch = createPatch(size,frequency,gradientPoints, amplitude);
+		tempPatch = createPatch(size,frequency,gradientPoints, amplitude/10); // to make mountains lower :)
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch, size);
  
 	}
+	
+	
+	
+	
 	return heightMapPatch;
 }
 
