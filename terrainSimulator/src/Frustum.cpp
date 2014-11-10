@@ -44,12 +44,12 @@ void Frustum::update(Camera* cam){
   planes[4].planeNormalize();
   planes[5].planeNormalize();
 }
-
 /*
 // Deprecated version using sphere as bounding shape
 bool Frustum::containsPatch(TerrainPatch* patch){
-  vec3 patchPos = vec3(patch->posX,0,patch->posY);
-  float patchWidth = patch->getPatchWidth();
+  vec3 patchPos = vec3(patch->xPos,0,patch->yPos);
+  float patchWidth = patch->size;
+  // Shifts position to middle of patch
   patchPos.x += patchWidth/2;
   patchPos.z += patchWidth/2;
   float patchRadius = patchWidth/2 * sqrt(2);
@@ -60,7 +60,7 @@ bool Frustum::containsPatch(TerrainPatch* patch){
       if(planeClassifySphere(planes[i],patchPos,patchRadius) < 0)
 	{
 	  found = false;
-	  }
+	}
       i++;
     }
   return found;
@@ -69,11 +69,12 @@ bool Frustum::containsPatch(TerrainPatch* patch){
 
 bool Frustum::containsPatch(TerrainPatch* patch){
   vec3 patchPos = vec3(patch->xPos,0.0,patch->yPos);
-  float patchWidth = patch->blendedSize;
-  patchPos.x += patchWidth/2;
-  patchPos.z += patchWidth/2;
-  float patchRadius = patchWidth/2 * sqrt(2);
-
+  float patchSize = patch->size;
+  float blendedSize = patch->blendedSize + 1;
+  patchPos.x += patchSize/2;
+  patchPos.z += patchSize/2;
+  float patchRadius = blendedSize/2 * sqrt(2);
+  
   bool found = true;
   int i = 0;
   while(i<6 && found == true)
@@ -90,6 +91,7 @@ bool Frustum::containsPatch(TerrainPatch* patch){
     }
   return found;
 }
+
 // ------------------------ Plane functions -----------------------------
 void Plane::planeNormalize()
 {

@@ -100,7 +100,7 @@ void World::generateStartingPatches(int startSize){
   for(int y = 1; y < startSize-1; y++){
     for(int x = 1; x < startSize-1; x++){
       terrainVector.at(y).at(x)->generateGeometry();
-      printf("Generating patch @ %i, %i\n", x, y);
+      printf("Generating geometry @ %i, %i\n", terrainVector.at(y).at(x)->xGrid, terrainVector.at(y).at(x)->yGrid);
     }
   }
 }
@@ -120,6 +120,7 @@ void World::addPatchRow(int direction){
     for(int x = 0; x < xSize; x++){
       int xGrid = xGridBegin + x;
       TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+      printf("Adding patch @ %i, %i\n", xGrid, yGrid);
       newTerrainVec.push_back(newPatch);
     }
     terrainVector.push_back(newTerrainVec);
@@ -142,6 +143,7 @@ void World::addPatchRow(int direction){
 
     for(int x = 1; x < xSize-1; x++){
       terrainVector.at(ySize-1).at(x)->generateGeometry();
+      printf("Generating geometry @ %i, %i\n", terrainVector.at(ySize-1).at(x)->xGrid, terrainVector.at(ySize-1).at(x)->yGrid);
     }
     printf("Terrain added north at yGrid = %i.\n",yGrid);  
   }
@@ -264,23 +266,27 @@ void World::update(){
 
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
-      thread threadNorth(threadAddPatchRow, this, NORTH);
-      threadNorth.detach();
+      //thread threadNorth(threadAddPatchRow, this, NORTH);
+      //threadNorth.detach();
+      addPatchRow(NORTH);
     }
     if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
-      thread threadSouth(threadAddPatchRow, this, SOUTH);
-      threadSouth.detach();
+      //thread threadSouth(threadAddPatchRow, this, SOUTH);
+      //threadSouth.detach();
+      addPatchRow(SOUTH);
     }
     if(camera->addTerrain == EAST){
       camera->addTerrain = 0;
-      thread threadEast(threadAddPatchRow, this, EAST);
-      threadEast.detach();
+      //thread threadEast(threadAddPatchRow, this, EAST);
+      //threadEast.detach();
+      addPatchRow(EAST);
     }
     if(camera->addTerrain == WEST){
       camera->addTerrain = 0;
-      thread threadWest(threadAddPatchRow, this, WEST);
-      threadWest.detach();
+      //thread threadWest(threadAddPatchRow, this, WEST);
+      //threadWest.detach();
+      addPatchRow(WEST);
     }
   }
   // DEBUGGING PURPOSE CODE END
@@ -291,12 +297,14 @@ void World::draw(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   skybox->draw(camera->cameraMatrix);
-  
+
   for(int y = 0; y < terrainVector.size(); y++){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       TerrainPatch *patch = terrainVector.at(y).at(x);
-      if(camera->isInFrustum(patch))
+      if(camera->isInFrustum(patch)){
 	patch->draw(camera->cameraMatrix);
+
+      }
     }
   }
 }

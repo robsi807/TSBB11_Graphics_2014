@@ -109,9 +109,9 @@ void Camera::handleKeyPress()
     {
       lockFrustum = false;
     }
-  if(keyIsDown('l'))
+  if(keyIsDown('f'))
     {
-      vec3 dir = Normalize(VectorSub(lookAtPoint, position));
+      vec3 dir = getDirection();
       printf("Pos: (%3.1f,%3.1f,%3.1f)\n",position.x,position.y,position.z);
       printf("Dir: ((%1.2f,%1.2f,%1.2f))\n",dir.x,dir.y,dir.z);
     }
