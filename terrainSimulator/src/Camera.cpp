@@ -12,7 +12,7 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
   velocity = 1.5;
 
   projectionNear = 0.8;
-  projectionFar = 1324.0;
+  projectionFar = 1700.0;
   projectionRight = 0.5;
   projectionLeft = -0.5;
   projectionTop = 0.5;

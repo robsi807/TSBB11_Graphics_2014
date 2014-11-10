@@ -10,15 +10,19 @@ in vec3 exPosition;
 in vec3 terrainNormal;
 in vec3 terrainPosition;
 in vec3 cameraPos;
-in vec2 patchID;
 
 out vec4 outColor;
 
-uniform vec3 lightSource;
+uniform vec3 lightDirection;
 uniform float specularExponent;
-uniform sampler2D tex;
+
 uniform mat4 world2View;
 uniform mat4 mdl2World;
+
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform sampler2D tex3;
+uniform sampler2D tex4;
 
 // From:
 // http://www.itn.liu.se/~stegu/simplexnoise/GLSL-noise-vs-noise.zip
@@ -106,7 +110,7 @@ float cnoise(vec3 P)
   return 2.2 * n_xyz;
 }
 
-
+/*
 // A function for procedural coloring of surfaces
 vec3 calculateColor(vec3 normal,vec3 position)
 {
@@ -137,21 +141,66 @@ vec3 calculateColor(vec3 normal,vec3 position)
 	if(normalizedHeight > 0.37)
 	{
 	    noiseVec = 0.06 * vec3(fnoise,fnoise,fnoise);
-		heightColor = snow;
+	    	heightColor = snow;
 		slope = 0.1;
 	}
 	
 	//heightColor = vec4(0,normalizedHeight,0,1.0);
 	return slope*rock + (1-slope)*heightColor;
 }
+*/
+
+// Beta should be > 0.0
+float cosInterpolate(float x,float beta){
+      float pi = 3.1415927;
+      float T = 1.0;
+      float res = 0.0;
+      if(x <= (1-beta)/(2*T))
+      {
+      	   res = 1.0;
+      } 
+      else if (x > (1-beta)/(2*T) && x <= (1+beta)/(2*T))
+      {
+      	   res = T/2 * (1 + cos(pi*T/beta * (x-(1-beta)/(2*T))));      
+	   }
+
+      return res;
+}
+
+vec4 calculateColor()
+{	
+	// Calculate slope
+	float wSlope = clamp(1.2-terrainNormal.y,0,1); // Shortcut for dot product with y-axis!
+	
+	float texScale = 9.0; // Scale up the texture coordinates
+	vec4 grass1 = texture(tex1,texCoord / texScale);
+	vec4 grass2 = texture(tex2,texCoord / texScale);
+	vec4 rock1 = texture(tex3,texCoord / texScale);
+	vec4 rock2 = texture(tex4,texCoord / texScale);	
+
+	float perlNoise = cnoise(terrainPosition/150.0);
+	float wRock = (perlNoise + 1) * 0.5;
+
+	// Weight the rock textures
+	vec4 rock = cosInterpolate(wRock,0.2)*rock1 +
+	cosInterpolate(1-wRock,0.2)*rock2; 
+
+	// Noise the grass
+	float wGrass = 0.5*(cnoise(terrainPosition/100.0) + 1);
+	vec4 grass = cosInterpolate(wGrass,0.6)*grass1 +
+	cosInterpolate(1-wGrass,0.6)*grass2;
+
+	return cosInterpolate(wSlope,0.3)*grass + cosInterpolate(1-wSlope,0.3)*rock;
+}
 
 // Simply fades to gray
-vec3 applyDistanceFog(vec3 rgb){
+vec4 applyDistanceFog(vec4 rgb){
      // fogColor should ideally be calculate from the skybox
-     const vec3 fogColor = vec3(.6,.87,0.99);
+     const vec4 fogColor = vec4(.6,.87,0.99,1.0);
      float dist = length(terrainPosition-cameraPos);
-     float fogAmount = clamp(dist*0.001,0.0,1.0);
-     return mix(rgb,fogColor,fogAmount);
+     float fogAmount = clamp(dist*0.0005,0.0,1.0);
+     float fogWeight = cosInterpolate(fogAmount,0.7);
+     return fogWeight*rgb + (1-fogWeight)*fogColor;
 }
 
 void main(void)
@@ -159,24 +208,24 @@ void main(void)
 
 	float shade,diffuseShade;
 	vec3 reflectedLightDirection,eyeDirection,lightDir;
+	vec3 normalizedNormal = normalize(exNormal);
+	lightDir = normalize(mat3(world2View)*lightDirection); 
 
-	lightDir = normalize(vec3(world2View*vec4(lightSource,1)-vec4(exPosition,1)));
-	
 	float specularStrength = 0.0;
-	diffuseShade = max(dot(normalize(exNormal), lightDir),0.01);
+	diffuseShade = max(dot(normalizedNormal, lightDir),0.01);
 
-	if(dot(lightDir,exNormal) > 0.0)
+	if(dot(normalizedNormal,lightDir) > 0.0)
 	{
-		reflectedLightDirection = reflect(normalize(lightDir),normalize(exNormal));
+		reflectedLightDirection = reflect(normalize(-lightDir),normalize(exNormal));
 		eyeDirection = -normalize(surf);
 
 		specularStrength = dot(reflectedLightDirection, eyeDirection);
 		specularStrength = max(specularStrength, 0.01);
 		specularStrength = pow(specularStrength, specularExponent);
 	}
-	shade = (0.7*diffuseShade + 0.4*specularStrength);
-	vec3 color = applyDistanceFog(shade*calculateColor(terrainNormal,terrainPosition));
-	//vec3 color = applyDistanceFog(vec3(shade,shade,shade));
-	outColor = vec4(clamp(color, 0,1),1.0);
+
+	shade = (0.7*diffuseShade + 0.3*specularStrength);
+	vec4 color = applyDistanceFog(shade*calculateColor());
+	outColor = clamp(color, 0,1);
 	  
 }

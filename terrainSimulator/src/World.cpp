@@ -21,19 +21,40 @@ World::World(){
   // Init objects
   patchGenerator = new ValuePatchGenerator();
 
-  camera = new Camera(vec3(50,120,50), 1, 7);
+  camera = new Camera(vec3(0,60,0), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
   // Init light to terrain shader
   glUseProgram(terrainShader);
 
-  vec3 lightSource = vec3(50.0f, 100.0f, 50.0f);
-  GLfloat specularExponent = 20.0;
-  glUniform3fv(glGetUniformLocation(terrainShader, "lightSource"), 1, &lightSource.x);
+  vec3 lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
+  GLfloat specularExponent = 2.0;
+  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
-
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+  
+  // Upload textures to terrain shader
+  GLuint grassTex1;
+  glActiveTexture(GL_TEXTURE0);
+  LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex1);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex1"), 0); 
+  
+  GLuint grassTex2;
+  glActiveTexture(GL_TEXTURE0+1);
+  LoadTGATextureSimple("../textures/grass3_1024.tga", &grassTex2);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex2"), 1); 
+
+  GLuint rockTex1;
+  glActiveTexture(GL_TEXTURE0+2);
+  LoadTGATextureSimple("../textures/rock2_1024.tga", &rockTex1);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex3"), 2);
+
+  GLuint rockTex2;
+  glActiveTexture(GL_TEXTURE0+3);
+  LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex4"), 3); 
+
   generateStartingPatches(GRID_BEGIN_SIZE);
 }
 
@@ -48,9 +69,9 @@ void World::generateStartingPatches(int startSize){
 
 
   // Initiate height maps
-  for(int y = 0; y < startSize; y++){
+  for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
     vector<TerrainPatch*> terrainRow;
-    for(int x = 0; x < startSize; x++){
+    for(int x = -(startSize-1)/2; x <= (startSize-1)/2; x++){
       printf("Adding patch @ %i, %i\n", x, y);
       terrainRow.push_back(generatePatch(x,y));
     }
@@ -132,8 +153,12 @@ void World::addPatchRow(int direction){
 	blender->blendCorners(p00,p01,p10,p11);
       }
     }
-   
-    
+
+    for(int x = 1; x < xSize-1; x++){
+      cout << "Before generate geometry" << endl;
+      terrainVector.at(ySize-1).at(x) -> generateGeometry(); // This gives seg fault when threading
+    }
+    printf("Terrain added north at yGrid = %i.\n",yGrid);  
   }
   else if(direction == SOUTH){
     // Calculate new coordinates in grid
@@ -241,6 +266,12 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
   return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture);
 }
 
+void threadAddPatchRow(World *w, int dir){
+  makeWorkerCurrent();
+  w->addPatchRow(dir);
+  //makeMainContextCurrent();
+}
+
 void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
   updateTerrain(camera->getPosition(), camera->getDirection());
@@ -249,35 +280,26 @@ void World::update(){
   //thread first;
   // DEBUGGING PURPOSE CODE START
   if(camera->addTerrain != 0){
+
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
-
-      int xSize = terrainVector.at(0).size();
-      int ySize = terrainVector.size();
-      cout << "Before threading" << endl;
-      thread first(threadPatchGeneration,NORTH, this);
-      cout << "After threading" << endl;
-      first.detach();
-
-       // TODO: Geometry generation should be moved from here
-    for(int x = 1; x < xSize-1; x++){
-      cout << "Before generate geometry" << endl;
-      terrainVector.at(ySize-1).at(x) -> generateGeometry(); // This gives seg fault when threading
+      thread second(threadAddPatchRow, this, NORTH);
+      second.detach();
     }
-    //printf("Terrain added north at yGrid = %i.\n",yGrid);
-      //addPatchRow(NORTH);
-    } 
     if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
-      addPatchRow(SOUTH);
+      thread second(threadAddPatchRow, this, SOUTH);
+      second.detach();
     }
     if(camera->addTerrain == EAST){
       camera->addTerrain = 0;
-      addPatchRow(EAST);
+      thread second(threadAddPatchRow, this, EAST);
+      second.detach();
     }
     if(camera->addTerrain == WEST){
       camera->addTerrain = 0;
-      addPatchRow(WEST);
+      thread second(threadAddPatchRow, this, WEST);
+      second.detach();
     }
   }
   // DEBUGGING PURPOSE CODE END
