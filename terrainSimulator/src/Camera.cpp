@@ -109,6 +109,12 @@ void Camera::handleKeyPress()
     {
       lockFrustum = false;
     }
+  if(keyIsDown('l'))
+    {
+      vec3 dir = Normalize(VectorSub(lookAtPoint, position));
+      printf("Pos: (%3.1f,%3.1f,%3.1f)\n",position.x,position.y,position.z);
+      printf("Dir: ((%1.2f,%1.2f,%1.2f))\n",dir.x,dir.y,dir.z);
+    }
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
