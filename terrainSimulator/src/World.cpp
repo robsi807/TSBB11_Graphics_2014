@@ -19,7 +19,8 @@ World::World(){
   //glUniform1i(glGetUniformLocation(phongShader, "tex"), 0);
 
   // Init objects
-  patchGenerator = new ValuePatchGenerator();
+  patchGenerator = new PerlinPatchGenerator();
+  //patchGenerator = new ValuePatchGenerator();
 
   camera = new Camera(vec3(50,120,50), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
