@@ -54,6 +54,7 @@ class TerrainPatch
   float calcHeight(float x,float z,int texWidth);
   void generateGeometry();
   void draw(mat4 cameraMatrix);
+  bool hasGeometry();
 
 };
 

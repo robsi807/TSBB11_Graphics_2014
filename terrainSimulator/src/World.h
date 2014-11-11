@@ -32,9 +32,9 @@
 //#include "../common/GL_utilities.h"
 
 // Patch specific defines
-#define PATCH_OVERLAP 64
-#define PATCH_SIZE 512
-#define GRID_BEGIN_SIZE 3
+#define PATCH_OVERLAP 32
+#define PATCH_SIZE 256
+#define GRID_BEGIN_SIZE 5
 
 // Direction specific defines
 #define NORTH 8
@@ -67,10 +67,18 @@ class World
     TerrainPatch* generatePatch(int patchX, int patchY);
     void generateStartingPatches(int startSize);
     void addPatchRow(int direction);
+    void addTerrainSouth();
+    void addTerrainNorth();
+    void addTerrainEast();
+    void addTerrainWest();
+    void removeTerrainSouth();
+    void removeTerrainNorth();
+    void removeTerrainEast();
+    void removeTerrainWest();
+    
     void addGeneratedTerrain();
     void update();
-    void updateTerrain(vec3 position, vec3 direction);
-
+    void updateTerrain();
 };
 
 #endif

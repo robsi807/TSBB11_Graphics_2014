@@ -55,7 +55,6 @@ World::World(){
 
 void World::generateStartingPatches(int startSize){
 
-
   // Initiate height maps
   for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
     vector<TerrainPatch*> terrainRow;
@@ -105,143 +104,186 @@ void World::generateStartingPatches(int startSize){
   }
 }
 
-// Adds terrain patches in the direction specified
-void World::addPatchRow(int direction){
+void World::addTerrainSouth() {
+  
   int xSize = terrainVector.at(0).size();
   int ySize = terrainVector.size();
   vector<TerrainPatch*> newTerrainVec;
 
-  printf("Terrain grid size: (%i,%i)\n",xSize,ySize);
-
-  if(direction == NORTH){
-    // Calculate new coordinates in grid
-    int yGrid = terrainVector.at(ySize-1).at(0)->yGrid + 1;
-    int xGridBegin = terrainVector.at(ySize-1).at(0)->xGrid;
-    for(int x = 0; x < xSize; x++){
-      int xGrid = xGridBegin + x;
-      TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
-      printf("Adding patch @ %i, %i\n", xGrid, yGrid);
-      newTerrainVec.push_back(newPatch);
-    }
-    terrainVector.push_back(newTerrainVec);
-
-    // Blend in the new terrain
-    for(int x = 0; x < xSize; x++){
-      TerrainPatch *p00,*p01,*p10,*p11;
-      p01 = terrainVector.at(ySize-1).at(x);
-      p11 = terrainVector.at(ySize).at(x);
-      blender->blendVert(p01,p11);
-      
-      if(x != 0){
-	p00 = terrainVector.at(ySize-1).at(x-1);
-	p10 = terrainVector.at(ySize).at(x-1);
-      
-	blender->blendHors(p10,p11);
-	blender->blendCorners(p00,p01,p10,p11);
-      }
-    }
-
-    for(int x = 1; x < xSize-1; x++){
-      terrainVector.at(ySize-1).at(x)->generateGeometry();
-      printf("Generating geometry @ %i, %i\n", terrainVector.at(ySize-1).at(x)->xGrid, terrainVector.at(ySize-1).at(x)->yGrid);
-    }
-    printf("Terrain added north at yGrid = %i.\n",yGrid);  
+  // Calculate new coordinates in grid
+  int yGrid = terrainVector.at(0).at(0)->yGrid - 1;
+  int xGridBegin = terrainVector.at(ySize-1).at(0)->xGrid;
+  for(int x = 0; x < xSize; x++){
+    int xGrid = xGridBegin + x;
+    TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+    newTerrainVec.push_back(newPatch);
   }
-  else if(direction == SOUTH){
-    // Calculate new coordinates in grid
-    int yGrid = terrainVector.at(0).at(0)->yGrid - 1;
-    int xGridBegin = terrainVector.at(ySize-1).at(0)->xGrid;
-    for(int x = 0; x < xSize; x++){
-      int xGrid = xGridBegin + x;
-      TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
-      newTerrainVec.push_back(newPatch);
-    }
-    terrainVector.insert(terrainVector.begin(),newTerrainVec);
+  terrainVector.insert(terrainVector.begin(),newTerrainVec);
 
-    // Blend in the new terrain
-    for(int x = 0; x < xSize; x++){
-      TerrainPatch *p00,*p01,*p10,*p11;
-      p01 = terrainVector.at(0).at(x);
-      p11 = terrainVector.at(1).at(x);
-      blender->blendVert(p01,p11);
+  // Blend in the new terrain
+  for(int x = 0; x < xSize; x++){
+    TerrainPatch *p00,*p01,*p10,*p11;
+    p01 = terrainVector.at(0).at(x);
+    p11 = terrainVector.at(1).at(x);
+    blender->blendVert(p01,p11);
       
-      if(x != 0){
-	p00 = terrainVector.at(0).at(x-1);
-	p10 = terrainVector.at(1).at(x-1);
+    if(x != 0){
+      p00 = terrainVector.at(0).at(x-1);
+      p10 = terrainVector.at(1).at(x-1);
       
-	blender->blendHors(p10,p11);
-	blender->blendCorners(p00,p01,p10,p11);
-      }
+      blender->blendHors(p10,p11);
+      blender->blendCorners(p00,p01,p10,p11);
     }
+  }
   
-    for(int x = 1; x < xSize-1; x++){
-      terrainVector.at(1).at(x)->generateGeometry();
-    }
-    printf("Terrain added south at yGrid = %i.\n",yGrid);
+  for(int x = 1; x < xSize-1; x++){
+    terrainVector.at(1).at(x)->generateGeometry();
   }
-  else if(direction == WEST){
-    // Calculate new coordinates in grid
-    int yGridBegin = terrainVector.at(0).at(0)->yGrid;
-    int xGrid = terrainVector.at(ySize-1).at(0)->xGrid - 1;
+  printf("Terrain added south at yGrid = %i.\n",yGrid);
 
-    for(int y = 0; y < ySize; y++){
-      int yGrid = yGridBegin + y;
-      TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
-      terrainVector.at(y).insert(terrainVector.at(y).begin(),newPatch);
-    }
-
-    // Blend in the new terrain
-    for(int y = 0; y < ySize; y++){
-      TerrainPatch *p00,*p01,*p10,*p11;
-      p10 = terrainVector.at(y).at(0);
-      p11 = terrainVector.at(y).at(1);
-      blender->blendHors(p10,p11);
-      
-      if(y != 0){
-	p00 = terrainVector.at(y-1).at(0);
-	p01 = terrainVector.at(y-1).at(1);
-	blender->blendVert(p01,p11);
-	blender->blendCorners(p00,p01,p10,p11);
-      }
-    }
-    
-    for(int y = 1; y < ySize-1; y++){
-      terrainVector.at(y).at(1)->generateGeometry();
-    }
-    printf("Terrain added west at xGrid = %i\n",xGrid);
-  }
-  else if(direction == EAST){
-    // Calculate new coordinates in grid
-    int yGridBegin = terrainVector.at(0).at(0)->yGrid;
-    int xGrid = terrainVector.at(ySize-1).at(xSize-1)->xGrid + 1;
-
-    for(int y = 0; y < ySize; y++){
-      int yGrid = yGridBegin + y;
-      TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
-      terrainVector.at(y).push_back(newPatch);
-    }
-
-    // Blend in the new terrain
-    for(int y = 0; y < ySize; y++){
-      TerrainPatch *p00,*p01,*p10,*p11;
-      p10 = terrainVector.at(y).at(xSize-1);
-      p11 = terrainVector.at(y).at(xSize);
-      blender->blendHors(p10,p11);
-      
-      if(y != 0){
-	p00 = terrainVector.at(y-1).at(xSize-1);
-	p01 = terrainVector.at(y-1).at(xSize);
-	blender->blendVert(p01,p11);
-	blender->blendCorners(p00,p01,p10,p11);
-      }
-    }
-    
-    for(int y = 1; y < ySize-1; y++){
-      terrainVector.at(y).at(xSize-1)->generateGeometry();
-    }
-    printf("Terrain added east at xGrid = %i\n",xGrid); 
-  }
 }
+
+void World::addTerrainNorth() {
+
+  int xSize = terrainVector.at(0).size();
+  int ySize = terrainVector.size();
+  vector<TerrainPatch*> newTerrainVec;
+
+
+  // Calculate new coordinates in grid
+  int yGrid = terrainVector.at(ySize-1).at(0)->yGrid + 1;
+  int xGridBegin = terrainVector.at(ySize-1).at(0)->xGrid;
+  for(int x = 0; x < xSize; x++){
+    int xGrid = xGridBegin + x;
+    TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+    printf("Adding patch @ %i, %i\n", xGrid, yGrid);
+    newTerrainVec.push_back(newPatch);
+  }
+  terrainVector.push_back(newTerrainVec);
+
+  // Blend in the new terrain
+  for(int x = 0; x < xSize; x++){
+    TerrainPatch *p00,*p01,*p10,*p11;
+    p01 = terrainVector.at(ySize-1).at(x);
+    p11 = terrainVector.at(ySize).at(x);
+    blender->blendVert(p01,p11);
+      
+    if(x != 0){
+      p00 = terrainVector.at(ySize-1).at(x-1);
+      p10 = terrainVector.at(ySize).at(x-1);
+      
+      blender->blendHors(p10,p11);
+      blender->blendCorners(p00,p01,p10,p11);
+    }
+  }
+
+  for(int x = 1; x < xSize-1; x++){
+    terrainVector.at(ySize-1).at(x)->generateGeometry();
+    printf("Generating geometry @ %i, %i\n", terrainVector.at(ySize-1).at(x)->xGrid, terrainVector.at(ySize-1).at(x)->yGrid);
+  }
+  printf("Terrain added north at yGrid = %i.\n",yGrid);  
+}
+
+void World::addTerrainEast(){
+  
+  int xSize = terrainVector.at(0).size();
+  int ySize = terrainVector.size();
+  vector<TerrainPatch*> newTerrainVec;
+
+  // Calculate new coordinates in grid
+  int yGridBegin = terrainVector.at(0).at(0)->yGrid;
+  int xGrid = terrainVector.at(ySize-1).at(0)->xGrid - 1;
+
+  for(int y = 0; y < ySize; y++){
+    int yGrid = yGridBegin + y;
+    TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+    terrainVector.at(y).insert(terrainVector.at(y).begin(),newPatch);
+  }
+
+  // Blend in the new terrain
+  for(int y = 0; y < ySize; y++){
+    TerrainPatch *p00,*p01,*p10,*p11;
+    p10 = terrainVector.at(y).at(0);
+    p11 = terrainVector.at(y).at(1);
+    blender->blendHors(p10,p11);
+      
+    if(y != 0){
+      p00 = terrainVector.at(y-1).at(0);
+      p01 = terrainVector.at(y-1).at(1);
+      blender->blendVert(p01,p11);
+      blender->blendCorners(p00,p01,p10,p11);
+    }
+  }
+    
+  for(int y = 1; y < ySize-1; y++){
+    terrainVector.at(y).at(1)->generateGeometry();
+  }
+  printf("Terrain added west at xGrid = %i\n",xGrid);
+
+
+
+}
+
+void World::addTerrainWest(){
+  
+  int xSize = terrainVector.at(0).size();
+  int ySize = terrainVector.size();
+  vector<TerrainPatch*> newTerrainVec;
+
+  // Calculate new coordinates in grid
+  int yGridBegin = terrainVector.at(0).at(0)->yGrid;
+  int xGrid = terrainVector.at(ySize-1).at(xSize-1)->xGrid + 1;
+
+  for(int y = 0; y < ySize; y++){
+    int yGrid = yGridBegin + y;
+    TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+    terrainVector.at(y).push_back(newPatch);
+  }
+
+  // Blend in the new terrain
+  for(int y = 0; y < ySize; y++){
+    TerrainPatch *p00,*p01,*p10,*p11;
+    p10 = terrainVector.at(y).at(xSize-1);
+    p11 = terrainVector.at(y).at(xSize);
+    blender->blendHors(p10,p11);
+      
+    if(y != 0){
+      p00 = terrainVector.at(y-1).at(xSize-1);
+      p01 = terrainVector.at(y-1).at(xSize);
+      blender->blendVert(p01,p11);
+      blender->blendCorners(p00,p01,p10,p11);
+    }
+  }
+    
+  for(int y = 1; y < ySize-1; y++){
+    terrainVector.at(y).at(xSize-1)->generateGeometry();
+  }
+  printf("Terrain added east at xGrid = %i\n",xGrid);
+
+}
+
+void World::removeTerrainSouth() {
+
+  terrainVector.erase(terrainVector.begin());
+};
+
+void World::removeTerrainNorth() {
+  terrainVector.erase(terrainVector.end());
+};
+
+void World::removeTerrainEast() {
+  for (int y = 0; y < terrainVector.size();y++) {
+    terrainVector.at(y).erase(terrainVector.at(y).begin());
+  }
+
+};
+
+void World::removeTerrainWest() {
+  for (int y = 0; y < terrainVector.size();y++) {
+    terrainVector.at(y).erase(terrainVector.at(y).begin() + terrainVector.at(y).size() - 1);
+  }
+};
+
 
 TerrainPatch* World::generatePatch(int patchX, int patchY){
 
@@ -252,13 +294,13 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 
 void threadAddPatchRow(World *w, int dir){
   makeWorkerCurrent();
-  w->addPatchRow(dir);
+  //w->addPatchRow(dir);
   makeMainContextCurrent();
 }
 
 void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
-  updateTerrain(camera->getPosition(), camera->getDirection());
+  updateTerrain();
   camera->update();
  
   // DEBUGGING PURPOSE CODE START
@@ -268,25 +310,29 @@ void World::update(){
       camera->addTerrain = 0;
       //thread threadNorth(threadAddPatchRow, this, NORTH);
       //threadNorth.detach();
-      addPatchRow(NORTH);
+      addTerrainNorth();
+      removeTerrainSouth();
     }
     if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
       //thread threadSouth(threadAddPatchRow, this, SOUTH);
       //threadSouth.detach();
-      addPatchRow(SOUTH);
+      addTerrainSouth();
+      removeTerrainNorth();
     }
     if(camera->addTerrain == EAST){
       camera->addTerrain = 0;
       //thread threadEast(threadAddPatchRow, this, EAST);
       //threadEast.detach();
-      addPatchRow(EAST);
+      addTerrainEast();
+      removeTerrainWest();
     }
     if(camera->addTerrain == WEST){
       camera->addTerrain = 0;
       //thread threadWest(threadAddPatchRow, this, WEST);
       //threadWest.detach();
-      addPatchRow(WEST);
+      addTerrainWest();
+      removeTerrainEast();
     }
   }
   // DEBUGGING PURPOSE CODE END
@@ -310,7 +356,37 @@ void World::draw(){
 }
 
 
-void World::updateTerrain(vec3 position, vec3 direction){
+void World::updateTerrain(){
+  int yIndex = (terrainVector.size() - 1) / 2 + 0;
+  int xIndex = (terrainVector.at(yIndex).size() - 1) / 2 + 0;
+  
+  TerrainPatch* middlePatch = terrainVector.at(yIndex).at(xIndex);
+  
+  int patchSize = middlePatch->size - middlePatch->patchOverlap;
+  int xPatch = middlePatch-> xPos;
+  int yPatch = middlePatch-> yPos;
+
+  int xCam = camera->getPosition().x;
+  int yCam = camera->getPosition().z; // well... we go from 3D to 2D.
+
+  if(xCam < xPatch) { // move EAST.
+    addTerrainEast();
+    removeTerrainWest();
+  } else if (xCam > xPatch + patchSize) { // move WEST
+    addTerrainWest();
+    removeTerrainEast();
+  }
+  
+  if(yCam < yPatch) { // move SOUTH.
+    addTerrainSouth();
+    removeTerrainNorth();
+  } else if (yCam > yPatch + patchSize) { // move NORTH
+    addTerrainNorth();
+    removeTerrainSouth();
+  }
+
+
+
 
 }
 
