@@ -26,12 +26,12 @@ vector<float> ValuePatchGenerator::addMatrices(vector<float> inGrid1, vector<flo
 
 float ValuePatchGenerator::interpolateValues(float a, float b, float x){
 
-	/*float ft = x*3.1415927;
+	float ft = x*3.1415927;
 	float f = (1.0-cos(ft))*0.5;
 	float res = a*(1.0-f) + b*f;
-    */
-    float Sx = 3.0*pow(1.0*x,2.0)-2.0*pow(1.0*x,3.0);
-    float res = a+Sx*(b-a);
+    
+    /*float Sx = 3.0*pow(1.0*x,2.0)-2.0*pow(1.0*x,3.0);
+    float res = a+Sx*(b-a);*/
     return res;
 
 }

@@ -33,8 +33,8 @@
 
 // Patch specific defines
 #define PATCH_OVERLAP 64
-#define PATCH_SIZE 128
-#define GRID_BEGIN_SIZE 3
+#define PATCH_SIZE 256
+#define GRID_BEGIN_SIZE 5
 
 // Direction specific defines
 #define NORTH 8
