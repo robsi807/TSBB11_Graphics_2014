@@ -30,7 +30,7 @@ float PerlinPatchGenerator::interpolateValues(float a, float b, float x){
 	float f = (1.0-cos(ft))*0.5;
 	float res = a*(1.0-f) + b*f;
     */
-    float Sx = 3.0*pow(1.0*x,2.0)-2.0*pow(1.0*x,3.0);
+    float Sx = 3.0*pow(x,2.0)-2.0*pow(x,3.0);
     float res = a+Sx*(b-a);
     return res;
 

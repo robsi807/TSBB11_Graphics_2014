@@ -26,12 +26,12 @@ vector<float> ValuePatchGenerator::addMatrices(vector<float> inGrid1, vector<flo
 
 float ValuePatchGenerator::interpolateValues(float a, float b, float x){
 
-	float ft = x*3.1415927;
+	/*float ft = x*3.1415927;
 	float f = (1.0-cos(ft))*0.5;
 	float res = a*(1.0-f) + b*f;
-    
-    /*float Sx = 3.0*pow(1.0*x,2.0)-2.0*pow(1.0*x,3.0);
-    float res = a+Sx*(b-a);*/
+    */
+    float Sx = 3.0*pow(x,2.0)-2.0*pow(x,3.0);
+    float res = a+Sx*(b-a);
     return res;
 
 }
@@ -39,11 +39,11 @@ float ValuePatchGenerator::interpolateValues(float a, float b, float x){
 vector<float> ValuePatchGenerator::createGradients(int gradientPoints) {
 
 	vector<float> gradients;
-    float value = 0;
+    float value;
     
 	for(int row = 0; row < gradientPoints; row++) {
 		for(int col = 0; col < gradientPoints; col++) {
-            value = value + (rand() / (float)INT_MAX)*(rand() / (float)INT_MAX);
+            value = (rand() / (float)INT_MAX)*(rand() / (float)INT_MAX);
             gradients.push_back(value);
        	} 
 	}
@@ -91,7 +91,12 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y, int size)
 	float amplitude;
     
 	heightMapPatch.assign(size*size,0);
-    srand(pow(x+y,y)/x);
+    
+    //Position based seed
+    int n=x+y*57;
+    n=(n<<13)^n;
+    int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
+    srand(seed);
 
 	for(int n = 2; n <= 8; n = n+2){ //max value on n: 2^n <= size
 
