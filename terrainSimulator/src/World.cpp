@@ -14,6 +14,7 @@ World::World(){
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
   // Init objects
+  //patchGenerator = new PerlinPatchGenerator();
   patchGenerator = new ValuePatchGenerator();
 
   camera = new Camera(vec3(0,60,0), 1, 7);
