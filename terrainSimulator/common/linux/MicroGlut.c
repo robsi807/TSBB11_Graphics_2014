@@ -25,10 +25,8 @@
 #include <string.h>
 #include <GL/gl.h>
 #define GLX_GLXEXT_PROTOTYPES
-#include <GL/glext.h>
-#include <X11/Xlib.h>
 #include <X11/keysym.h>
-#include <GL/glx.h>
+#include <GL/glext.h>
 #include "MicroGlut.h"
 #include <sys/time.h>
 #include <unistd.h>
@@ -75,6 +73,7 @@ static void checktimers();
  * Create an RGB, double-buffered window.
  * Return the window and context handles.
  */
+   GLXContext workerCtx;
 
 static void
 make_window( Display *dpy, const char *name,
@@ -167,8 +166,8 @@ make_window( Display *dpy, const char *name,
 	}
 	else
 #endif
-	   ctx = glXCreateContext( dpy, visinfo, NULL, True );
-	
+	  ctx = glXCreateContext( dpy, visinfo, NULL, True );
+	workerCtx = glXCreateContext( dpy, visinfo, ctx, True ); // True
 // Register delete!
 	wmDeleteMessage = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(dpy, win, &wmDeleteMessage, 1); // Register
@@ -487,3 +486,13 @@ char glutKeyIsDown(unsigned char c)
 	return gKeymap[(unsigned int)c];
 }
 
+GLXContext getWorkerContext(){
+  return workerCtx;
+}
+void makeWorkerCurrent(){
+   glXMakeCurrent(dpy, win, workerCtx);
+}
+
+void makeMainContextCurrent(){
+  glXMakeCurrent(dpy, win, ctx);
+}

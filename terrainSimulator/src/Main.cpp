@@ -7,6 +7,7 @@
 #else
 #include <GL/gl.h>
 #include "../common/linux/MicroGlut.h"
+#include <X11/Xlib.h>
 #endif
 
 #include "GL_utilities.h"
@@ -64,6 +65,7 @@ int main(int argc, char **argv)
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutInitContextVersion(3, 2);
+  XInitThreads();
   glutInitWindowSize(Camera::SCREEN_WIDTH,Camera::SCREEN_HEIGHT);
   glutCreateWindow("THE GENERATOR");
   glutDisplayFunc(display);

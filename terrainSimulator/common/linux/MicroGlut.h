@@ -1,6 +1,9 @@
 #ifndef _MICROGLUT_
 #define _MICROGLUT_
 
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -45,6 +48,11 @@ void glutReshapeWindow(int width, int height);
 void glutSetWindowTitle(char *title);
 void glutInitContextVersion(int major, int minor);
 
+// added by us
+GLXContext getWorkerContext();
+void makeWorkerCurrent();
+void makeMainContextCurrent();
+
 /* Mouse buttons. */
 #define GLUT_LEFT_BUTTON		0
 // No support for middle yet
@@ -69,6 +77,5 @@ void glutInitContextVersion(int major, int minor);
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

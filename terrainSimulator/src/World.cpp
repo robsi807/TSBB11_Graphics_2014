@@ -13,36 +13,54 @@ World::World(){
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
-  // Init terrain textures
-  // LoadTGATextureSimple("../textures/grass.tga", &terrainTexture);
-  //glActiveTexture(GL_TEXTURE0);
-  //glUniform1i(glGetUniformLocation(phongShader, "tex"), 0);
-
   // Init objects
-  patchGenerator = new PerlinPatchGenerator();
-  camera = new Camera(vec3(50,120,50), 1, 7);
+  //patchGenerator = new PerlinPatchGenerator();
+  patchGenerator = new ValuePatchGenerator();
+
+  camera = new Camera(vec3(0,60,0), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
   // Init light to terrain shader
   glUseProgram(terrainShader);
 
-  vec3 lightSource = vec3(50.0f, 100.0f, 50.0f);
-  GLfloat specularExponent = 20.0;
-  glUniform3fv(glGetUniformLocation(terrainShader, "lightSource"), 1, &lightSource.x);
+  vec3 lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
+  GLfloat specularExponent = 2.0;
+  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
-
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
+  // Upload textures to terrain shader
+  GLuint grassTex1;
+  glActiveTexture(GL_TEXTURE0);
+  LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex1);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex1"), 0); 
+  
+  GLuint grassTex2;
+  glActiveTexture(GL_TEXTURE0+1);
+  LoadTGATextureSimple("../textures/grass3_1024.tga", &grassTex2);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex2"), 1); 
+
+  GLuint rockTex1;
+  glActiveTexture(GL_TEXTURE0+2);
+  LoadTGATextureSimple("../textures/rock2_1024.tga", &rockTex1);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex3"), 2);
+
+  GLuint rockTex2;
+  glActiveTexture(GL_TEXTURE0+3);
+  LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
+  glUniform1i(glGetUniformLocation(terrainShader, "tex4"), 3); 
+
   generateStartingPatches(GRID_BEGIN_SIZE);
 }
 
 void World::generateStartingPatches(int startSize){
 
+
   // Initiate height maps
-  for(int y = 0; y < startSize; y++){
+  for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
     vector<TerrainPatch*> terrainRow;
-    for(int x = 0; x < startSize; x++){
+    for(int x = -(startSize-1)/2; x <= (startSize-1)/2; x++){
       printf("Adding patch @ %i, %i\n", x, y);
       terrainRow.push_back(generatePatch(x,y));
     }
@@ -83,7 +101,7 @@ void World::generateStartingPatches(int startSize){
   for(int y = 1; y < startSize-1; y++){
     for(int x = 1; x < startSize-1; x++){
       terrainVector.at(y).at(x)->generateGeometry();
-      printf("Generating patch @ %i, %i\n", x, y);
+      printf("Generating geometry @ %i, %i\n", terrainVector.at(y).at(x)->xGrid, terrainVector.at(y).at(x)->yGrid);
     }
   }
 }
@@ -103,6 +121,7 @@ void World::addPatchRow(int direction){
     for(int x = 0; x < xSize; x++){
       int xGrid = xGridBegin + x;
       TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
+      printf("Adding patch @ %i, %i\n", xGrid, yGrid);
       newTerrainVec.push_back(newPatch);
     }
     terrainVector.push_back(newTerrainVec);
@@ -122,12 +141,12 @@ void World::addPatchRow(int direction){
 	blender->blendCorners(p00,p01,p10,p11);
       }
     }
-    // TODO: Geometry generation should be moved from here
+
     for(int x = 1; x < xSize-1; x++){
-      terrainVector.at(ySize-1).at(x) -> generateGeometry();
+      terrainVector.at(ySize-1).at(x)->generateGeometry();
+      printf("Generating geometry @ %i, %i\n", terrainVector.at(ySize-1).at(x)->xGrid, terrainVector.at(ySize-1).at(x)->yGrid);
     }
-    printf("Terrain added north at yGrid = %i.\n",yGrid);
-    
+    printf("Terrain added north at yGrid = %i.\n",yGrid);  
   }
   else if(direction == SOUTH){
     // Calculate new coordinates in grid
@@ -155,9 +174,9 @@ void World::addPatchRow(int direction){
 	blender->blendCorners(p00,p01,p10,p11);
       }
     }
-    // TODO: Geometry generation should be moved from here
+  
     for(int x = 1; x < xSize-1; x++){
-      terrainVector.at(1).at(x) -> generateGeometry();
+      terrainVector.at(1).at(x)->generateGeometry();
     }
     printf("Terrain added south at yGrid = %i.\n",yGrid);
   }
@@ -187,9 +206,8 @@ void World::addPatchRow(int direction){
       }
     }
     
-    // TODO: Geometry generation should be moved from here
     for(int y = 1; y < ySize-1; y++){
-      terrainVector.at(y).at(1) -> generateGeometry();
+      terrainVector.at(y).at(1)->generateGeometry();
     }
     printf("Terrain added west at xGrid = %i\n",xGrid);
   }
@@ -219,52 +237,56 @@ void World::addPatchRow(int direction){
       }
     }
     
-    // TODO: Geometry generation should be moved from here
     for(int y = 1; y < ySize-1; y++){
-      terrainVector.at(y).at(xSize-1) -> generateGeometry();
+      terrainVector.at(y).at(xSize-1)->generateGeometry();
     }
-    printf("Terrain added east at xGrid = %i\n",xGrid);
-    
+    printf("Terrain added east at xGrid = %i\n",xGrid); 
   }
 }
 
 TerrainPatch* World::generatePatch(int patchX, int patchY){
 
-  //printf("before generatePatch\n");
   vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
-  //printf("after generatePatch, before terrainPatch\n");
 
-  //terrainPatch = (TerrainPatch*)malloc(sizeof(TerrainPatch));
-  //memset(terrainPatch, 0, sizeof(TerrainPatch));
+  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture);
+}
 
-    return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture); // TODO: dont load the texture for each patch
-
-    //  TerrainPatch* terrainPatch = new TerrainPatch(heightMapPatch,patchSize, patchSize, patchX*patchSize , patchY*patchSize, &phongShader,"../textures/grass.tga"); // TODO: dont load the texture for each patch
-  //printf("after terrainPatch\n");
+void threadAddPatchRow(World *w, int dir){
+  makeWorkerCurrent();
+  w->addPatchRow(dir);
+  makeMainContextCurrent();
 }
 
 void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
   updateTerrain(camera->getPosition(), camera->getDirection());
   camera->update();
-  //addGeneratedTerrain();
-
+ 
   // DEBUGGING PURPOSE CODE START
   if(camera->addTerrain != 0){
+
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
+      //thread threadNorth(threadAddPatchRow, this, NORTH);
+      //threadNorth.detach();
       addPatchRow(NORTH);
-    } 
+    }
     if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
+      //thread threadSouth(threadAddPatchRow, this, SOUTH);
+      //threadSouth.detach();
       addPatchRow(SOUTH);
     }
     if(camera->addTerrain == EAST){
       camera->addTerrain = 0;
+      //thread threadEast(threadAddPatchRow, this, EAST);
+      //threadEast.detach();
       addPatchRow(EAST);
     }
     if(camera->addTerrain == WEST){
       camera->addTerrain = 0;
+      //thread threadWest(threadAddPatchRow, this, WEST);
+      //threadWest.detach();
       addPatchRow(WEST);
     }
   }
@@ -276,12 +298,14 @@ void World::draw(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   skybox->draw(camera->cameraMatrix);
-  
+
   for(int y = 0; y < terrainVector.size(); y++){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       TerrainPatch *patch = terrainVector.at(y).at(x);
-      if(camera->isInFrustum(patch))
+      if(camera->isInFrustum(patch)){
 	patch->draw(camera->cameraMatrix);
+
+      }
     }
   }
 }
@@ -299,33 +323,4 @@ World::~World(){
   terrainVector.clear();
   delete patchGenerator;
 }
-
-
-// -------  Was used by threading, not working after merge -------
-
-// void addToVector(World *w, int patchX, int patchY, int patchSize, Model *terrain){
-
-//   vector<float> heightMap = w->patchGenerator->generatePatch(patchX, patchY, patchSize);
-//   TerrainPatch* terrainPatch = new TerrainPatch(heightMap, patchX*patchSize , patchY*patchSize, patchSize, patchSize, &(w->phongShader),"../textures/grass.tga"); // TODO: dont load the texture for each patch
-//   w->generatedTerrain.push_back(terrainPatch);
-  
-// }
-/*
-void World::addGeneratedTerrain(){
-
-  if(generatedTerrain.size() > 0){
-    clock_t t;
-    t = clock();
-    for(int i = 0; i < generatedTerrain.size(); i++){
-      BuildModelVAO2(generatedTerrain.at(i)->geometry);
-      terrainVector.push_back(generatedTerrain.at(i));	
-    }
-    t = clock() - t;
-    printf ("Time to generate terrain: %f seconds)\n",((float)t)/CLOCKS_PER_SEC);
-
-    generatedTerrain.clear();
-  }
-}
-*/
-//------------ ABOVE used by threding, broken code :( ----------------
 

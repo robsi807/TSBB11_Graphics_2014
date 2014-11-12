@@ -1,5 +1,5 @@
-#ifndef _PERLIN_PATCH_GENERATOR_
-#define _PERLIN_PATCH_GENERATOR_
+#ifndef _VALUE_PATCH_GENERATOR_
+#define _VALUE_PATCH_GENERATOR_
 
 #ifdef __APPLE__
 	#include <OpenGL/gl3.h>
@@ -22,19 +22,19 @@
 
 using namespace std;
 
-class PerlinPatchGenerator : public PatchGenerator{
+class ValuePatchGenerator : public PatchGenerator{
 
   private:
 
 
 	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize);
 	float interpolateValues(float a, float b, float x);
-	vector<vector<float>> createGradients(int gradientPoints);
+	vector<float> createGradients(int gradientPoints);
 	vector<float> createPatch(int gridSize, int frequency, int gradientPoints, float amplitude);
-    float dotProduct(vector<float> a,vector<float> b);
 
   public:
-    PerlinPatchGenerator();
+
+    ValuePatchGenerator();
     void printMatrix(vector<float> matrix, int matrixSize);
     vector<float> generatePatch(int xPatch, int yPatch, int size);
 

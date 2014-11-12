@@ -12,7 +12,7 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
   velocity = 1.5;
 
   projectionNear = 0.8;
-  projectionFar = 1324.0;
+  projectionFar = 1700.0;
   projectionRight = 0.5;
   projectionLeft = -0.5;
   projectionTop = 0.5;
@@ -87,7 +87,11 @@ void Camera::handleKeyPress()
     }
   if(keyIsDown('p'))
     {
-      warpPointer = !warpPointer;
+      warpPointer = true;
+    }
+  if(keyIsDown('o'))
+    {
+      warpPointer = false;
     }
   if(keyIsDown('+'))
     {
@@ -101,9 +105,15 @@ void Camera::handleKeyPress()
     {
       lockFrustum = true;
     }
-  if(keyIsDown('2'))
+  if(keyIsDown('3'))
     {
       lockFrustum = false;
+    }
+  if(keyIsDown('f'))
+    {
+      vec3 dir = getDirection();
+      printf("Pos: (%3.1f,%3.1f,%3.1f)\n",position.x,position.y,position.z);
+      printf("Dir: ((%1.2f,%1.2f,%1.2f))\n",dir.x,dir.y,dir.z);
     }
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!

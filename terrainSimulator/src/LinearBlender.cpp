@@ -4,7 +4,6 @@
 LinearBlender::LinearBlender(int initOverlap){
   overlap = initOverlap;
   initCornerWeight();
-  initLinearWeights();
 }
 
 // Private functions
@@ -18,8 +17,8 @@ void LinearBlender::initCornerWeight(){
   }
   for(int i = 0; i<overlap;i++){
     for(int j = 0; j<overlap; j++){
-      float diffX = ((float)i-1)/((float)overlap-1);
-      float diffY = ((float)j-1)/((float)overlap-1);
+      float diffX = ((float)i)/((float)overlap-1);
+      float diffY = ((float)j)/((float)overlap-1);
 
       float interpX = interpolateValues(1,0,diffX);
         
@@ -40,13 +39,14 @@ void LinearBlender::initCornerWeight(){
   }
 }
 
-void LinearBlender::initLinearWeights(){
-  
-}
-
 // A function simple help function for interpolating between a and b
 float LinearBlender::interpolateValues(float a, float b,float x){
-  return a*(1-x) + b*x;
+
+  float ft = x*3.1415927;
+  float f = (1.0-cos(ft))*0.5;
+  float res = a*(1.0-f) + b*f;
+  return res;
+  //return a*(1-x) + b*x;
 }
 
 void LinearBlender::blendCorners(TerrainPatch* patch00,
@@ -97,11 +97,11 @@ void LinearBlender::blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast){
   for(int i=overlap; i<patchSize-overlap; i++){
     for(int j=0; j<overlap; j++){
       jWest = j + patchSize - overlap;
-       
-      float linWeight = ((float)j)/(overlap-1);
+      float diff = ((float)j)/(overlap-1);
+      float weight = interpolateValues(0,1,diff);
       float interp = 
-	linWeight*patchEast->rawHeightMap.at(patchSize*i + j) +
-	(1-linWeight)*patchWest->rawHeightMap.at(patchSize*i + jWest);
+	weight*patchEast->rawHeightMap.at(patchSize*i + j) +
+	(1-weight)*patchWest->rawHeightMap.at(patchSize*i + jWest);
 
       patchWest->blendedHeightMap.at(patchSize*i + jWest) = interp;
       patchEast->blendedHeightMap.at(patchSize*i + j) = interp;
@@ -113,13 +113,14 @@ void LinearBlender::blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth)
   int patchSize = patchNorth->size;
   int iNorth; // iSouth is always = i
   for(int i=0; i<overlap; i++){
-    float linWeight = ((float)i)/(overlap-1);
+    float diff = ((float)i)/(overlap-1);
+    float weight = interpolateValues(0,1,diff);
     for(int j=overlap; j<patchSize-overlap; j++){
       iNorth = i + patchSize - overlap;
       
       float interp = 
-	linWeight*patchSouth->rawHeightMap.at(patchSize*i + j) +
-	(1-linWeight)*patchNorth->rawHeightMap.at(patchSize*iNorth + j);
+	weight*patchSouth->rawHeightMap.at(patchSize*i + j) +
+	(1-weight)*patchNorth->rawHeightMap.at(patchSize*iNorth + j);
 
       patchNorth->blendedHeightMap.at(patchSize*iNorth + j) = interp;
       patchSouth->blendedHeightMap.at(patchSize*i + j) = interp;

@@ -15,7 +15,9 @@ out vec3 surf;
 out vec3 terrainNormal;
 out vec3 terrainPosition;
 out vec3 cameraPos;
+out vec2 patchID;
 
+// NY
 uniform mat4 projMatrix;
 uniform mat4 mdl2World;
 uniform mat4 world2View;
@@ -39,5 +41,9 @@ void main(void)
 	mat4 viewModel = inverse(world2View);
   	vec4 homogCameraPos = viewModel[3];
 	cameraPos = homogCameraPos.xyz/homogCameraPos.w;
-
+	
+	// DEBUG
+	vec4 worldCoord = mdl2World * vec4(inPosition,1.0);
+    patchID.x = worldCoord.x / (256-16);
+    patchID.y = worldCoord.z / (256-16);
 }
