@@ -183,6 +183,7 @@ void TerrainPatch::draw(mat4 cameraMatrix){
     glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
     // glBindTexture(GL_TEXTURE_2D, *texture);	
     DrawModel(geometry, *shader, "inPosition", "inNormal","inTexCoord"); 
+        DrawWireframeModel(geometry, *shader, "inPosition", "inNormal","inTexCoord"); 
   }
   else {
     //printf("Warning, patch (%i,%i) has no geometry to draw.\n",xGrid,yGrid); 

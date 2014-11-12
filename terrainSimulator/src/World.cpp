@@ -9,7 +9,7 @@ World::World(){
   gridSize = GRID_BEGIN_SIZE;
 
   // Load shaders
-  terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
+  terrainShader = loadShadersG("shaders/phong.vert","shaders/phong.frag","shaders/passthrough.gs");
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
