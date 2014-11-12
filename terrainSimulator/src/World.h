@@ -52,7 +52,7 @@ class World
     int patchOverlap,patchSize,gridSize;
 
   public:
-    GLuint phongShader,skyboxShader,terrainShader;
+    GLuint phongShader,skyboxShader,terrainShader, plainShader, shadowMapShader;
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;

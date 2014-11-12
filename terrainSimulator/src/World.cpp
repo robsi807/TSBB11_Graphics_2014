@@ -12,6 +12,8 @@ World::World(){
   terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
+  plainShader = loadShaders("shaders/plain.vert", "shaders/plain.frag");
+  shadowMapShader = loadShaders("shaders/VertexShader.vert", "shaders/FragmentShader.frag");
 
   // Init objects
   //patchGenerator = new PerlinPatchGenerator();
