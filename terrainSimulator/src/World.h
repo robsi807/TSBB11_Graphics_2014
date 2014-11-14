@@ -47,11 +47,14 @@ class World
   private:
     long worldSeed;
     GLfloat time;
+    int patchOverlap,patchSize,gridSize;
     void init();
     void drawTerrainVector(TerrainPatch* t);
-    int patchOverlap,patchSize,gridSize;
+    
 
   public:
+    Model* sphere;
+    
     GLuint phongShader,skyboxShader,terrainShader;
     GLuint terrainTexture;
     Camera* camera;

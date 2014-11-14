@@ -962,7 +962,7 @@ void BuildModelVAO2(Model *m/*,
 			char* normalVariableName,
 			char* texCoordVariableName*/)
 {
-	glGenVertexArrays(1, &m->vao);
+  //glGenVertexArrays(1, &m->vao);
 	glGenBuffers(1, &m->vb);
 	glGenBuffers(1, &m->ib);
 	glGenBuffers(1, &m->nb);
@@ -1006,6 +1006,8 @@ Model* LoadModelPlus(char* name/*,
 	
 	m = LoadModel(name);
 	
+	glGenVertexArrays(1, &m->vao);
+	//glBindVertexArray(m->vao);
 	BuildModelVAO2(m/*, program, vertexVariableName, normalVariableName, texCoordVariableName*/);
 	
 	return m;

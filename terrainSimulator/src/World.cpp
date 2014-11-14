@@ -21,6 +21,8 @@ World::World(){
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
+  sphere = LoadModelPlus("../objects/groundsphere.obj");
+
   // Init light to terrain shader
   glUseProgram(terrainShader);
 
@@ -55,8 +57,6 @@ World::World(){
 }
 
 void World::generateStartingPatches(int startSize){
-
-
   // Initiate height maps
   for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
     vector<TerrainPatch*> terrainRow;
@@ -180,7 +180,7 @@ void World::addPatchRow(int direction){
     }
     printf("Terrain added south at yGrid = %i.\n",yGrid);
   }
-  else if(direction == WEST){
+  else if(direction == EAST){
     // Calculate new coordinates in grid
     int yGridBegin = terrainVector.at(0).at(0)->yGrid;
     int xGrid = terrainVector.at(ySize-1).at(0)->xGrid - 1;
@@ -211,7 +211,7 @@ void World::addPatchRow(int direction){
     }
     printf("Terrain added west at xGrid = %i\n",xGrid);
   }
-  else if(direction == EAST){
+  else if(direction == WEST){
     // Calculate new coordinates in grid
     int yGridBegin = terrainVector.at(0).at(0)->yGrid;
     int xGrid = terrainVector.at(ySize-1).at(xSize-1)->xGrid + 1;
@@ -261,36 +261,51 @@ void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
   updateTerrain(camera->getPosition(), camera->getDirection());
   camera->update();
+
+  //GLsync syncObj;
+  //glFlush();
  
   // DEBUGGING PURPOSE CODE START
-  if(camera->addTerrain != 0){
+   if(camera->addTerrain != 0){
 
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
-      //thread threadNorth(threadAddPatchRow, this, NORTH);
-      //threadNorth.detach();
-      addPatchRow(NORTH);
+      //GLuint vao1;
+      //glGenVertexArrays(1,&vao1);
+      //glBindVertexArray(vao1);
+      thread threadNorth(threadAddPatchRow, this, NORTH);
+      threadNorth.detach();
+      
+      //addPatchRow(NORTH);
     }
-    if(camera->addTerrain == SOUTH){
+    else if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
-      //thread threadSouth(threadAddPatchRow, this, SOUTH);
-      //threadSouth.detach();
-      addPatchRow(SOUTH);
+      //GLuint vao2;
+      //glGenVertexArrays(1,&vao2);
+      //glBindVertexArray(vao2);
+      thread threadSouth(threadAddPatchRow, this, SOUTH);
+      threadSouth.detach();
+      //addPatchRow(SOUTH);
     }
-    if(camera->addTerrain == EAST){
+    else if(camera->addTerrain == EAST){
       camera->addTerrain = 0;
-      //thread threadEast(threadAddPatchRow, this, EAST);
-      //threadEast.detach();
-      addPatchRow(EAST);
+      thread threadEast(threadAddPatchRow, this, EAST);
+      threadEast.detach();
+      //addPatchRow(EAST);
     }
-    if(camera->addTerrain == WEST){
+    else if(camera->addTerrain == WEST){
       camera->addTerrain = 0;
-      //thread threadWest(threadAddPatchRow, this, WEST);
-      //threadWest.detach();
-      addPatchRow(WEST);
+      thread threadWest(threadAddPatchRow, this, WEST);
+      threadWest.detach();
+      //addPatchRow(WEST);
     }
   }
+
+  
   // DEBUGGING PURPOSE CODE END
+
+   //syncObj = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
+   //glWaitSync(syncObj,0,GL_TIMEOUT_IGNORED);
 }
 
 void World::draw(){
@@ -303,18 +318,22 @@ void World::draw(){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       TerrainPatch *patch = terrainVector.at(y).at(x);
       if(camera->isInFrustum(patch)){
-	patch->draw(camera->cameraMatrix);
+  	//glBindVertexArray(terrainVector.at(y).at(x)->geometry->vao);
+  	terrainVector.at(y).at(x)->draw(camera->cameraMatrix);
 
       }
     }
   }
-}
 
+  mat4 modelView = T(0,35,0);
+  glUniformMatrix4fv(glGetUniformLocation(terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
+  glUniformMatrix4fv(glGetUniformLocation(terrainShader, "world2View"), 1, GL_TRUE, camera->cameraMatrix.m);
+  DrawModel(sphere, terrainShader, "inPosition", "inNormal","inTexCoord"); 
+}
 
 void World::updateTerrain(vec3 position, vec3 direction){
 
 }
-
 
 World::~World(){
   delete camera;
@@ -323,4 +342,3 @@ World::~World(){
   terrainVector.clear();
   delete patchGenerator;
 }
-
