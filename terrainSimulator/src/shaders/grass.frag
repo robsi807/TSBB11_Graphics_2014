@@ -34,9 +34,13 @@ void main(void)
 		specularStrength = pow(specularStrength, specularExponent);
 	}
 
-	shade = (0.7*diffuseShade + 0.3*specularStrength + 0.000001*texCoordG.s);
-
-	outColor = clamp(vec4(shade), 0,1);
-	//outColor = clamp(shade*texture(tex, texCoordG),0,1);
+	shade = (0.7*diffuseShade + 0.3*specularStrength + 0.000000001*texCoordG.s);
+    vec4 texColor = texture(tex,texCoordG);
+    //if(texColor.x < 0.01 && texColor.y < 0.01 && texColor.z < 0.01){
+    //    texColor = vec4(0.0,0.0,0.0,0.0);
+    //}
+    
+	//outColor = clamp(vec4(shade), 0,1);
+	outColor = clamp(shade*texColor,0,1);
 	//outColor = clamp(vec4(lightSource,1)*vec4(exNormalG,1)*vec4(surf,1)*texture(tex, texCoordG),0,1);
 }

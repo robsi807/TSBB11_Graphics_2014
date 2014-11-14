@@ -9,9 +9,11 @@ World::World(){
   gridSize = GRID_BEGIN_SIZE;
 
   // Load shaders
-  terrainShader = loadShadersG("shaders/phong.vert","shaders/phong.frag","shaders/passthrough.gs");
-  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
+  terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
+  //terrainShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
+  //  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
+  grassShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
 
   // Init objects
   //patchGenerator = new PerlinPatchGenerator();
@@ -21,7 +23,7 @@ World::World(){
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
-  // Init light to terrain shader
+  // Init light to shaders
   glUseProgram(terrainShader);
 
   vec3 lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
@@ -29,8 +31,14 @@ World::World(){
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+ 
+  glUseProgram(grassShader);
+  glUniform3fv(glGetUniformLocation(grassShader, "lightDirection"), 1, &lightDir.x);
+  glUniform1fv(glGetUniformLocation(grassShader, "specularExponent"), 1, &specularExponent);
+  glUniformMatrix4fv(glGetUniformLocation(grassShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
   
   // Upload textures to terrain shader
+  glUseProgram(terrainShader);
   GLuint grassTex1;
   glActiveTexture(GL_TEXTURE0);
   LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex1);
@@ -50,6 +58,13 @@ World::World(){
   glActiveTexture(GL_TEXTURE0+3);
   LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
   glUniform1i(glGetUniformLocation(terrainShader, "tex4"), 3); 
+
+  glUseProgram(grassShader);
+  // Upload textures to grass shader
+  GLuint grassBillboard;
+  glActiveTexture(GL_TEXTURE0+4);
+  LoadTGATextureSimple("../textures/grass_billboard1.tga",&grassBillboard);
+  glUniform1i(glGetUniformLocation(grassShader,"tex"),4);
 
   generateStartingPatches(GRID_BEGIN_SIZE);
 }
@@ -248,7 +263,7 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 
   vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
 
-  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture);
+  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &grassShader);
 }
 
 void threadAddPatchRow(World *w, int dir){
@@ -296,7 +311,7 @@ void World::update(){
 void World::draw(){
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+  
   skybox->draw(camera->cameraMatrix);
 
   for(int y = 0; y < terrainVector.size(); y++){

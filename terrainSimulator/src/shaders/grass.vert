@@ -2,9 +2,7 @@
 
 in  vec3 inPosition;
 in  vec3 inNormal;
-in vec2 inTexCoord;
 
-out vec2 texCoord;
 out vec3 exNormal;
 out vec3 viewPosition;
 out vec3 surf;
@@ -18,7 +16,6 @@ void main(void)
 {
 	mat3 normalMatrix1 = mat3(world2View * mdl2World);
 	exNormal = normalMatrix1*inNormal;
-	texCoord = inTexCoord;
 	gl_Position =  vec4(inPosition, 1.0);
 	surf = normalize(vec3(world2View * mdl2World * vec4(inPosition, 1.0)));
 	viewPosition = vec3(projMatrix*world2View * mdl2World * vec4(inPosition, 1.0));

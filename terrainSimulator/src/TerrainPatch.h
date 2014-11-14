@@ -25,7 +25,7 @@ using namespace std;
 class TerrainPatch
 {
  private:
-  GLuint* shader;
+  GLuint *terrainShader,*grassShader;
   GLuint* texture;
 
   vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);

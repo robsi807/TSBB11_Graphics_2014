@@ -33,7 +33,7 @@
 
 // Patch specific defines
 #define PATCH_OVERLAP 64
-#define PATCH_SIZE 512
+#define PATCH_SIZE 256
 #define GRID_BEGIN_SIZE 3
 
 // Direction specific defines
@@ -52,7 +52,7 @@ class World
     int patchOverlap,patchSize,gridSize;
 
   public:
-    GLuint phongShader,skyboxShader,terrainShader;
+    GLuint phongShader,skyboxShader,terrainShader,grassShader;
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
