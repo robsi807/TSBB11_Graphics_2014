@@ -64,6 +64,7 @@ class World
     Blender* blender;
     std::vector<vector<TerrainPatch*>> terrainVector;
     std::vector<TerrainPatch*> generatedTerrain;
+    bool updatingWorld;
 
     World();
     ~World();

@@ -3,6 +3,8 @@
 World::World(){
 	
   time = 0;
+  
+  updatingWorld = false;
 
   patchOverlap = PATCH_OVERLAP;
   patchSize = PATCH_SIZE;
@@ -291,33 +293,46 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
   return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture);
 }
 
+
+void threadUpdateTerrain(World *w){
+  makeWorkerCurrent();
+  w->updateTerrain();
+  makeMainContextCurrent();
+}
+
+
 void threadAddPatchNorth(World *w){
   makeWorkerCurrent();
   w->addTerrainNorth();
   w->removeTerrainSouth();
   makeMainContextCurrent();
+  w->updatingWorld = false;
 }
 void threadAddPatchSouth(World *w){
   makeWorkerCurrent();
   w->addTerrainSouth();
   w->removeTerrainNorth();
   makeMainContextCurrent();
+  w->updatingWorld = false;
 }
 void threadAddPatchWest(World *w){
   makeWorkerCurrent();
   w->addTerrainWest();
   w->removeTerrainEast();
   makeMainContextCurrent();
+  w->updatingWorld = false;
 }
 void threadAddPatchEast(World *w){
   makeWorkerCurrent();
   w->addTerrainEast();
   w->removeTerrainWest();
   makeMainContextCurrent();
+  w->updatingWorld = false;
 }
 
 void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
+
   updateTerrain();
   camera->update();
 
@@ -337,7 +352,6 @@ void World::update(){
     }
     else if(camera->addTerrain == EAST){
       camera->addTerrain = 0;
-
       thread threadEast(threadAddPatchEast, this);
       threadEast.detach();
 
@@ -360,9 +374,7 @@ void World::draw(){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       TerrainPatch *patch = terrainVector.at(y).at(x);
       if(camera->isInFrustum(patch)){
-  	//glBindVertexArray(terrainVector.at(y).at(x)->geometry->vao);
   	terrainVector.at(y).at(x)->draw(camera->cameraMatrix);
-
       }
     }
   }
@@ -374,36 +386,44 @@ void World::draw(){
 }
 
 void World::updateTerrain(){
-  int yIndex = (terrainVector.size() - 1) / 2 + 0;
-  int xIndex = (terrainVector.at(yIndex).size() - 1) / 2 + 0;
-  
-  TerrainPatch* middlePatch = terrainVector.at(yIndex).at(xIndex);
-  
-  int patchSize = middlePatch->size - middlePatch->patchOverlap;
-  int xPatch = middlePatch-> xPos;
-  int yPatch = middlePatch-> yPos;
 
-  int xCam = camera->getPosition().x;
-  int yCam = camera->getPosition().z; // well... we go from 3D to 2D.
+  if(!updatingWorld) {
 
-  if(xCam < xPatch) { // move EAST.
-    addTerrainEast();
-    removeTerrainWest();
-  } else if (xCam > xPatch + patchSize) { // move WEST
-    addTerrainWest();
-    removeTerrainEast();
-  }
-  
-  if(yCam < yPatch) { // move SOUTH.
-    addTerrainSouth();
-    removeTerrainNorth();
-  } else if (yCam > yPatch + patchSize) { // move NORTH
-    addTerrainNorth();
-    removeTerrainSouth();
-  }
+    int yIndex = (terrainVector.size() - 1) / 2 + 0;
+    int xIndex = (terrainVector.at(yIndex).size() - 1) / 2 + 0;
+    
+    TerrainPatch* middlePatch = terrainVector.at(yIndex).at(xIndex);
+    
+    int patchSize = middlePatch->size - middlePatch->patchOverlap;
+    int xPatch = middlePatch-> xPos;
+    int yPatch = middlePatch-> yPos;
+
+    int xCam = camera->getPosition().x;
+    int yCam = camera->getPosition().z; // well... we go from 3D to 2D.
+
+    if(xCam < xPatch) { // move EAST.
+        updatingWorld = true;
+        thread threadEast(threadAddPatchEast, this);
+        threadEast.detach();
+    } else if (xCam > xPatch + patchSize) { // move WEST
+        
+        updatingWorld = true;
+        thread threadWest(threadAddPatchWest, this);
+        threadWest.detach();
+    }
+    
+    if(yCam < yPatch) { // move SOUTH.
+        updatingWorld = true;
+        thread threadSouth(threadAddPatchSouth, this);
+        threadSouth.detach();
+    } else if (yCam > yPatch + patchSize) { // move NORTH
+        updatingWorld = true;
+        thread threadNorth(threadAddPatchNorth, this);
+        threadNorth.detach();
+    }
 
 
-
+}
 
 }
 
