@@ -7,7 +7,7 @@
 #else
 #include <GL/gl.h>
 #include "../common/linux/MicroGlut.h"
-//#include <X11/Xlib.h> // Moved! XInitThreads() does not exist in the Mac implementation.
+#include <X11/Xlib.h> // Moved! XInitThreads() does not exist in the Mac implementation.
 #endif
 
 #include "GL_utilities.h"
@@ -65,7 +65,9 @@ int main(int argc, char **argv)
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutInitContextVersion(3, 2);
-  //XInitThreads(); // Must be moved! Does not exist in the Mac implementation.
+  #ifdef __linux__
+  XInitThreads(); // Must be moved! Does not exist in the Mac implementation.
+  #endif
   glutInitWindowSize(Camera::SCREEN_WIDTH,Camera::SCREEN_HEIGHT);
   glutCreateWindow("THE GENERATOR");
   glutDisplayFunc(display);
