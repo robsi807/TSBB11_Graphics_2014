@@ -26,6 +26,7 @@
 #include <GL/gl.h>
 #define GLX_GLXEXT_PROTOTYPES
 #include <X11/keysym.h>
+#include <X11/Xlib.h>
 #include <GL/glext.h>
 #include "MicroGlut.h"
 #include <sys/time.h>
@@ -80,6 +81,8 @@ static void make_window( Display *dpy, const char *name,
 			 int x, int y, int width, int height,
 			 Window *winRet, GLXContext *ctxRet, GLXContext *workerCtxRet)
 {
+  XInitThreads();
+
   int attribs[] = { GLX_RGBA,
 		    GLX_RED_SIZE, 1,
 		    GLX_GREEN_SIZE, 1,
