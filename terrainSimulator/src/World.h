@@ -36,6 +36,7 @@
 #define PATCH_SIZE 256
 #define GRID_BEGIN_SIZE 5
 
+
 // Direction specific defines
 #define NORTH 8
 #define SOUTH 2
@@ -47,11 +48,14 @@ class World
   private:
     long worldSeed;
     GLfloat time;
+    int patchOverlap,patchSize,gridSize;
     void init();
     void drawTerrainVector(TerrainPatch* t);
-    int patchOverlap,patchSize,gridSize;
+    
 
   public:
+    Model* sphere;
+    
     GLuint phongShader,skyboxShader,terrainShader;
     GLuint terrainTexture;
     Camera* camera;

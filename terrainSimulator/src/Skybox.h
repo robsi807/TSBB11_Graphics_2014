@@ -36,10 +36,11 @@ class Skybox
 {
  private:
   TextureData texture[6];
-  Model* model;
+ 
   GLuint* shader;
 
  public:
+  Model* model;
   Skybox(GLuint* skyboxShader,mat4 projectionMatrix, const char *imagePath);
   void loadImages(const char *imagePath);
   void generateCubeMap();

@@ -76,6 +76,7 @@ int gContextVersionMinor = 0;
 
 // Globals (was in GLViewDataPtr)
 NSOpenGLContext	*m_context;
+NSOpenGLContext	*m_workerContext;
 float lastWidth, lastHeight;
 NSView *theView;
 
@@ -139,8 +140,19 @@ void MakeContext(NSView *view)
 	fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes: &attrs[0]];
 	
 	m_context = [[NSOpenGLContext alloc] initWithFormat: fmt shareContext: nil];
+	m_workerContext = [[NSOpenGLContext alloc] initWithFormat: fmt shareContext: m_context];
 	[fmt release];
 	[m_context makeCurrentContext];
+}
+
+void makeWorkerCurrent()
+{
+  [m_workerContext makeCurrentContext];
+}
+
+void makeMainContextCurrent()
+{
+  [m_context makeCurrentContext];
 }
 
 // ---------------------- Menus ----------------------

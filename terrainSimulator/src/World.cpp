@@ -21,6 +21,8 @@ World::World(){
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
+  sphere = LoadModelPlus("../objects/groundsphere.obj");
+
   // Init light to terrain shader
   glUseProgram(terrainShader);
 
@@ -219,10 +221,6 @@ void World::addTerrainEast(){
   for(int y = 1; y < ySize-1; y++){
     terrainVector.at(y).at(1)->generateGeometry();
   }
-  printf("Terrain added west at xGrid = %i\n",xGrid);
-
-
-
 }
 
 void World::addTerrainWest(){
@@ -293,9 +291,28 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
   return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture);
 }
 
-void threadAddPatchRow(World *w, int dir){
+void threadAddPatchNorth(World *w){
   makeWorkerCurrent();
-  //w->addPatchRow(dir);
+  w->addTerrainNorth();
+  w->removeTerrainSouth();
+  makeMainContextCurrent();
+}
+void threadAddPatchSouth(World *w){
+  makeWorkerCurrent();
+  w->addTerrainSouth();
+  w->removeTerrainNorth();
+  makeMainContextCurrent();
+}
+void threadAddPatchWest(World *w){
+  makeWorkerCurrent();
+  w->addTerrainWest();
+  w->removeTerrainEast();
+  makeMainContextCurrent();
+}
+void threadAddPatchEast(World *w){
+  makeWorkerCurrent();
+  w->addTerrainEast();
+  w->removeTerrainWest();
   makeMainContextCurrent();
 }
 
@@ -303,40 +320,34 @@ void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
   updateTerrain();
   camera->update();
- 
-  // DEBUGGING PURPOSE CODE START
-  if(camera->addTerrain != 0){
+
+   if(camera->addTerrain != 0){
 
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
-      //thread threadNorth(threadAddPatchRow, this, NORTH);
-      //threadNorth.detach();
-      addTerrainNorth();
-      removeTerrainSouth();
+      thread threadNorth(threadAddPatchNorth, this);
+      threadNorth.detach();
+
     }
-    if(camera->addTerrain == SOUTH){
+    else if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
-      //thread threadSouth(threadAddPatchRow, this, SOUTH);
-      //threadSouth.detach();
-      addTerrainSouth();
-      removeTerrainNorth();
+      thread threadSouth(threadAddPatchSouth, this);
+      threadSouth.detach();
+
     }
-    if(camera->addTerrain == EAST){
+    else if(camera->addTerrain == EAST){
       camera->addTerrain = 0;
-      //thread threadEast(threadAddPatchRow, this, EAST);
-      //threadEast.detach();
-      addTerrainEast();
-      removeTerrainWest();
+
+      thread threadEast(threadAddPatchEast, this);
+      threadEast.detach();
+
     }
-    if(camera->addTerrain == WEST){
+    else if(camera->addTerrain == WEST){
       camera->addTerrain = 0;
-      //thread threadWest(threadAddPatchRow, this, WEST);
-      //threadWest.detach();
-      addTerrainWest();
-      removeTerrainEast();
+      thread threadWest(threadAddPatchWest, this);
+      threadWest.detach();
     }
   }
-  // DEBUGGING PURPOSE CODE END
 }
 
 void World::draw(){
@@ -349,13 +360,18 @@ void World::draw(){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       TerrainPatch *patch = terrainVector.at(y).at(x);
       if(camera->isInFrustum(patch)){
-	patch->draw(camera->cameraMatrix);
+  	//glBindVertexArray(terrainVector.at(y).at(x)->geometry->vao);
+  	terrainVector.at(y).at(x)->draw(camera->cameraMatrix);
 
       }
     }
   }
-}
 
+  mat4 modelView = T(0,35,0);
+  glUniformMatrix4fv(glGetUniformLocation(terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
+  glUniformMatrix4fv(glGetUniformLocation(terrainShader, "world2View"), 1, GL_TRUE, camera->cameraMatrix.m);
+  DrawModel(sphere, terrainShader, "inPosition", "inNormal","inTexCoord"); 
+}
 
 void World::updateTerrain(){
   int yIndex = (terrainVector.size() - 1) / 2 + 0;
@@ -391,7 +407,6 @@ void World::updateTerrain(){
 
 }
 
-
 World::~World(){
   delete camera;
   delete skybox;
@@ -399,4 +414,3 @@ World::~World(){
   terrainVector.clear();
   delete patchGenerator;
 }
-
