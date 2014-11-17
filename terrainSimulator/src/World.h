@@ -18,6 +18,7 @@
 #include "PatchGenerator.h"
 #include "PerlinPatchGenerator.h"
 #include "ValuePatchGenerator.h"
+#include "DebugPatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
@@ -33,8 +34,8 @@
 
 // Patch specific defines
 #define PATCH_OVERLAP 32
-#define PATCH_SIZE 256
-#define GRID_BEGIN_SIZE 5
+#define PATCH_SIZE 1024
+#define GRID_BEGIN_SIZE 3
 
 
 // Direction specific defines

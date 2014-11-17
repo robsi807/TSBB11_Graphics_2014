@@ -17,7 +17,8 @@ World::World(){
 
   // Init objects
   //patchGenerator = new PerlinPatchGenerator();
-  patchGenerator = new ValuePatchGenerator();
+  //patchGenerator = new ValuePatchGenerator();
+  patchGenerator = new DebugPatchGenerator();
 
   camera = new Camera(vec3(0,60,0), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
