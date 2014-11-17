@@ -13,7 +13,7 @@ World::World(){
   //terrainShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
   //  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
-  grassShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
+  grassShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/grass.gs");
 
   // Init objects
   //patchGenerator = new PerlinPatchGenerator();
@@ -46,7 +46,7 @@ World::World(){
   
   GLuint grassTex2;
   glActiveTexture(GL_TEXTURE0+1);
-  LoadTGATextureSimple("../textures/grass3_1024.tga", &grassTex2);
+  LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex2);
   glUniform1i(glGetUniformLocation(terrainShader, "tex2"), 1); 
 
   GLuint rockTex1;
@@ -63,7 +63,7 @@ World::World(){
   // Upload textures to grass shader
   GLuint grassBillboard;
   glActiveTexture(GL_TEXTURE0+4);
-  LoadTGATextureSimple("../textures/grass_billboard1.tga",&grassBillboard);
+  LoadTGATextureSimple("../textures/grass2_1024.tga",&grassBillboard);
   glUniform1i(glGetUniformLocation(grassShader,"tex"),4);
 
   generateStartingPatches(GRID_BEGIN_SIZE);
