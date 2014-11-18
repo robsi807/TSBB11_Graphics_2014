@@ -63,7 +63,7 @@ World::World(){
   // Upload textures to grass shader
   GLuint grassBillboard;
   glActiveTexture(GL_TEXTURE0+4);
-  LoadTGATextureSimple("../textures/grass2_1024.tga",&grassBillboard);
+  LoadTGATextureSimple("../textures/shader_grass.tga",&grassBillboard);
   glUniform1i(glGetUniformLocation(grassShader,"tex"),4);
 
   generateStartingPatches(GRID_BEGIN_SIZE);

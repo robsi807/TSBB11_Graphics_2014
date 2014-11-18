@@ -119,7 +119,7 @@ void Camera::handleKeyPress()
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
   // DEBUGGING PURPOSE CODE START
-  if(terrainTimer > 40){
+  if(terrainTimer > 200){
     if(keyIsDown('8'))
       {
 	addTerrain = 8;

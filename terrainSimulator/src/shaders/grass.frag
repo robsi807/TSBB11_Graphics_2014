@@ -62,8 +62,8 @@ void main(void)
 		specularStrength = pow(specularStrength, specularExponent);
 	}
 
-	shade = (0.7*diffuseShade + 0.3*specularStrength + 0.000000001*texCoordG.s);
-    vec4 color = applyDistanceFog(shade*texture(tex,texCoordG));
+	shade = (0.7*diffuseShade + 0.3*specularStrength);
+    vec4 color = applyDistanceFog(shade*texture(tex,texCoordG / 19.0));
     //if(texColor.x < 0.01 && texColor.y < 0.01 && texColor.z < 0.01){
     //    texColor = vec4(0.0,0.0,0.0,0.0);
     //}
