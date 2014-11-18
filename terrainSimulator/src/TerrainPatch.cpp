@@ -190,10 +190,12 @@ void TerrainPatch::draw(mat4 cameraMatrix){
 //    glDisable(GL_DEPTH_BUFFER_BIT);
 //    glDisable(GL_CULL_FACE);
 //    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glEnable (GL_POLYGON_SMOOTH);
     glUseProgram(*grassShader);
     glUniformMatrix4fv(glGetUniformLocation(*grassShader, "mdl2World"), 1, GL_TRUE, modelView.m);
     glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
-    DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord"); 
+    DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
+    glDisable (GL_POLYGON_SMOOTH);
 //    glDisable(GL_BLEND);
 //    glEnable(GL_DEPTH_BUFFER_BIT);
 //    glEnable(GL_CULL_FACE);

@@ -5,7 +5,7 @@ in  vec3 inNormal;
 in vec2 inTexCoord;
 
 out vec3 exNormal;
-out vec3 viewPosition;
+out vec3 exPosition;
 out vec3 surf;
 out vec2 texCoord;
 
@@ -20,6 +20,6 @@ void main(void)
 	exNormal = inNormal;
 	gl_Position =  vec4(inPosition, 1.0);
 	surf = normalize(vec3(world2View * mdl2World * vec4(inPosition, 1.0)));
-	viewPosition = vec3(projMatrix*world2View * mdl2World * vec4(inPosition, 1.0));
+	exPosition = vec3(world2View * mdl2World * vec4(inPosition, 1.0));
 	texCoord = inTexCoord;
 }

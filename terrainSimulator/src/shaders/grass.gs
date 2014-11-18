@@ -4,11 +4,11 @@ layout(triangles) in;
 layout(triangle_strip, max_vertices = 12) out;
 
 in vec3 exNormal[3];
-in vec3 viewPosition[3];
+in vec3 exPosition[3];
 in vec2 texCoord[3];
 out vec2 texCoordG;
 out vec3 exNormalG;
-//out vec3 exPositionG;
+out vec3 exPositionG;
 
 uniform mat4 projMatrix;
 uniform mat4 mdl2World;
@@ -18,13 +18,15 @@ void createGrassBlade(vec4 position,vec3 normal,vec2 texCord,float height){
     texCoordG = texCord; 
     exNormalG = normal;
     vec4 newPos = position;
-    gl_Position = projMatrix * world2View * mdl2World * newPos;
+    exPositionG = vec3( world2View * mdl2World * newPos);
+    gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     
     texCoordG = texCord; 
     exNormalG = normal;
     newPos = position;
-    gl_Position = projMatrix * world2View * mdl2World * newPos;
+     exPositionG = vec3( world2View * mdl2World * newPos);
+    gl_Position = projMatrix * vec4(exPositionG,1.0);
     gl_Position.x += 0.2;
     EmitVertex();
 
@@ -32,7 +34,8 @@ void createGrassBlade(vec4 position,vec3 normal,vec2 texCord,float height){
     exNormalG = normal;
     newPos = position;
     newPos.y += height;
-    gl_Position = projMatrix * world2View * mdl2World * newPos;
+    exPositionG = vec3( world2View * mdl2World * newPos);
+    gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     EndPrimitive();
 }
@@ -43,10 +46,11 @@ void main(){
     vec3 normal0 = normalMatrix * exNormal[0];
     float lod0 = 256;
     float lod1 = 512;
-    float lod2 = 1024;
+    float lod2 = 1500;
     float height = 1.7;
+    vec4 cameraCoord = projMatrix * vec4(exPosition[0],1.0);
     if(slope < 0.5){
-        if(viewPosition[0].z > 0.0 && viewPosition[0].z < lod0){
+        if(cameraCoord.z > 0.0 && cameraCoord.z < lod0){
         // LOD 1
             vec4 pos0,pos1,pos2;
             pos0 = gl_in[0].gl_Position;
@@ -62,7 +66,7 @@ void main(){
            // createGrassBlade(mix(pos0,pos2,0.4),exNormal[0],texCoord[0]);
            // createGrassBlade(mix(pos1,pos2,0.4),exNormal[0],texCoord[0]);
         }
-        else if(viewPosition[0].z >= lod0 && viewPosition[0].z < lod1){
+        else if(cameraCoord.z >= lod0 && cameraCoord.z < lod1){
         // LOD 2
             vec4 pos0,pos1,pos2;
             pos0 = gl_in[0].gl_Position;
@@ -72,7 +76,7 @@ void main(){
             
             createGrassBlade(mix(pos0,pos1,0.25),normal0,texCoord[0],height);
         }
-        else if(viewPosition[0].z >= lod1 && viewPosition[0].z < lod2){
+        else if(cameraCoord.z >= lod1 && cameraCoord.z < lod2){
             vec4 pos0,pos1,pos2;
             pos0 = gl_in[0].gl_Position;
             pos1 = gl_in[1].gl_Position;

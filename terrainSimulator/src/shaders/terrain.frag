@@ -9,7 +9,6 @@ in vec3 surf;
 in vec3 exPosition;
 in vec3 terrainNormal;
 in vec3 terrainPosition;
-in vec3 cameraPos;
 
 out vec4 outColor;
 
@@ -197,7 +196,7 @@ vec4 calculateColor()
 vec4 applyDistanceFog(vec4 rgb){
      // fogColor should ideally be calculate from the skybox
      const vec4 fogColor = vec4(.6,.87,0.99,1.0);
-     float dist = length(terrainPosition-cameraPos);
+     float dist = length(exPosition);
      float fogAmount = clamp(dist*0.0005,0.0,1.0);
      float fogWeight = cosInterpolate(fogAmount,0.7);
      return fogWeight*rgb + (1-fogWeight)*fogColor;
