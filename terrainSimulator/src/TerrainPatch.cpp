@@ -174,7 +174,7 @@ TerrainPatch::~TerrainPatch(){
 }
 
 
-void TerrainPatch::draw(mat4 cameraMatrix){
+void TerrainPatch::draw(mat4 cameraMatrix,float time){
 
   if(geometry != NULL){
     mat4 modelView = T(xPos,0, yPos);
@@ -194,6 +194,7 @@ void TerrainPatch::draw(mat4 cameraMatrix){
     glUseProgram(*grassShader);
     glUniformMatrix4fv(glGetUniformLocation(*grassShader, "mdl2World"), 1, GL_TRUE, modelView.m);
     glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+    glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
     DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
     glDisable (GL_POLYGON_SMOOTH);
 //    glDisable(GL_BLEND);

@@ -318,7 +318,7 @@ void World::draw(){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       TerrainPatch *patch = terrainVector.at(y).at(x);
       if(camera->isInFrustum(patch)){
-	patch->draw(camera->cameraMatrix);
+	patch->draw(camera->cameraMatrix,time);
 
       }
     }
