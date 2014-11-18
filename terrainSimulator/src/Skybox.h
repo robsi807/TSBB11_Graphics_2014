@@ -36,7 +36,8 @@ class Skybox
 {
  private:
   TextureData texture[6];
- 
+  vec3 bottomColor;
+  vec3 topColor;
   GLuint* shader;
 
  public:
@@ -44,7 +45,8 @@ class Skybox
   Skybox(GLuint* skyboxShader,mat4 projectionMatrix, const char *imagePath);
   void loadImages(const char *imagePath);
   void generateCubeMap();
-  void draw(mat4 cameraMatrix);
+  void draw(mat4 cameraMatrix, GLfloat time);
+  void updateColors(GLfloat time);
 };
 
 #endif

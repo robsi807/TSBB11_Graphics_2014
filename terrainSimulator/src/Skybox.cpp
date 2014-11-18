@@ -9,6 +9,8 @@
 
 Skybox::Skybox(GLuint* skyboxShader,mat4 projectionMatrix, const char *imagePath)
 {
+  bottomColor = vec3(1,1,1);
+  topColor = vec3(.6,.87,0.99);
   shader = skyboxShader;
   model = LoadModelPlus("../objects/skyboxbig.obj");
 
@@ -21,64 +23,6 @@ Skybox::Skybox(GLuint* skyboxShader,mat4 projectionMatrix, const char *imagePath
   glUniformMatrix4fv(glGetUniformLocation(*shader, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
   glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, transSkybox.m);
 }
-
-// Lägg in färger i texture[] istället för bilddata (men hur får vi -> Interpolerade färger?)
-// GLfloat colors[36*3] = {
-//   1.0, 0.0, 0.0,	// Red
-//   1.0, 0.0, 0.0,	// Red
-//   1.0, 0.0, 0.0,	// Red
-//   1.0, 0.0, 0.0,	// Red
-//   1.0, 0.0, 0.0,	// Red
-//   1.0, 0.0, 0.0,	// Red
-
-//   0.0, 1.0, 0.0,	// Green
-//   0.0, 1.0, 0.0,	// Green
-//   0.0, 1.0, 0.0,	// Green
-//   0.0, 1.0, 0.0,	// Green
-//   0.0, 1.0, 0.0,	// Green
-//   0.0, 1.0, 0.0,	// Green
-
-//   0.0, 0.0, 1.0,	// Blue
-//   0.0, 0.0, 1.0,	// Blue
-//   0.0, 0.0, 1.0,	// Blue
-//   0.0, 0.0, 1.0,	// Blue
-//   0.0, 0.0, 1.0,	// Blue
-//   0.0, 0.0, 1.0,	// Blue
-
-//   0.0, 1.0, 1.0,	// Cyan
-//   0.0, 1.0, 1.0,	// Cyan
-//   0.0, 1.0, 1.0,	// Cyan
-//   0.0, 1.0, 1.0,	// Cyan
-//   0.0, 1.0, 1.0,	// Cyan
-//   0.0, 1.0, 1.0,	// Cyan
-
-//   1.0, 0.0, 1.0,	// Magenta
-//   1.0, 0.0, 1.0,	// Magenta
-//   1.0, 0.0, 1.0,	// Magenta
-//   1.0, 0.0, 1.0,	// Magenta
-//   1.0, 0.0, 1.0,	// Magenta
-//   1.0, 0.0, 1.0,	// Magenta
-
-//   1.0, 1.0, 0.0,	// Yellow
-//   1.0, 1.0, 0.0,	// Yellow
-//   1.0, 1.0, 0.0,	// Yellow
-//   1.0, 1.0, 0.0,	// Yellow
-//   1.0, 1.0, 0.0,	// Yellow
-//   1.0, 1.0, 0.0,	// Yellow
-// };
-
-// unsigned int colorBufferObjID;
-// glGenBuffers(1, &colorBufferObjID);
-
-// // VBO for color data
-// glBindBuffer(GL_ARRAY_BUFFER, colorBufferObjID);
-// glBufferData(GL_ARRAY_BUFFER, 36*3*sizeof(GLfloat), colors, GL_STATIC_DRAW);
-// glVertexAttribPointer(glGetAttribLocation(program, "in_Color"), 3, GL_FLOAT, GL_FALSE, 0, 0);
-// glEnableVertexAttribArray(glGetAttribLocation(program, "in_Color"));
-	
-// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrix);
-// glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrix"), 1, GL_TRUE, rotationMatrix);
-// glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix);
 
 // Starts at GL_TEXTURE10 (to 15). (This could be a private member instead, set when constructing the class object.)
 void Skybox::loadImages(const char *imagePath) //imagePath = "textures/skybox/sky%d.tga"
@@ -126,9 +70,20 @@ void Skybox::generateCubeMap()
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
+void Skybox::updateColors(GLfloat time){
+	topColor.x = 0.6*sin(time);
+	topColor.y = 0.87*sin(time);
+	topColor.z = 0.99*sin(time);
 
-void Skybox::draw(mat4 cameraMatrix)
+	bottomColor.x = sin(time);
+	bottomColor.y = sin(time);
+	bottomColor.z = sin(time);
+}
+
+
+void Skybox::draw(mat4 cameraMatrix, GLfloat time)
 {
+  updateColors(time);
   glDisable(GL_DEPTH_TEST);
   glUseProgram(*shader);
 
@@ -138,6 +93,9 @@ void Skybox::draw(mat4 cameraMatrix)
   world2ViewSky.m[11] = 0;
 
   glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, world2ViewSky.m);
+  glUniformMatrix3fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, world2ViewSky.m);
+  glUniform3fv(glGetUniformLocation(*shader, "bottomColor"), 1, &bottomColor.x);
+  glUniform3fv(glGetUniformLocation(*shader, "topColor"), 1, &topColor.x);
   DrawModel(model, *shader,"vertices",NULL,NULL);
   
   glEnable(GL_DEPTH_TEST);
