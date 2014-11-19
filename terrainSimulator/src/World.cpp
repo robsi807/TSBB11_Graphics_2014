@@ -17,10 +17,10 @@ World::World(){
 
   // Init objects
   //patchGenerator = new PerlinPatchGenerator();
-  //patchGenerator = new ValuePatchGenerator();
-  patchGenerator = new DebugPatchGenerator();
+  patchGenerator = new ValuePatchGenerator();
+  //patchGenerator = new DebugPatchGenerator(false);
 
-  camera = new Camera(vec3(0,60,0), 1, 7);
+  camera = new Camera(vec3(patchSize/2.0,60,patchSize/2.0), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
@@ -104,7 +104,7 @@ void World::generateStartingPatches(int startSize){
   // Generate geometry for all but the edge patches
   for(int y = 1; y < startSize-1; y++){
     for(int x = 1; x < startSize-1; x++){
-      terrainVector.at(y).at(x)->generateGeometry();
+      terrainVector.at(y).at(x)->generateAndUploadGeometry();
       printf("Generating geometry @ %i, %i\n", terrainVector.at(y).at(x)->xGrid, terrainVector.at(y).at(x)->yGrid);
     }
   }
@@ -143,7 +143,7 @@ void World::addTerrainSouth() {
   }
   
   for(int x = 1; x < xSize-1; x++){
-    terrainVector.at(1).at(x)->generateGeometry();
+    terrainVector.at(1).at(x)->generateAndUploadGeometry();
   }
   printf("Terrain added south at yGrid = %i.\n",yGrid);
 
@@ -184,7 +184,7 @@ void World::addTerrainNorth() {
   }
 
   for(int x = 1; x < xSize-1; x++){
-    terrainVector.at(ySize-1).at(x)->generateGeometry();
+    terrainVector.at(ySize-1).at(x)->generateAndUploadGeometry();
     printf("Generating geometry @ %i, %i\n", terrainVector.at(ySize-1).at(x)->xGrid, terrainVector.at(ySize-1).at(x)->yGrid);
   }
   printf("Terrain added north at yGrid = %i.\n",yGrid);  
@@ -222,7 +222,7 @@ void World::addTerrainEast(){
   }
     
   for(int y = 1; y < ySize-1; y++){
-    terrainVector.at(y).at(1)->generateGeometry();
+    terrainVector.at(y).at(1)->generateAndUploadGeometry();
   }
 }
 
@@ -258,7 +258,7 @@ void World::addTerrainWest(){
   }
     
   for(int y = 1; y < ySize-1; y++){
-    terrainVector.at(y).at(xSize-1)->generateGeometry();
+    terrainVector.at(y).at(xSize-1)->generateAndUploadGeometry();
   }
   printf("Terrain added east at xGrid = %i\n",xGrid);
 
@@ -295,40 +295,130 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 }
 
 
+/*
 void threadUpdateTerrain(World *w){
   makeWorkerCurrent();
   w->updateTerrain();
   makeMainContextCurrent();
 }
-
+*/
 
 void threadAddPatchNorth(World *w){
+  cout << "threadAddPatchNorth working... \n";
   makeWorkerCurrent();
+  
+  cout << "ThreadAPN: Trying to acquire mutex...\n";
+  
+  /*
+  if(w->terrainMutex.try_lock()) {
+    cout << " successful! \n";
+  } else {
+    cout << "... failed... going to sleep!";
+  }
+  */
+  
+  //w->terrainVectorCopy = w->terrainVector;
+  w->terrainMutex.lock();
+  cout << "threadAPNorth: acquired lock! \n";
+  
+  cout << "threadAddPatchNorth adding... \n";
   w->addTerrainNorth();
+  cout << "threadAddPatchNorth removing... \n";
   w->removeTerrainSouth();
   makeMainContextCurrent();
   w->updatingWorld = false;
+  w->terrainMutex.unlock();
+  cout << "threadAPNorth: released lock! \n";
+  
 }
 void threadAddPatchSouth(World *w){
+
+  cout << "threadAddPatchSouth working... \n";
   makeWorkerCurrent();
+  
+  
+  cout << "ThreadAPS: Trying to acquire mutex...\n";
+  
+  /*
+  if(w->terrainMutex.try_lock()) {
+    cout << " successful! \n";
+  } else {
+    cout << "... failed... going to sleep!";
+  }
+  */
+  
+  //w->terrainVectorCopy = w->terrainVector;
+  w->terrainMutex.lock();
+  cout << "threadAPSouth: acquired lock! \n";
+
+  cout << "threadAddPatchSouth adding to south!\n";
   w->addTerrainSouth();
+  cout << "threadAddPatchSouth removing from north!\n";
   w->removeTerrainNorth();
   makeMainContextCurrent();
   w->updatingWorld = false;
+  w->terrainMutex.unlock();
+  cout << "threadAPSouth: released lock! \n";
+  
 }
 void threadAddPatchWest(World *w){
+
+  cout << "threadAddPatchWest working... \n";
   makeWorkerCurrent();
+  
+  cout << "ThreadAPW: Trying to acquire mutex...\n";
+
+/*  
+  if(w->terrainMutex.try_lock()) {
+    cout << " successful! \n";
+  } else {
+    cout << "... failed... going to sleep!";
+  }
+*/
+  
+  //w->terrainVectorCopy = w->terrainVector;
+  
+  w->terrainMutex.lock();
+  cout << "threadAPWest: acquired lock! \n";
+  
+  
+  cout << "threadAddPatchWest adding... \n";
   w->addTerrainWest();
+  cout << "threadAddPatchWest removing... \n";
   w->removeTerrainEast();
   makeMainContextCurrent();
   w->updatingWorld = false;
+  w->terrainMutex.unlock();
+  cout << "threadAPWest: released lock! \n";
 }
 void threadAddPatchEast(World *w){
+
+  cout << "threadAddPatchEast working... \n";
   makeWorkerCurrent();
+  
+  cout << "ThreadAPE: Trying to acquire mutex...\n";
+  
+  /*
+  if(w->terrainMutex.try_lock()) {
+    cout << " successful! \n";
+  } else {
+    cout << "... failed... going to sleep!";
+  }
+  */
+  
+  //w->terrainVectorCopy = w->terrainVector;
+  w->terrainMutex.lock();
+  cout << "threadAPEast: acquired lock! \n";
+  
+  
+  cout << "threadAddPatchEast adding... \n";
   w->addTerrainEast();
+  cout << "threadAddPatchEast removing... \n";
   w->removeTerrainWest();
   makeMainContextCurrent();
   w->updatingWorld = false;
+  w->terrainMutex.unlock();
+  cout << "threadAPEast: released lock! \n";
 }
 
 void World::update(){
@@ -370,14 +460,32 @@ void World::draw(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   skybox->draw(camera->cameraMatrix);
+  
+  if(terrainMutex.try_lock()) {
 
-  for(int y = 0; y < terrainVector.size(); y++){
-    for(int x = 0; x < terrainVector.at(y).size(); x++){
-      TerrainPatch *patch = terrainVector.at(y).at(x);
-      if(camera->isInFrustum(patch)){
-  	terrainVector.at(y).at(x)->draw(camera->cameraMatrix);
+    for(int y = 0; y < terrainVector.size(); y++){
+      for(int x = 0; x < terrainVector.at(y).size(); x++){
+        TerrainPatch *patch = terrainVector.at(y).at(x);
+        if(camera->isInFrustum(patch) && terrainVector.at(y).at(x)->hasGeometry()){
+    	    terrainVector.at(y).at(x)->draw(camera->cameraMatrix);
+        }
       }
     }
+    terrainMutex.unlock();
+  
+  } else {
+  
+    cout << "World::draw: SOMEONE HAS LOCKED THE TERRAINS T.T \n";
+  
+    for(int y = 1; y < gridSize-1; y++){
+      for(int x = 1; x < gridSize-1; x++){
+        TerrainPatch *patch = terrainVector.at(y).at(x);
+        if(camera->isInFrustum(patch) && terrainVector.at(y).at(x)->hasGeometry()){
+    	    terrainVector.at(y).at(x)->draw(camera->cameraMatrix);
+        }
+      }
+    }
+  
   }
 
   mat4 modelView = T(0,35,0);

@@ -29,13 +29,15 @@
 #include <iostream>
 #include <time.h>
 
+#include <mutex>
+
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
 
 // Patch specific defines
-#define PATCH_OVERLAP 32
-#define PATCH_SIZE 1024
-#define GRID_BEGIN_SIZE 3
+#define PATCH_OVERLAP 64
+#define PATCH_SIZE 512
+#define GRID_BEGIN_SIZE 5
 
 
 // Direction specific defines
@@ -64,7 +66,11 @@ class World
     PatchGenerator* patchGenerator;
     Blender* blender;
     std::vector<vector<TerrainPatch*>> terrainVector;
+    std::vector<vector<TerrainPatch*>> terrainVectorCopy;
+    std::mutex terrainMutex;
+    
     std::vector<TerrainPatch*> generatedTerrain;
+    
     bool updatingWorld;
 
     World();
