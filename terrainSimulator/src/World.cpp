@@ -42,22 +42,22 @@ World::World(){
   GLuint grassTex1;
   glActiveTexture(GL_TEXTURE0);
   LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex1);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex1"), 0); 
+  glUniform1i(glGetUniformLocation(terrainShader, "grassTex"), 0); 
   
-  GLuint grassTex2;
+  GLuint noiseTex;
   glActiveTexture(GL_TEXTURE0+1);
-  LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex2);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex2"), 1); 
+  LoadTGATextureSimple("../textures/fft-terrain.tga", &noiseTex);
+  glUniform1i(glGetUniformLocation(terrainShader, "noiseTex"), 1); 
 
   GLuint rockTex1;
   glActiveTexture(GL_TEXTURE0+2);
   LoadTGATextureSimple("../textures/rock2_1024.tga", &rockTex1);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex3"), 2);
+  glUniform1i(glGetUniformLocation(terrainShader, "rockTex1"), 2);
 
   GLuint rockTex2;
   glActiveTexture(GL_TEXTURE0+3);
   LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex4"), 3); 
+  glUniform1i(glGetUniformLocation(terrainShader, "rockTex2"), 3); 
 
   glUseProgram(grassShader);
   // Upload textures to grass shader
