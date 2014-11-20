@@ -21,6 +21,7 @@
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
+#include "Plant.h"
 
 #include <vector>
 #include <algorithm>
@@ -52,12 +53,15 @@ class World
     int patchOverlap,patchSize,gridSize;
 
   public:
-    GLuint phongShader,skyboxShader,terrainShader,grassShader;
+    GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader;
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
     PatchGenerator* patchGenerator;
     Blender* blender;
+    Model* plantModel; // TODO: Add to destructor
+    Plant* plant;
+
     std::vector<vector<TerrainPatch*>> terrainVector;
     std::vector<TerrainPatch*> generatedTerrain;
 

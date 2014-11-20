@@ -11,9 +11,10 @@ World::World(){
   // Load shaders
   terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
   //terrainShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
-  //  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
+  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
   grassShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/grass.gs");
+  plantShader = loadShadersG("shaders/plant.vert","shaders/plant.frag","shaders/plant.gs");
 
   // Init objects
   //patchGenerator = new PerlinPatchGenerator();
@@ -36,6 +37,11 @@ World::World(){
   glUniform3fv(glGetUniformLocation(grassShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(grassShader, "specularExponent"), 1, &specularExponent);
   glUniformMatrix4fv(glGetUniformLocation(grassShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
+  
+  glUseProgram(phongShader);
+  glUniform3fv(glGetUniformLocation(phongShader, "lightDirection"), 1, &lightDir.x);
+  glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
+  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
   
   // Upload textures to terrain shader
   glUseProgram(terrainShader);
@@ -69,7 +75,26 @@ World::World(){
   GLuint noiseTex2;
   glActiveTexture(GL_TEXTURE0+5);
   LoadTGATextureSimple("../textures/noise/uniformNoise1.tga",&noiseTex2);
-  glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),4);
+  glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),5);
+
+  // Loading of plant model, and shader uploads
+  plantModel = LoadModelPlus("../objects/groundsphere.obj");
+  plant = new Plant(&phongShader,&plantShader,plantModel,vec3(0,10,0),0.0,5.0);
+
+  glUseProgram(plantShader);
+  glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
+  glUniform1fv(glGetUniformLocation(plantShader, "specularExponent"), 1, &specularExponent);
+  glUniformMatrix4fv(glGetUniformLocation(plantShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+  
+  glActiveTexture(GL_TEXTURE0+4);
+  glUniform1i(glGetUniformLocation(plantShader,"grassTex"),4);
+  glActiveTexture(GL_TEXTURE0+5);
+  glUniform1i(glGetUniformLocation(plantShader,"noiseTex"),5);
+  
+
+  // Upload textures to phong shader
+  glActiveTexture(GL_TEXTURE0+2);
+  glUniform1i(glGetUniformLocation(phongShader, "tex"), 2);
 
   generateStartingPatches(GRID_BEGIN_SIZE);
 }
@@ -328,6 +353,7 @@ void World::draw(){
       }
     }
   }
+  plant -> draw(camera,time);
 }
 
 
