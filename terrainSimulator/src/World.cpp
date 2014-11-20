@@ -41,7 +41,7 @@ World::World(){
   glUseProgram(terrainShader);
   GLuint grassTex1;
   glActiveTexture(GL_TEXTURE0);
-  LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex1);
+  LoadTGATextureSimple("../textures/grass4_1024.tga", &grassTex1);
   glUniform1i(glGetUniformLocation(terrainShader, "grassTex"), 0); 
   
   GLuint noiseTex;
@@ -61,10 +61,15 @@ World::World(){
 
   glUseProgram(grassShader);
   // Upload textures to grass shader
-  GLuint grassBillboard;
+  GLuint grassTexLowPass;
   glActiveTexture(GL_TEXTURE0+4);
-  LoadTGATextureSimple("../textures/shader_grass.tga",&grassBillboard);
-  glUniform1i(glGetUniformLocation(grassShader,"tex"),4);
+  LoadTGATextureSimple("../textures/grass4_1024_lp.tga",&grassTexLowPass);
+  glUniform1i(glGetUniformLocation(grassShader,"grassTex"),4);
+
+  GLuint noiseTex2;
+  glActiveTexture(GL_TEXTURE0+5);
+  LoadTGATextureSimple("../textures/noise/uniformNoise1.tga",&noiseTex2);
+  glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),4);
 
   generateStartingPatches(GRID_BEGIN_SIZE);
 }

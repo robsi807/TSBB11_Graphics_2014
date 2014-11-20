@@ -9,7 +9,7 @@ out vec4 outColor;
 
 uniform vec3 lightDirection;
 uniform float specularExponent;
-uniform sampler2D tex;
+uniform sampler2D grassTex;
 uniform mat4 world2View;
 uniform mat4 mdl2World;
 
@@ -63,7 +63,7 @@ void main(void)
 	}
 
 	shade = (0.7*diffuseShade + 0.3*specularStrength);
-    vec4 color = applyDistanceFog(shade*texture(tex,texCoordG / 19.0));
+    vec4 color = applyDistanceFog(shade*texture(grassTex,texCoordG / 19.0));
     //if(texColor.x < 0.01 && texColor.y < 0.01 && texColor.z < 0.01){
     //    texColor = vec4(0.0,0.0,0.0,0.0);
     //}
