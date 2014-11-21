@@ -108,7 +108,10 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y, int size)
 
 		frequency = pow(2,n);
 		gradientPoints = frequency + 1;
-    	amplitude = 1.0/((float)frequency);
+  	amplitude = 1.0/((float)frequency);
+  	if(n == 2) {
+  	  amplitude = 2.0/((float)frequency);
+  	}
 
 		tempPatch = createPatch(size,frequency,gradientPoints, amplitude);
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch, size);
