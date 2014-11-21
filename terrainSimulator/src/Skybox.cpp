@@ -71,19 +71,19 @@ void Skybox::generateCubeMap()
 }
 
 void Skybox::updateColors(GLfloat time){
-	topColor.x = 0.6*sin(time);
-	topColor.y = 0.87*sin(time);
-	topColor.z = 0.99*sin(time);
+  topColor.x = 0.6;//*sin(time);
+  topColor.y = 0.87;//*sin(time);
+  topColor.z = 0.99;//*sin(time);
 
-	bottomColor.x = sin(time);
-	bottomColor.y = sin(time);
-	bottomColor.z = sin(time);
+  bottomColor.x = 1.0;//sin(time);
+  bottomColor.y = 1.0;//sin(time);
+  bottomColor.z = 1.0;//sin(time);
 }
 
 
 void Skybox::draw(mat4 cameraMatrix, GLfloat time)
 {
-  updateColors(time);
+  //updateColors(time);
   glDisable(GL_DEPTH_TEST);
   glUseProgram(*shader);
 
@@ -93,9 +93,10 @@ void Skybox::draw(mat4 cameraMatrix, GLfloat time)
   world2ViewSky.m[11] = 0;
 
   glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, world2ViewSky.m);
-  glUniformMatrix3fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, world2ViewSky.m);
-  glUniform3fv(glGetUniformLocation(*shader, "bottomColor"), 1, &bottomColor.x);
-  glUniform3fv(glGetUniformLocation(*shader, "topColor"), 1, &topColor.x);
+  //glUniformMatrix3fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, world2ViewSky.m);
+  //glUniform3fv(glGetUniformLocation(*shader, "bottomColor"), 1, &bottomColor.x);
+  //glUniform3fv(glGetUniformLocation(*shader, "topColor"), 1, &topColor.x);
+  glUniform1f(glGetUniformLocation(*shader, "time"), time);
   DrawModel(model, *shader,"vertices",NULL,NULL);
   
   glEnable(GL_DEPTH_TEST);

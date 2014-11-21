@@ -18,7 +18,7 @@ World::World(){
   patchGenerator = new ValuePatchGenerator();
 
   camera = new Camera(vec3(0,60,0), 1, 7);
-  skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox4/sky%d.tga");
+  skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox3/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
   sphere = LoadModelPlus("../objects/groundsphere.obj");
@@ -312,7 +312,7 @@ void World::draw(){
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   cout << "time = " << time << endl;
-  skybox->draw(camera->cameraMatrix, time);
+  skybox->draw(camera->cameraMatrix, time/5.0);
 
   for(int y = 0; y < terrainVector.size(); y++){
     for(int x = 0; x < terrainVector.at(y).size(); x++){

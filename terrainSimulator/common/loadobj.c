@@ -997,6 +997,8 @@ void BuildModelVAO2(Model *m/*,
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ib);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices*sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
+
+	glBindVertexArray(0); //needed?
 }
 
 Model* LoadModelPlus(char* name/*,
