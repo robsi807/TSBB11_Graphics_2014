@@ -36,11 +36,11 @@ class Skybox
 {
  private:
   TextureData texture[6];
-  vec3 bottomColor;
-  vec3 topColor;
   GLuint* shader;
 
  public:
+  vec3 bottomColor;
+  vec3 topColor;
   Model* model;
   Skybox(GLuint* skyboxShader,mat4 projectionMatrix, const char *imagePath);
   void loadImages(const char *imagePath);

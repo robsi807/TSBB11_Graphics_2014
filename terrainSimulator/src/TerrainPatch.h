@@ -53,7 +53,7 @@ class TerrainPatch
   // Functions
   float calcHeight(float x,float z,int texWidth);
   void generateGeometry();
-  void draw(mat4 cameraMatrix);
+  void draw(mat4 cameraMatrix, vec4 fogColor);
 
 };
 

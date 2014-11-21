@@ -174,13 +174,14 @@ TerrainPatch::~TerrainPatch(){
 }
 
 
-void TerrainPatch::draw(mat4 cameraMatrix){
+void TerrainPatch::draw(mat4 cameraMatrix, vec4 fogColor){
 
   if(geometry != NULL){
     mat4 modelView = T(xPos,0, yPos);
     glUseProgram(*shader);
     glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
     glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+    glUniform4fv(glGetUniformLocation(*shader, "fogColor"), 1, &fogColor.x);
     // glBindTexture(GL_TEXTURE_2D, *texture); 
     //glBindVertexArray(geometry->vao);
     DrawModel(geometry, *shader, "inPosition", "inNormal","inTexCoord"); 

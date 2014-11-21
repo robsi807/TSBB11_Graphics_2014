@@ -15,6 +15,7 @@ out vec4 outColor;
 
 uniform vec3 lightDirection;
 uniform float specularExponent;
+uniform vec4 fogColor;
 
 uniform mat4 world2View;
 uniform mat4 mdl2World;
@@ -196,7 +197,7 @@ vec4 calculateColor()
 // Simply fades to gray
 vec4 applyDistanceFog(vec4 rgb){
      // fogColor should ideally be calculate from the skybox
-     const vec4 fogColor = vec4(.6,.87,0.99,1.0);
+     //const vec4 fogColor = vec4(.6,.87,0.99,1.0);
      float dist = length(terrainPosition-cameraPos);
      float fogAmount = clamp(dist*0.0005,0.0,1.0);
      float fogWeight = cosInterpolate(fogAmount,0.7);

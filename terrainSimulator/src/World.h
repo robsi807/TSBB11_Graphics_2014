@@ -47,11 +47,11 @@ class World
   private:
     long worldSeed;
     GLfloat time;
+    vec3 lightDir;
     int patchOverlap,patchSize,gridSize;
     void init();
     void drawTerrainVector(TerrainPatch* t);
     
-
   public:
     Model* sphere;
     

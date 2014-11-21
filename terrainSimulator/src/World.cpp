@@ -26,7 +26,7 @@ World::World(){
   // Init light to terrain shader
   glUseProgram(terrainShader);
 
-  vec3 lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
+  lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
   GLfloat specularExponent = 2.0;
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
@@ -262,27 +262,20 @@ void World::update(){
   updateTerrain(camera->getPosition(), camera->getDirection());
   camera->update();
 
-  //GLsync syncObj;
-  //glFlush();
- 
+  lightDir = Normalize(vec3(0.0, 2.0*cos(time/5.0), 2.0*sin(time/5.0)));
+  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
+
   // DEBUGGING PURPOSE CODE START
-   if(camera->addTerrain != 0){
+  if(camera->addTerrain != 0){
 
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
-      //GLuint vao1;
-      //glGenVertexArrays(1,&vao1);
-      //glBindVertexArray(vao1);
       thread threadNorth(threadAddPatchRow, this, NORTH);
       threadNorth.detach();
-      
       //addPatchRow(NORTH);
     }
     else if(camera->addTerrain == SOUTH){
       camera->addTerrain = 0;
-      //GLuint vao2;
-      //glGenVertexArrays(1,&vao2);
-      //glBindVertexArray(vao2);
       thread threadSouth(threadAddPatchRow, this, SOUTH);
       threadSouth.detach();
       //addPatchRow(SOUTH);
@@ -300,12 +293,7 @@ void World::update(){
       //addPatchRow(WEST);
     }
   }
-
-  
   // DEBUGGING PURPOSE CODE END
-
-   //syncObj = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
-   //glWaitSync(syncObj,0,GL_TIMEOUT_IGNORED);
 }
 
 void World::draw(){
@@ -319,7 +307,8 @@ void World::draw(){
       TerrainPatch *patch = terrainVector.at(y).at(x);
       if(camera->isInFrustum(patch)){
   	//glBindVertexArray(terrainVector.at(y).at(x)->geometry->vao);
-  	terrainVector.at(y).at(x)->draw(camera->cameraMatrix);
+	vec4 fogColor = vec4(skybox->topColor.x,skybox->topColor.y,skybox->topColor.z,1.0);
+  	terrainVector.at(y).at(x)->draw(camera->cameraMatrix, fogColor);
 
       }
     }
