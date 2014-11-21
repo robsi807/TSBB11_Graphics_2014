@@ -30,7 +30,7 @@ class Plant
   float scale;
   Model *model;
   GLuint *shader,*geomShader;
- 
+
   Plant(GLuint *shade,GLuint *geoShade,Model* mod,vec3 pos,float yRot,float scaling);
   void draw(Camera* cam,float time);
 };

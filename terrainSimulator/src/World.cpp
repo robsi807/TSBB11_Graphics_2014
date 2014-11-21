@@ -47,7 +47,7 @@ World::World(){
   glUseProgram(terrainShader);
   GLuint grassTex1;
   glActiveTexture(GL_TEXTURE0);
-  LoadTGATextureSimple("../textures/grass4_1024.tga", &grassTex1);
+  LoadTGATextureSimple("../textures/grass4_1024_lp.tga", &grassTex1);
   glUniform1i(glGetUniformLocation(terrainShader, "grassTex"), 0); 
   
   GLuint noiseTex;
@@ -91,7 +91,7 @@ World::World(){
   glActiveTexture(GL_TEXTURE0+5);
   glUniform1i(glGetUniformLocation(plantShader,"noiseTex"),5);
   
-
+  glUseProgram(phongShader);
   // Upload textures to phong shader
   glActiveTexture(GL_TEXTURE0+2);
   glUniform1i(glGetUniformLocation(phongShader, "tex"), 2);

@@ -47,7 +47,6 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
 void main(){
     
     mat3 normalMatrix = mat3(world2View * mdl2World);
-    float slope = clamp(1.2-exNormal[0].y,0,1);
     vec3 normal0 = normalMatrix * exNormal[0];
     vec4 cameraCoord = projMatrix * vec4(exPosition[0],1.0);
     

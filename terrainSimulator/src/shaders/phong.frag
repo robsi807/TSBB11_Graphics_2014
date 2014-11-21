@@ -1,7 +1,7 @@
 #version 150
 
-in vec2 texCoordG;
-in vec3 exNormalG;
+in vec2 texCoord;
+in vec3 exNormal;
 in vec3 surf;
 
 out vec4 outColor;
@@ -18,7 +18,7 @@ void main(void)
 	
 	float shade,diffuseShade;
 	vec3 reflectedLightDirection,eyeDirection,lightDir;
-	vec3 normalizedNormal = normalize(exNormalG);
+	vec3 normalizedNormal = normalize(exNormal);
 	lightDir = normalize(mat3(world2View)*lightDirection); 
 
 	float specularStrength = 0.0;
@@ -26,7 +26,7 @@ void main(void)
 
 	if(dot(normalizedNormal,lightDir) > 0.0)
 	{
-		reflectedLightDirection = reflect(normalize(-lightDir),normalize(exNormalG));
+		reflectedLightDirection = reflect(normalize(-lightDir),normalize(exNormal));
 		eyeDirection = -normalize(surf);
 
 		specularStrength = dot(reflectedLightDirection, eyeDirection);
@@ -34,9 +34,9 @@ void main(void)
 		specularStrength = pow(specularStrength, specularExponent);
 	}
 
-	shade = (0.7*diffuseShade + 0.3*specularStrength + 0.000001*texCoordG.s);
+	shade = 0.7*diffuseShade + 0.3*specularStrength;
 
-	outColor = clamp(vec4(shade), 0,1);
-	//outColor = clamp(shade*texture(tex, texCoordG),0,1);
+	//outColor = clamp(vec4(shade), 0,1);
+	outColor = clamp(shade*texture(tex, texCoord),0,1);
 	//outColor = clamp(vec4(lightSource,1)*vec4(exNormalG,1)*vec4(surf,1)*texture(tex, texCoordG),0,1);
 }

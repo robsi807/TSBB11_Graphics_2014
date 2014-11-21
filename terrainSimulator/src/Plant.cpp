@@ -14,6 +14,8 @@ void Plant::draw(Camera* cam,float time){
   
   mat4 cameraMatrix = cam->cameraMatrix;
   glUseProgram(*shader);
+  float specularExponent = 2.0;
+  glUniform1fv(glGetUniformLocation(*shader, "specularExponent"), 1, &specularExponent);
   glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, mdl2World.m);
   glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
   DrawModel(model, *shader, "inPosition", "inNormal","inTexCoord"); 
