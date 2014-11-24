@@ -249,14 +249,14 @@ void createThreadedPatchRow(World *w, int patchX, int patchY, int xDirection, in
 
 
 void threadCreatePatch(World *w, int x, int y) {
-  cout << "threadCreatePatch creating patch...\n";
+  //cout << "threadCreatePatch creating patch...\n";
   TerrainPatch* patch = w->generatePatch(x,y);
   
   w->terrainRowMutex.lock();
   
   w->terrainRow.push_back(patch);
   
-  cout << "threadCreatePatch done creating patch...\n";
+  //cout << "threadCreatePatch done creating patch...\n";
   
   w->terrainRowMutex.unlock();
   
@@ -297,7 +297,7 @@ void World::addTerrainNorth2() {
 
 
 void threadAddPatchNorth2(World *w){
-  cout << "threadAPN2 starting!\n";
+  //cout << "threadAPN2 starting!\n";
   
   w->terrainGenerationMutex.lock();
   
@@ -316,16 +316,16 @@ void threadAddPatchNorth2(World *w){
   // blend the stuff
   // generate geometry
   
-  cout << "threadAPN2 adding terrain in North!\n";
+  //cout << "threadAPN2 adding terrain in North!\n";
   w->addTerrainNorth2();
   
-  cout << "threadAPN2 removing terrain in south!\n";
+  //cout << "threadAPN2 removing terrain in south!\n";
   // remove other row
   w->removeTerrainSouth();
   
   
   
-  cout << "threadAPN2 Switching Context!\n";
+  //cout << "threadAPN2 Switching Context!\n";
   // make uploading context
  
   /*
@@ -334,13 +334,13 @@ void threadAddPatchNorth2(World *w){
   
   // upload to GPU
   
-  cout << "threadAPN2 uploading geometry!!\n";
+  //cout << "threadAPN2 uploading geometry!!\n";
   for(int i = 0; i < w->terrainRow.size();i++) {
     w->terrainRow.at(i)->uploadGeometry();
   }
   
   
-  cout << "threadAPN2 Switching Context back!!\n";
+  //cout << "threadAPN2 Switching Context back!!\n";
   
   // unlock context
   makeMainContextCurrent();
@@ -350,7 +350,7 @@ void threadAddPatchNorth2(World *w){
   // unlock terrainVector.
   
   
-  cout << "threadAPN2 unlocking mutexes!!\n";
+  //cout << "threadAPN2 unlocking mutexes!!\n";
   
   w->terrainMutex.unlock(); 
      
@@ -362,33 +362,33 @@ void threadAddPatchNorth2(World *w){
 
 
 void threadAddPatchNorth(World *w){
-  cout << "threadAddPatchNorth working... \n";
+  //cout << "threadAddPatchNorth working... \n";
   makeWorkerCurrent();
   
-  cout << "ThreadAPN: Trying to acquire mutex...\n";
+  //cout << "ThreadAPN: Trying to acquire mutex...\n";
 
   
   //w->terrainVectorCopy = w->terrainVector;
   w->terrainMutex.lock();
-  cout << "threadAPNorth: acquired lock! \n";
+  //cout << "threadAPNorth: acquired lock! \n";
   
-  cout << "threadAddPatchNorth adding... \n";
+  //cout << "threadAddPatchNorth adding... \n";
   w->addTerrainNorth();
-  cout << "threadAddPatchNorth removing... \n";
+  //cout << "threadAddPatchNorth removing... \n";
   w->removeTerrainSouth();
   makeMainContextCurrent();
   w->updatingWorld = false;
   w->terrainMutex.unlock();
-  cout << "threadAPNorth: released lock! \n";
+  //cout << "threadAPNorth: released lock! \n";
   
 }
 void threadAddPatchSouth(World *w){
 
-  cout << "threadAddPatchSouth working... \n";
+  //cout << "threadAddPatchSouth working... \n";
   makeWorkerCurrent();
   
   
-  cout << "ThreadAPS: Trying to acquire mutex...\n";
+  //cout << "ThreadAPS: Trying to acquire mutex...\n";
   
   /*
   if(w->terrainMutex.try_lock()) {
@@ -400,76 +400,76 @@ void threadAddPatchSouth(World *w){
   
   //w->terrainVectorCopy = w->terrainVector;
   w->terrainMutex.lock();
-  cout << "threadAPSouth: acquired lock! \n";
+  //cout << "threadAPSouth: acquired lock! \n";
 
-  cout << "threadAddPatchSouth adding to south!\n";
+  //cout << "threadAddPatchSouth adding to south!\n";
   w->addTerrainSouth();
-  cout << "threadAddPatchSouth removing from north!\n";
+  //cout << "threadAddPatchSouth removing from north!\n";
   w->removeTerrainNorth();
   makeMainContextCurrent();
   w->updatingWorld = false;
   w->terrainMutex.unlock();
-  cout << "threadAPSouth: released lock! \n";
+  //cout << "threadAPSouth: released lock! \n";
   
 }
 void threadAddPatchWest(World *w){
 
-  cout << "threadAddPatchWest working... \n";
+  //cout << "threadAddPatchWest working... \n";
   makeWorkerCurrent();
   
-  cout << "ThreadAPW: Trying to acquire mutex...\n";
+  //cout << "ThreadAPW: Trying to acquire mutex...\n";
 
 /*  
   if(w->terrainMutex.try_lock()) {
-    cout << " successful! \n";
+    //cout << " successful! \n";
   } else {
-    cout << "... failed... going to sleep!";
+    //cout << "... failed... going to sleep!";
   }
 */
   
   //w->terrainVectorCopy = w->terrainVector;
   
   w->terrainMutex.lock();
-  cout << "threadAPWest: acquired lock! \n";
+  //cout << "threadAPWest: acquired lock! \n";
   
   
-  cout << "threadAddPatchWest adding... \n";
+  //cout << "threadAddPatchWest adding... \n";
   w->addTerrainWest();
-  cout << "threadAddPatchWest removing... \n";
+  //cout << "threadAddPatchWest removing... \n";
   w->removeTerrainEast();
   makeMainContextCurrent();
   w->updatingWorld = false;
   w->terrainMutex.unlock();
-  cout << "threadAPWest: released lock! \n";
+  //cout << "threadAPWest: released lock! \n";
 }
 void threadAddPatchEast(World *w){
 
-  cout << "threadAddPatchEast working... \n";
+  //cout << "threadAddPatchEast working... \n";
   makeWorkerCurrent();
   
-  cout << "ThreadAPE: Trying to acquire mutex...\n";
+  //cout << "ThreadAPE: Trying to acquire mutex...\n";
   
   /*
   if(w->terrainMutex.try_lock()) {
-    cout << " successful! \n";
+    //cout << " successful! \n";
   } else {
-    cout << "... failed... going to sleep!";
+    //cout << "... failed... going to sleep!";
   }
   */
   
   //w->terrainVectorCopy = w->terrainVector;
   w->terrainMutex.lock();
-  cout << "threadAPEast: acquired lock! \n";
+  //cout << "threadAPEast: acquired lock! \n";
   
   
-  cout << "threadAddPatchEast adding... \n";
+  //cout << "threadAddPatchEast adding... \n";
   w->addTerrainEast();
-  cout << "threadAddPatchEast removing... \n";
+  //cout << "threadAddPatchEast removing... \n";
   w->removeTerrainWest();
   makeMainContextCurrent();
   w->updatingWorld = false;
   w->terrainMutex.unlock();
-  cout << "threadAPEast: released lock! \n";
+  //cout << "threadAPEast: released lock! \n";
 }
 
 void World::update(){
