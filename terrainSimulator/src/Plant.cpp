@@ -2,11 +2,12 @@
 
 Plant::Plant(GLuint *shade,GLuint *geoShade,Model* mod,vec3 pos,float yRot,float scaling)
   : shader(shade),geomShader(geoShade),model(mod){  
-    
+  
+  position = pos;  
   mat4 trans = T(position.x,position.y,position.z);
   mat4 rot = Ry(yRot);
   mat4 scale = S(scaling,scaling,scaling);
-  mdl2World = scale * rot * trans;
+  mdl2World =  trans * scale * rot;
 }
 
 

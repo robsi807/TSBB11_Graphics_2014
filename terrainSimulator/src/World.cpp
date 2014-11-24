@@ -92,8 +92,8 @@ World::World(){
 #endif
 
   // Loading of plant model, and shader uploads
-  plantModel = LoadModelPlus("../objects/groundsphere.obj");
-  plant = new Plant(&phongShader,&plantShader,plantModel,vec3(0,10,0),0.0,5.0);
+  plantModel = LoadModelPlus("../objects/BushLow.obj");
+  plant = new Plant(&phongShader,&plantShader,plantModel,vec3(patchSize/2.0+2,60,patchSize/2.0),0.0,1.0);
 
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
@@ -593,11 +593,11 @@ void World::draw(){
   
   }
 
-  //plant -> draw(camera,time);
-  mat4 modelView = T(0,35,0);
-  glUniformMatrix4fv(glGetUniformLocation(terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
-  glUniformMatrix4fv(glGetUniformLocation(terrainShader, "world2View"), 1, GL_TRUE, camera->cameraMatrix.m);
-  DrawModel(sphere, terrainShader, "inPosition", "inNormal","inTexCoord"); 
+  plant -> draw(camera,time);
+  //mat4 modelView = T(0,35,0);
+  //glUniformMatrix4fv(glGetUniformLocation(terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
+  //glUniformMatrix4fv(glGetUniformLocation(terrainShader, "world2View"), 1, GL_TRUE, camera->cameraMatrix.m);
+  //DrawModel(sphere, terrainShader, "inPosition", "inNormal","inTexCoord"); 
 
 }
 

@@ -52,15 +52,15 @@ void main(void)
 	float specularStrength = 0.0;
 	diffuseShade = max(dot(normalizedNormal, lightDir),0.01);
 
-	if(dot(normalizedNormal,lightDir) > 0.0)
-	{
+	//if(dot(normalizedNormal,lightDir) > 0.0)
+	//{
 		reflectedLightDirection = reflect(normalize(-lightDir),normalize(exNormalG));
 		eyeDirection = -normalize(surf);
 
 		specularStrength = dot(reflectedLightDirection, eyeDirection);
 		specularStrength = max(specularStrength, 0.01);
 		specularStrength = pow(specularStrength, specularExponent);
-	}
+	//}
 
 	shade = (0.7*diffuseShade + 0.3*specularStrength);
     vec4 color = applyDistanceFog(shade*texture(grassTex,texCoordG / 19.0));

@@ -16,28 +16,33 @@ uniform mat4 world2View;
 uniform float time;
 uniform sampler2D noiseTex;
 
-void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,float angle1,float angle2){
+void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,float width,float angle1,float angle2,mat3 normalMatrix){
     texCoordG = texCord; 
-    exNormalG = normal;
+    exNormalG = normalMatrix * normal;
     vec4 newPos = position;
     exPositionG = vec3( world2View * mdl2World * newPos);
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     
     texCoordG = texCord+vec2(0.1,0.1); 
-    exNormalG = normal;
+    exNormalG = normalMatrix * normal;
     newPos = position;
-     exPositionG = vec3( world2View * mdl2World * newPos);
+    exPositionG = vec3( world2View * mdl2World * newPos);
     gl_Position = projMatrix * vec4(exPositionG,1.0);
-    gl_Position.x += 0.2;
+    gl_Position.x += width;
+    EmitVertex();
+    
+    texCoordG = texCord+vec2(0.1,0.1); 
+    exNormalG = normalMatrix * normal;
+    newPos = position + height*vec4(normal,0.0);
+    exPositionG = vec3( world2View * mdl2World * newPos);
+    gl_Position = projMatrix * vec4(exPositionG,1.0);
+    gl_Position.x += width;
     EmitVertex();
 
     texCoordG = texCord; 
-    exNormalG = normal;
-    newPos = position;
-    newPos.y += cos(angle1)*height;
-    newPos.x += sin(angle1)*height;
-    newPos.z += sin(angle2)*height;
+    exNormalG = normalMatrix * normal;
+    newPos = position + height*vec4(normal,0.0);
     exPositionG = vec3( world2View * mdl2World * newPos);
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
@@ -47,14 +52,12 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
 void main(){
     
     mat3 normalMatrix = mat3(world2View * mdl2World);
-    vec3 normal0 = normalMatrix * exNormal[0];
     vec4 cameraCoord = projMatrix * vec4(exPosition[0],1.0);
-    
-    
-    if(slope < 0.5 && cameraCoord.z > 0.0 ){
+
+    if(cameraCoord.z > 0.0 ){
 
         // Level-of-detail parameters
-        float zLod0 = 100;
+        float zLod0 = 500;
         float zLod1 = 200;
         float zLod2 = 400;
         float zLod3 = 800;
@@ -64,8 +67,9 @@ void main(){
         float xLod3 = 1024;
         
         // Grass parameters
-        float height = 3.5;
-        float heightScale = 1;
+        float height = 0.4;
+        float width = 0.3;
+        float heightScale = 0.5;
         float angleScale = 3.14 / 6;
         float timeScale = 0.5;
         float posScale = 0.5;
@@ -81,24 +85,28 @@ void main(){
         tex1 = texCoord[1];
         tex2 = texCoord[2];
         
+        vec3 normal0,normal1,normal2;
+        normal0 = exNormal[0];
+        normal1 = exNormal[1];
+        normal2 = exNormal[2];
+        
         if(cameraCoord.z < zLod0 && cameraCoord.x > -xLod0 && cameraCoord.x < xLod0){
         // zLod 0
             vec3 rgbNoise1 = 2*vec3(texture(noiseTex,tex0/scaleNoise))-1;
             vec3 rgbNoise2 = 2*vec3(texture(noiseTex,1.5*(tex1/scaleNoise)))-1;
             vec3 rgbNoise3 = 2*vec3(texture(noiseTex,2*(tex2/scaleNoise)))-1;
-            vec3 rgbNoise4 = 2*vec3(texture(noiseTex,0.5*(tex0/scaleNoise)))-1;
             
-            vec4 grPos0 = mix(mix(pos0,pos1,0.4+posScale*rgbNoise1.x),pos2,0.5+posScale*rgbNoise1.y);
+            vec4 grPos0 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise1.x),pos2,0.5+posScale*rgbNoise1.y);
             vec4 grPos1 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise1.z),pos2,0.5+posScale*rgbNoise2.x);
             vec4 grPos2 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise2.y),pos2,0.5+posScale*rgbNoise2.z);
-            vec4 grPos3 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise3.x),pos2,0.5+posScale*rgbNoise3.y);        
-            vec4 grPos4 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise3.z),pos2,0.5+posScale*rgbNoise4.x);
             
-            createGrassBladeSimple(grPos0,normal0,tex0,height+heightScale*rgbNoise1.x,angleScale*rgbNoise1.x,angleScale*rgbNoise1.y);
-            createGrassBladeSimple(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x);
-            createGrassBladeSimple(grPos2,normal0,tex0,height+heightScale*rgbNoise1.z,angleScale*rgbNoise2.y,angleScale*rgbNoise2.z);
-            createGrassBladeSimple(grPos3,normal0,tex0,height+heightScale*rgbNoise2.x,angleScale*rgbNoise3.x,angleScale*rgbNoise3.y);
-            createGrassBladeSimple(grPos4,normal0,tex0,height+heightScale*rgbNoise2.y,angleScale*rgbNoise3.z,angleScale*rgbNoise3.z);
+            vec3 grNorm0 = mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.x),normal2,0.5+posScale*rgbNoise1.y);
+            vec3 grNorm1 = mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.z),normal2,0.5+posScale*rgbNoise2.x);
+            vec3 grNorm2 = mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.y),normal2,0.5+posScale*rgbNoise1.z);
+            
+            createGrassBladeSimple(grPos0,grNorm0,tex0,height+heightScale*rgbNoise1.x,width,angleScale*rgbNoise1.x,angleScale*rgbNoise1.y,normalMatrix);
+            createGrassBladeSimple(grPos1,grNorm1,tex0,height+heightScale*rgbNoise1.y,width,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x,normalMatrix);
+            createGrassBladeSimple(grPos2,grNorm2,tex0,height+heightScale*rgbNoise1.z,width,angleScale*rgbNoise2.y,angleScale*rgbNoise2.z,normalMatrix);
             
         }
  
