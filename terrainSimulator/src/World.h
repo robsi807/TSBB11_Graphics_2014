@@ -18,7 +18,7 @@
 #include "PatchGenerator.h"
 #include "PerlinPatchGenerator.h"
 #include "ValuePatchGenerator.h"
-#include "DebugPatchGenerator.h"
+//#include "DebugPatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
@@ -36,7 +36,7 @@
 
 // Patch specific defines
 #define PATCH_OVERLAP 64
-#define PATCH_SIZE 512
+#define PATCH_SIZE 256
 #define GRID_BEGIN_SIZE 5
 
 
@@ -51,13 +51,15 @@ class World
   private:
     long worldSeed;
     GLfloat time;
-    int patchOverlap,patchSize,gridSize;
+    int patchOverlap,patchSize;
     void init();
     void drawTerrainVector(TerrainPatch* t);
     
 
   public:
     Model* sphere;
+    
+    int gridSize;
     
     GLuint phongShader,skyboxShader,terrainShader;
     GLuint terrainTexture;
@@ -66,8 +68,14 @@ class World
     PatchGenerator* patchGenerator;
     Blender* blender;
     std::vector<vector<TerrainPatch*>> terrainVector;
-    std::vector<vector<TerrainPatch*>> terrainVectorCopy;
     std::mutex terrainMutex;
+    std::mutex terrainGenerationMutex; // so generation threads can block each other
+    std::mutex terrainWriteMutex; // so that generation can synch with drawing.
+    
+    
+    std::vector<TerrainPatch*> terrainRow;
+    std::mutex terrainRowMutex;
+    
     
     std::vector<TerrainPatch*> generatedTerrain;
     
@@ -81,6 +89,7 @@ class World
     void addPatchRow(int direction);
     void addTerrainSouth();
     void addTerrainNorth();
+    void addTerrainNorth2();
     void addTerrainEast();
     void addTerrainWest();
     void removeTerrainSouth();

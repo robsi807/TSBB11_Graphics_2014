@@ -155,8 +155,11 @@ void TerrainPatch::generateGeometry(){
 }
 
 void TerrainPatch::uploadGeometry() {
+  cout << "TerrainPatch::uploadGeometry: uploading geometry!\n";
   
 	BuildModelVAO2(geometry);
+	
+  cout << "TerrainPatch::uploadGeometry: geometry DONE uploading! <3\n";
   geometryBoolean = true;
 }
 

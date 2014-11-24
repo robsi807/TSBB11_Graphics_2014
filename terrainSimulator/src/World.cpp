@@ -71,35 +71,7 @@ void World::generateStartingPatches(int startSize){
     terrainVector.push_back(terrainRow);
   }
 
-  // Blend!
-  cout << "Blending patches... " << endl;
-  for(int y = 0; y < terrainVector.size(); y++){
-    for(int x = 0; x < terrainVector.at(y).size(); x++){
-      // Blend horizontal
-      if(x != 0){
-	TerrainPatch *pWest,*pEast;
-	pWest = terrainVector.at(y).at(x-1);
-	pEast = terrainVector.at(y).at(x);
-	blender->blendHors(pWest,pEast);
-      }
-      // Blend vertical
-      if(y != 0){
-	TerrainPatch *pSouth,*pNorth;
-	pSouth = terrainVector.at(y-1).at(x);
-	pNorth = terrainVector.at(y).at(x);
-	blender->blendVert(pSouth,pNorth);
-      }
-      // Blend corners
-      if(y != 0 && x != 0){
-	TerrainPatch *p00,*p01,*p10,*p11;
-	p00 = terrainVector.at(y-1).at(x-1);
-	p01 = terrainVector.at(y-1).at(x);
-	p10 = terrainVector.at(y).at(x-1);
-	p11 = terrainVector.at(y).at(x);
-	blender->blendCorners(p00,p01,p10,p11);
-      }    
-    }
-  }
+  blender->blendAll(&terrainVector);
 
   // Generate geometry for all but the edge patches
   for(int y = 1; y < startSize-1; y++){
@@ -126,21 +98,9 @@ void World::addTerrainSouth() {
   }
   terrainVector.insert(terrainVector.begin(),newTerrainVec);
 
-  // Blend in the new terrain
-  for(int x = 0; x < xSize; x++){
-    TerrainPatch *p00,*p01,*p10,*p11;
-    p01 = terrainVector.at(0).at(x);
-    p11 = terrainVector.at(1).at(x);
-    blender->blendVert(p01,p11);
-      
-    if(x != 0){
-      p00 = terrainVector.at(0).at(x-1);
-      p10 = terrainVector.at(1).at(x-1);
-      
-      blender->blendHors(p10,p11);
-      blender->blendCorners(p00,p01,p10,p11);
-    }
-  }
+
+  blender->blendSouth(&terrainVector);
+
   
   for(int x = 1; x < xSize-1; x++){
     terrainVector.at(1).at(x)->generateAndUploadGeometry();
@@ -167,21 +127,10 @@ void World::addTerrainNorth() {
   }
   terrainVector.push_back(newTerrainVec);
 
-  // Blend in the new terrain
-  for(int x = 0; x < xSize; x++){
-    TerrainPatch *p00,*p01,*p10,*p11;
-    p01 = terrainVector.at(ySize-1).at(x);
-    p11 = terrainVector.at(ySize).at(x);
-    blender->blendVert(p01,p11);
-      
-    if(x != 0){
-      p00 = terrainVector.at(ySize-1).at(x-1);
-      p10 = terrainVector.at(ySize).at(x-1);
-      
-      blender->blendHors(p10,p11);
-      blender->blendCorners(p00,p01,p10,p11);
-    }
-  }
+
+
+  blender->blendNorth(&terrainVector);
+
 
   for(int x = 1; x < xSize-1; x++){
     terrainVector.at(ySize-1).at(x)->generateAndUploadGeometry();
@@ -206,21 +155,8 @@ void World::addTerrainEast(){
     terrainVector.at(y).insert(terrainVector.at(y).begin(),newPatch);
   }
 
-  // Blend in the new terrain
-  for(int y = 0; y < ySize; y++){
-    TerrainPatch *p00,*p01,*p10,*p11;
-    p10 = terrainVector.at(y).at(0);
-    p11 = terrainVector.at(y).at(1);
-    blender->blendHors(p10,p11);
-      
-    if(y != 0){
-      p00 = terrainVector.at(y-1).at(0);
-      p01 = terrainVector.at(y-1).at(1);
-      blender->blendVert(p01,p11);
-      blender->blendCorners(p00,p01,p10,p11);
-    }
-  }
-    
+  blender->blendEast(&terrainVector);
+
   for(int y = 1; y < ySize-1; y++){
     terrainVector.at(y).at(1)->generateAndUploadGeometry();
   }
@@ -241,22 +177,9 @@ void World::addTerrainWest(){
     TerrainPatch* newPatch = generatePatch(xGrid,yGrid);
     terrainVector.at(y).push_back(newPatch);
   }
+  
+  blender->blendWest(&terrainVector);
 
-  // Blend in the new terrain
-  for(int y = 0; y < ySize; y++){
-    TerrainPatch *p00,*p01,*p10,*p11;
-    p10 = terrainVector.at(y).at(xSize-1);
-    p11 = terrainVector.at(y).at(xSize);
-    blender->blendHors(p10,p11);
-      
-    if(y != 0){
-      p00 = terrainVector.at(y-1).at(xSize-1);
-      p01 = terrainVector.at(y-1).at(xSize);
-      blender->blendVert(p01,p11);
-      blender->blendCorners(p00,p01,p10,p11);
-    }
-  }
-    
   for(int y = 1; y < ySize-1; y++){
     terrainVector.at(y).at(xSize-1)->generateAndUploadGeometry();
   }
@@ -295,6 +218,9 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 }
 
 
+void threadCreatePatch(World *w, int x, int y);
+
+
 /*
 void threadUpdateTerrain(World *w){
   makeWorkerCurrent();
@@ -303,19 +229,144 @@ void threadUpdateTerrain(World *w){
 }
 */
 
+
+void createThreadedPatchRow(World *w, int patchX, int patchY, int xDirection, int yDirection) {
+  
+  vector<thread> threads;
+  
+  for (int i = 0;i < w->gridSize;i++) {
+    
+    
+    threads.push_back(thread(threadCreatePatch, w, patchX + i * xDirection, patchY + i * yDirection));
+  }
+  
+  for (int i = 0;i < w->gridSize;i++) {
+    threads.at(i).join();
+  }
+  
+}
+
+
+
+void threadCreatePatch(World *w, int x, int y) {
+  cout << "threadCreatePatch creating patch...\n";
+  TerrainPatch* patch = w->generatePatch(x,y);
+  
+  w->terrainRowMutex.lock();
+  
+  w->terrainRow.push_back(patch);
+  
+  cout << "threadCreatePatch done creating patch...\n";
+  
+  w->terrainRowMutex.unlock();
+  
+   
+}
+
+
+
+
+void World::addTerrainNorth2() {
+
+  // Calculate new coordinates in grid
+  terrainVector.push_back(terrainRow);
+
+  blender->blendNorth(&terrainVector);
+
+  int ySize = terrainVector.size();
+  int xSize = terrainVector.at(0).size();
+
+
+  makeWorkerCurrent();
+  
+  for(int x = 1; x < xSize-1; x++){
+    terrainVector.at(ySize-2).at(x)->generateAndUploadGeometry(); // magic 2, we generate geometry for the second last, 0 indexed.
+    printf("Generating geometry @ %i, %i\n", terrainVector.at(ySize-2).at(x)->xGrid, terrainVector.at(ySize-2).at(x)->yGrid);
+  }
+  
+
+  makeMainContextCurrent();
+  
+  
+  
+  printf("Terrain added north at yGrid = %i.\n",terrainVector.at(ySize-2).at(0)->yGrid+1);
+  
+  
+  
+}
+
+
+void threadAddPatchNorth2(World *w){
+  cout << "threadAPN2 starting!\n";
+  
+  w->terrainGenerationMutex.lock();
+  
+  int ySize = w->terrainVector.at(0).size();
+  
+  int yGrid = w->terrainVector.at(ySize-1).at(0)->yGrid + 1;
+  int xGrid = w->terrainVector.at(ySize-1).at(0)->xGrid;
+  
+  createThreadedPatchRow(w, xGrid, yGrid, 0, +1); // will wait for whole row to generate.
+  
+  // lock terrainVector.
+  
+  w->terrainMutex.lock();
+  
+  // add the row
+  // blend the stuff
+  // generate geometry
+  
+  cout << "threadAPN2 adding terrain in North!\n";
+  w->addTerrainNorth2();
+  
+  cout << "threadAPN2 removing terrain in south!\n";
+  // remove other row
+  w->removeTerrainSouth();
+  
+  
+  
+  cout << "threadAPN2 Switching Context!\n";
+  // make uploading context
+ 
+  /*
+ 
+  makeWorkerCurrent(); // *******************************================================================================================
+  
+  // upload to GPU
+  
+  cout << "threadAPN2 uploading geometry!!\n";
+  for(int i = 0; i < w->terrainRow.size();i++) {
+    w->terrainRow.at(i)->uploadGeometry();
+  }
+  
+  
+  cout << "threadAPN2 Switching Context back!!\n";
+  
+  // unlock context
+  makeMainContextCurrent();
+  
+  */
+  
+  // unlock terrainVector.
+  
+  
+  cout << "threadAPN2 unlocking mutexes!!\n";
+  
+  w->terrainMutex.unlock(); 
+     
+  w->terrainGenerationMutex.unlock();
+  
+  
+}
+
+
+
 void threadAddPatchNorth(World *w){
   cout << "threadAddPatchNorth working... \n";
   makeWorkerCurrent();
   
   cout << "ThreadAPN: Trying to acquire mutex...\n";
-  
-  /*
-  if(w->terrainMutex.try_lock()) {
-    cout << " successful! \n";
-  } else {
-    cout << "... failed... going to sleep!";
-  }
-  */
+
   
   //w->terrainVectorCopy = w->terrainVector;
   w->terrainMutex.lock();
@@ -431,7 +482,7 @@ void World::update(){
 
     if(camera->addTerrain == NORTH){
       camera->addTerrain = 0;
-      thread threadNorth(threadAddPatchNorth, this);
+      thread threadNorth(threadAddPatchNorth2, this);
       threadNorth.detach();
 
     }
@@ -475,7 +526,7 @@ void World::draw(){
   
   } else {
   
-    cout << "World::draw: SOMEONE HAS LOCKED THE TERRAINS T.T \n";
+    //cout << "World::draw: SOMEONE HAS LOCKED THE TERRAINS T.T \n";
   
     for(int y = 1; y < gridSize-1; y++){
       for(int x = 1; x < gridSize-1; x++){
