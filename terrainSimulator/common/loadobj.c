@@ -1011,7 +1011,10 @@ void BuildModelVAO2(Model *m/*,
 			char* normalVariableName,
 			char* texCoordVariableName*/)
 {
-	glGenVertexArrays(1, &m->vao);
+#ifdef __APPLE__
+  glGenVertexArrays(1, &m->vao);	
+#endif
+
 	glGenBuffers(1, &m->vb);
 	glGenBuffers(1, &m->ib);
 	glGenBuffers(1, &m->nb);
@@ -1055,6 +1058,11 @@ Model* LoadModelPlus(char* name/*,
 	
 	m = LoadModel(name);
 	
+#ifdef __linux__
+	glGenVertexArrays(1, &m->vao);	
+#endif
+	
+	//glBindVertexArray(m->vao);
 	BuildModelVAO2(m/*, program, vertexVariableName, normalVariableName, texCoordVariableName*/);
 	
 	return m;

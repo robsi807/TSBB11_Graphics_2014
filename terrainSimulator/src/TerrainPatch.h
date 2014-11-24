@@ -20,6 +20,7 @@
 #include "VectorUtils3.h"
 
 #include<vector>
+
 using namespace std;
 
 class TerrainPatch
@@ -29,6 +30,9 @@ class TerrainPatch
   GLuint* texture;
 
   vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
+  
+  bool geometryBoolean;
+  
 
  public:
   int size,blendedSize,patchOverlap; 
@@ -54,6 +58,9 @@ class TerrainPatch
   float calcHeight(float x,float z,int texWidth);
   void generateGeometry();
   void draw(mat4 cameraMatrix,float time);
+  void uploadGeometry();
+  void generateAndUploadGeometry();
+  bool hasGeometry();
 
 };
 

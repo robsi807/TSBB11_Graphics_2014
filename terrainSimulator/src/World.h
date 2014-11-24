@@ -18,6 +18,7 @@
 #include "PatchGenerator.h"
 #include "PerlinPatchGenerator.h"
 #include "ValuePatchGenerator.h"
+//#include "DebugPatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
@@ -29,13 +30,16 @@
 #include <iostream>
 #include <time.h>
 
+#include <mutex>
+
 //#include "../common/VectorUtils3.h"
 //#include "../common/GL_utilities.h"
 
 // Patch specific defines
 #define PATCH_OVERLAP 64
-#define PATCH_SIZE 512
-#define GRID_BEGIN_SIZE 3
+#define PATCH_SIZE 256
+#define GRID_BEGIN_SIZE 5
+
 
 // Direction specific defines
 #define NORTH 8
@@ -48,12 +52,17 @@ class World
   private:
     long worldSeed;
     GLfloat time;
+    int patchOverlap,patchSize;
     void init();
     void drawTerrainVector(TerrainPatch* t);
-    int patchOverlap,patchSize,gridSize;
+    
 
   public:
     GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader;
+    Model* sphere;
+    
+    int gridSize;
+    
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
@@ -63,7 +72,18 @@ class World
     Plant* plant;
 
     std::vector<vector<TerrainPatch*>> terrainVector;
+    std::mutex terrainMutex;
+    std::mutex terrainGenerationMutex; // so generation threads can block each other
+    std::mutex terrainWriteMutex; // so that generation can synch with drawing.
+    
+    
+    std::vector<TerrainPatch*> terrainRow;
+    std::mutex terrainRowMutex;
+    
+    
     std::vector<TerrainPatch*> generatedTerrain;
+    
+    bool updatingWorld;
 
     World();
     ~World();
@@ -71,10 +91,19 @@ class World
     TerrainPatch* generatePatch(int patchX, int patchY);
     void generateStartingPatches(int startSize);
     void addPatchRow(int direction);
+    void addTerrainSouth();
+    void addTerrainNorth();
+    void addTerrainNorth2();
+    void addTerrainEast();
+    void addTerrainWest();
+    void removeTerrainSouth();
+    void removeTerrainNorth();
+    void removeTerrainEast();
+    void removeTerrainWest();
+    
     void addGeneratedTerrain();
     void update();
-    void updateTerrain(vec3 position, vec3 direction);
-
+    void updateTerrain();
 };
 
 #endif

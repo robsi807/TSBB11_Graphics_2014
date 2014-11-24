@@ -26,6 +26,7 @@
 #include <GL/gl.h>
 #define GLX_GLXEXT_PROTOTYPES
 #include <X11/keysym.h>
+//#include <X11/Xlib.h>
 #include <GL/glext.h>
 #include "MicroGlut.h"
 #include <sys/time.h>
@@ -34,7 +35,6 @@
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
-
 
 unsigned int winWidth = 300, winHeight = 300;
 unsigned int winPosX = 40, winPosY = 40;
@@ -45,6 +45,9 @@ int gContextVersionMinor = 0;
 Display *dpy;
 Window win;
 GLXContext ctx;
+GLXContext workerCtx;
+GLXPbuffer pBuffer;
+
 char *dpyName = NULL;
 int gMode; // NOT YET USED
 char animate = 1; // Use for glutNeedsRedisplay?
@@ -73,126 +76,144 @@ static void checktimers();
  * Create an RGB, double-buffered window.
  * Return the window and context handles.
  */
-   GLXContext workerCtx;
 
-static void
-make_window( Display *dpy, const char *name,
-             int x, int y, int width, int height,
-             Window *winRet, GLXContext *ctxRet)
+static void make_window( Display *dpy, const char *name,
+			 int x, int y, int width, int height,
+			 Window *winRet, GLXContext *ctxRet, GLXContext *workerCtxRet)
 {
-   int attribs[] = { GLX_RGBA,
-                     GLX_RED_SIZE, 1,
-                     GLX_GREEN_SIZE, 1,
-                     GLX_BLUE_SIZE, 1,
-                     GLX_DOUBLEBUFFER,
-                     GLX_DEPTH_SIZE, 1,
-                     None };
-/*   int stereoAttribs[] = { GLX_RGBA,
-                           GLX_RED_SIZE, 1,
-                           GLX_GREEN_SIZE, 1,
-                           GLX_BLUE_SIZE, 1,
-                           GLX_DOUBLEBUFFER,
-                           GLX_DEPTH_SIZE, 1,
-                           GLX_STEREO,
-                           None };*/
+  //XInitThreads();
 
-   int scrnum;
-   XSetWindowAttributes attr;
-   unsigned long mask;
-   Window root;
-   Window win;
-   GLXContext ctx;
-   XVisualInfo *visinfo;
+  int attribs[] = { GLX_RGBA,
+		    GLX_RED_SIZE, 1,
+		    GLX_GREEN_SIZE, 1,
+		    GLX_BLUE_SIZE, 1,
+		    GLX_DOUBLEBUFFER,
+		    GLX_DEPTH_SIZE, 1,
+		    None };
 
-   scrnum = DefaultScreen( dpy );
-   root = RootWindow( dpy, scrnum );
+  const int pbAttrib[] = {GLX_PBUFFER_WIDTH, winWidth,
+			  GLX_PBUFFER_HEIGHT, winHeight,
+			  GLX_PRESERVED_CONTENTS, True, 
+			  None };
+  /*   int stereoAttribs[] = { GLX_RGBA,
+       GLX_RED_SIZE, 1,
+       GLX_GREEN_SIZE, 1,
+       GLX_BLUE_SIZE, 1,
+       GLX_DOUBLEBUFFER,
+       GLX_DEPTH_SIZE, 1,
+       GLX_STEREO,
+       None };*/
 
-//   if (fullscreen)
-//   {
-//      x = 0; y = 0;
-//      width = DisplayWidth( dpy, scrnum );
-//      height = DisplayHeight( dpy, scrnum );
-//   }
+  int scrnum;
+  XSetWindowAttributes attr;
+  unsigned long mask;
+  Window root;
+  Window win;
+  GLXContext ctx2;
+  GLXContext workerCtx2;
+  XVisualInfo *visinfo;
 
-//   if (stereo)
-//      visinfo = glXChooseVisual( dpy, scrnum, stereoAttribs );
-//   else
-      visinfo = glXChooseVisual( dpy, scrnum, attribs );
-   if (!visinfo)
-   {
-//      if (stereo) {
-//         printf("Error: couldn't get an RGB, "
-//                "Double-buffered, Stereo visual\n");
-//      } else
-         printf("Error: couldn't get an RGB, Double-buffered visual\n");
+  scrnum = DefaultScreen( dpy );
+  root = RootWindow( dpy, scrnum );
+
+  //   if (fullscreen)
+  //   {
+  //      x = 0; y = 0;
+  //      width = DisplayWidth( dpy, scrnum );
+  //      height = DisplayHeight( dpy, scrnum );
+  //   }
+
+  //   if (stereo)
+  //      visinfo = glXChooseVisual( dpy, scrnum, stereoAttribs );
+  //   else
+  visinfo = glXChooseVisual( dpy, scrnum, attribs );
+  if (!visinfo)
+    {
+      //      if (stereo) {
+      //         printf("Error: couldn't get an RGB, "
+      //                "Double-buffered, Stereo visual\n");
+      //      } else
+      printf("Error: couldn't get an RGB, Double-buffered visual\n");
 
       exit(1);
-   }
+    }
 
-   /* window attributes */
-   attr.background_pixel = 0;
-   attr.border_pixel = 0;
-   attr.colormap = XCreateColormap( dpy, root, visinfo->visual, AllocNone);
-   attr.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPress | ButtonReleaseMask | Button1MotionMask | PointerMotionMask;
-   /* XXX this is a bad way to get a borderless window! */
-//   attr.override_redirect = fullscreen;
-   attr.override_redirect = 0;
-   mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask | CWOverrideRedirect;
+  /* window attributes */
+  attr.background_pixel = 0;
+  attr.border_pixel = 0;
+  attr.colormap = XCreateColormap( dpy, root, visinfo->visual, AllocNone);
+  attr.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPress | ButtonReleaseMask | Button1MotionMask | PointerMotionMask;
+  /* XXX this is a bad way to get a borderless window! */
+  //   attr.override_redirect = fullscreen;
+  attr.override_redirect = 0;
+  mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask | CWOverrideRedirect;
 
-   win = XCreateWindow( dpy, root, x, y, width, height,
-		        0, visinfo->depth, InputOutput,
-		        visinfo->visual, mask, &attr );
+  win = XCreateWindow( dpy, root, x, y, width, height,
+		       0, visinfo->depth, InputOutput,
+		       visinfo->visual, mask, &attr );
 
-// 3.2 support
-#ifdef glXCreateContextAttribsARB
-	if (gContextVersionMajor > 2)
+  // 3.2 support
+  #ifdef glXCreateContextAttribsARB
+  if (gContextVersionMajor > 2)
+    {
+      // We need this for OpenGL3
+      int elemc;
+      GLXFBConfig *fbcfg = glXChooseFBConfig(dpy, scrnum, NULL, &elemc);
+      if (!fbcfg)
+	printf("Couldn't get FB configs\n");
+      else
+	printf("Got %d FB configs\n", elemc);
+
+      int gl3attr[] =
 	{
-// We need this for OpenGL3
-		int elemc;
-		GLXFBConfig *fbcfg = glXChooseFBConfig(dpy, scrnum, NULL, &elemc);
-		if (!fbcfg)
-			printf("Couldn't get FB configs\n");
-		else
-			printf("Got %d FB configs\n", elemc);
+	  GLX_CONTEXT_MAJOR_VERSION_ARB, gContextVersionMajor,
+	  GLX_CONTEXT_MINOR_VERSION_ARB, gContextVersionMinor,
+	  GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+	  None
+	};
+      ctx2 = glXCreateContextAttribsARB(dpy, fbcfg[0], NULL, 1, gl3attr);
+      workerCtx2 = glXCreateContextAttribsARB(dpy, fbcfg[0], ctx2, 1, gl3attr);
+      pBuffer = glXCreatePbuffer (dpy, fbcfg[0], pbAttrib);
+      printf("RUNNING OPENGL 3.2+\n");
+      printf("RUNNING OPENGL 3.2+\n");
+      printf("RUNNING OPENGL 3.2+\n");
 
-		int gl3attr[] =
-		{
-			GLX_CONTEXT_MAJOR_VERSION_ARB, gContextVersionMajor,
-			GLX_CONTEXT_MINOR_VERSION_ARB, gContextVersionMinor,
-			GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-			None
-		};
-		ctx = glXCreateContextAttribsARB(dpy, fbcfg[0], NULL, 1, gl3attr);
-	}
-	else
-#endif
-	  ctx = glXCreateContext( dpy, visinfo, NULL, True );
-	workerCtx = glXCreateContext( dpy, visinfo, ctx, True ); // True
-// Register delete!
-	wmDeleteMessage = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-	XSetWMProtocols(dpy, win, &wmDeleteMessage, 1); // Register
+    }
+  else
+    #endif
+    {
+      ctx2 = glXCreateContext( dpy, visinfo, NULL, True );
+      workerCtx2 = glXCreateContext( dpy, visinfo, ctx2, True ); // True
+      printf("NOT RUNNING OPENGL 3.2+\n");
+      printf("NOT RUNNING OPENGL 3.2+\n");
+    }
+		
+  // Register delete!
+  wmDeleteMessage = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+  XSetWMProtocols(dpy, win, &wmDeleteMessage, 1); // Register
 
-   /* set hints and properties */
-      XSizeHints sizehints;
-      sizehints.x = x;
-      sizehints.y = y;
-      sizehints.width  = width;
-      sizehints.height = height;
-      sizehints.flags = USSize | USPosition;
-      XSetNormalHints(dpy, win, &sizehints);
-      XSetStandardProperties(dpy, win, name, name,
-                              None, (char **)NULL, 0, &sizehints);
+  /* set hints and properties */
+  XSizeHints sizehints;
+  sizehints.x = x;
+  sizehints.y = y;
+  sizehints.width  = width;
+  sizehints.height = height;
+  sizehints.flags = USSize | USPosition;
+  XSetNormalHints(dpy, win, &sizehints);
+  XSetStandardProperties(dpy, win, name, name,
+			 None, (char **)NULL, 0, &sizehints);
 
-   if (!ctx)
-   {
+  if (!ctx2)
+    {
       printf("Error: glXCreateContext failed\n");
       exit(1);
-   }
+    }
 
-   XFree(visinfo);
+  XFree(visinfo);
 
-   *winRet = win;
-   *ctxRet = ctx;
+  *winRet = win;
+  *ctxRet = ctx2;
+  *workerCtxRet = workerCtx2;
 }
 
 void glutCreateWindow(char *windowTitle)
@@ -204,7 +225,7 @@ void glutCreateWindow(char *windowTitle)
 	     windowTitle ? windowTitle : getenv("DISPLAY"));
    }
 
-   make_window(dpy, windowTitle, winPosX, winPosY, winWidth, winHeight, &win, &ctx);
+   make_window(dpy, windowTitle, winPosX, winPosY, winWidth, winHeight, &win, &ctx, &workerCtx);
    
    XMapWindow(dpy, win);
    glXMakeCurrent(dpy, win, ctx);
@@ -490,7 +511,8 @@ GLXContext getWorkerContext(){
   return workerCtx;
 }
 void makeWorkerCurrent(){
-   glXMakeCurrent(dpy, win, workerCtx);
+  glXMakeCurrent(dpy, win, workerCtx);
+  //glXMakeContextCurrent(dpy, pBuffer, pBuffer, workerCtx);
 }
 
 void makeMainContextCurrent(){
