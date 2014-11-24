@@ -1,21 +1,24 @@
 #include "ValuePatchGenerator.h"
 
-ValuePatchGenerator::ValuePatchGenerator(){
-
+ValuePatchGenerator::ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize){
+    biotope = inputBiotope;
+    NoF = inputNoF;
+    amplitudeScale = inputAmplitude;
+    gridSize = inputSize;
 }
 
-void ValuePatchGenerator::printMatrix(vector<float> matrix, int matrixSize){
+void ValuePatchGenerator::printMatrix(vector<float> matrix){
 	printf("[");
-	for(int row = 0; row < matrixSize; row++) {
-		for(int col = 0; col < matrixSize; col++) {
-			printf("%1.3f  ", matrix.at(row*matrixSize + col));
+	for(int row = 0; row < gridSize; row++) {
+		for(int col = 0; col < gridSize; col++) {
+			printf("%1.3f  ", matrix.at(row*gridSize + col));
 		} 
 		printf(";");
 	} 
 	printf("]");
 }
 
-vector<float> ValuePatchGenerator::addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize){
+vector<float> ValuePatchGenerator::addMatrices(vector<float> inGrid1, vector<float> inGrid2){
 
 	vector<float> outGrid;
 	for(int index = 0; index < gridSize * gridSize; index++){
@@ -30,8 +33,11 @@ float ValuePatchGenerator::interpolateValues(float a, float b, float x){
 	float f = (1.0-cos(ft))*0.5;
 	float res = a*(1.0-f) + b*f;
     */
+    
     float Sx = 3.0*pow(x,2.0)-2.0*pow(x,3.0);
     float res = a+Sx*(b-a);
+
+    //float res = a+x*(b-a);
     return res;
 
 }
@@ -50,7 +56,7 @@ vector<float> ValuePatchGenerator::createGradients(int gradientPoints) {
 	return gradients;
 }
 
-vector<float> ValuePatchGenerator::createPatch(int gridSize, int frequency, int gradientPoints, float amplitude){
+vector<float> ValuePatchGenerator::createPatch(int frequency, int gradientPoints, float amplitude){
 
 	vector<float> gradients;
 	gradients = createGradients(gradientPoints);
@@ -59,19 +65,19 @@ vector<float> ValuePatchGenerator::createPatch(int gridSize, int frequency, int 
     vector<float> finalGrid;
 
 	for(int row = 0; row < gridSize; row++) {
-		float diffX = (float)(row % numberOfPixels)/(float)numberOfPixels;
+		float diffY = (float)(row % numberOfPixels)/(float)numberOfPixels;
 
 		for(int col = 0; col < gridSize; col++) {
-			float diffY = (float)(col % numberOfPixels)/(float)numberOfPixels;
+			float diffX = (float)(col % numberOfPixels)/(float)numberOfPixels;
 
-			int gradientX = floor(row/numberOfPixels);
-			int gradientY = floor(col/numberOfPixels);
+			int gradientX = floor(col/numberOfPixels);
+			int gradientY = floor(row/numberOfPixels);
 
-			float interpolatedX1 = interpolateValues(gradients.at(gradientX*gradientPoints 	+ gradientY),
- 													 gradients.at((gradientX+1)*gradientPoints + gradientY),
+			float interpolatedX1 = interpolateValues(gradients.at(gradientY*gradientPoints 	+ gradientX),
+ 													 gradients.at((gradientY)*gradientPoints + gradientX+1),
 													 diffX);
-			float interpolatedX2 = interpolateValues(gradients.at(gradientX*gradientPoints 	+ gradientY+1),
-													 gradients.at((gradientX+1)*gradientPoints + gradientY+1),
+			float interpolatedX2 = interpolateValues(gradients.at((gradientY+1)*gradientPoints + gradientX),
+													 gradients.at((gradientY+1)*gradientPoints + gradientX+1),
 													 diffX);
 			float finalInterp = interpolateValues(interpolatedX1,interpolatedX2,diffY);
 			finalGrid.push_back(finalInterp * amplitude);
@@ -82,7 +88,7 @@ vector<float> ValuePatchGenerator::createPatch(int gridSize, int frequency, int 
 	return finalGrid;	
 }
 
-vector<float> ValuePatchGenerator::generatePatch(int x, int y, int size)
+vector<float> ValuePatchGenerator::generatePatch(int x, int y)
 {
 	vector<float> tempPatch;
 	vector<float> heightMapPatch;
@@ -90,7 +96,7 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y, int size)
 	int gradientPoints;
 	float amplitude;
     
-	heightMapPatch.assign(size*size,0);
+	heightMapPatch.assign(gridSize*gridSize,0);
     
     //Position based seed
     int n=x+y*57;
@@ -98,20 +104,19 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y, int size)
     int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
     srand(seed);
 
-	for(int n = 2; n <= 8; n = n+2){ //max value on n: 2^n <= size
-
-        /*Biotopes:
-
-        Landscape: In the for loop, use n = n+2 instead of n++;        
-        Sand: Set amplitude = amplitude^2:
-        */
+	for(int n = 1; n <= NoF; n = n+2){ //max value on n: 2^n <= size
 
 		frequency = pow(2,n);
 		gradientPoints = frequency + 1;
     	amplitude = 1.0/((float)frequency);
 
-		tempPatch = createPatch(size,frequency,gradientPoints, amplitude);
-		heightMapPatch = addMatrices(heightMapPatch, tempPatch, size);
+        if(biotope == 2){
+            amplitude *= amplitude;
+        }
+        amplitude *= amplitudeScale;
+
+		tempPatch = createPatch(frequency,gradientPoints, amplitude);
+		heightMapPatch = addMatrices(heightMapPatch, tempPatch);
  
 	}
 	return heightMapPatch;

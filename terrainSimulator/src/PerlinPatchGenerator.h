@@ -26,17 +26,21 @@ class PerlinPatchGenerator : public PatchGenerator{
 
   private:
 
+    int biotope;
+    int NoF;
+    int amplitudeScale;
+    int gridSize;
 
-	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize);
+	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2);
 	float interpolateValues(float a, float b, float x);
 	vector<vector<float>> createGradients(int gradientPoints);
-	vector<float> createPatch(int gridSize, int frequency, int gradientPoints, float amplitude);
-    float dotProduct(vector<float> a,vector<float> b);
+	vector<float> createPatch(int frequency, int gradientPoints, float amplitude);
+    float dotProduct(vector<float> a,float b[2]);
 
   public:
-    PerlinPatchGenerator();
-    void printMatrix(vector<float> matrix, int matrixSize);
-    vector<float> generatePatch(int xPatch, int yPatch, int size);
+    PerlinPatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize);
+    void printMatrix(vector<float> matrix);
+    vector<float> generatePatch(int xPatch, int yPatch);
 
 };
 

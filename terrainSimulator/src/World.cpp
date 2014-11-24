@@ -14,8 +14,11 @@ World::World(){
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 
   // Init objects
-  //patchGenerator = new PerlinPatchGenerator();
-  patchGenerator = new ValuePatchGenerator();
+  int biotope = 1; // 1 = mountains, 2 = desert
+  int NoF = 9; // Number of frequencies, 1 <= NoF <= 9. Standard = 9.
+  int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.
+  //patchGenerator = new PerlinPatchGenerator(biotope, NoF, amplitude, patchSize);
+  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize);
 
   camera = new Camera(vec3(0,60,0), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
@@ -246,7 +249,7 @@ void World::addPatchRow(int direction){
 
 TerrainPatch* World::generatePatch(int patchX, int patchY){
 
-  vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY, patchSize);
+  vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY);
 
   return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture);
 }
