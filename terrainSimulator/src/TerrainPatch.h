@@ -29,6 +29,9 @@ class TerrainPatch
   GLuint* texture;
 
   vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
+  
+  bool geometryBoolean;
+  
 
  public:
   int size,blendedSize,patchOverlap; 
@@ -53,7 +56,10 @@ class TerrainPatch
   // Functions
   float calcHeight(float x,float z,int texWidth);
   void generateGeometry();
+  void uploadGeometry();
+  void generateAndUploadGeometry();
   void draw(mat4 cameraMatrix);
+  bool hasGeometry();
 
 };
 

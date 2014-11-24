@@ -100,8 +100,8 @@ void LinearBlender::blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast){
       float diff = ((float)j)/(overlap-1);
       float weight = interpolateValues(0,1,diff);
       float interp = 
-	weight*patchEast->rawHeightMap.at(patchSize*i + j) +
-	(1-weight)*patchWest->rawHeightMap.at(patchSize*i + jWest);
+	                  weight*patchEast->rawHeightMap.at(patchSize*i + j) +
+	                  (1-weight)*patchWest->rawHeightMap.at(patchSize*i + jWest);
 
       patchWest->blendedHeightMap.at(patchSize*i + jWest) = interp;
       patchEast->blendedHeightMap.at(patchSize*i + j) = interp;
@@ -127,6 +127,140 @@ void LinearBlender::blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth)
     }
   }
 }
+
+void LinearBlender::blendNorth(vector<vector<TerrainPatch*>> *terrainVector) {
+  // Blend in the new terrain
+  
+  int xSize = terrainVector->at(0).size();
+  int ySize = terrainVector->size(); // 
+  
+  
+  for(int x = 0; x < xSize; x++){
+    TerrainPatch *p00,*p01,*p10,*p11;
+    p01 = terrainVector->at(ySize-2).at(x); // ySize is not zero indexed
+    p11 = terrainVector->at(ySize-1).at(x); // ySize is not zero indexed
+    blendVert(p01,p11);
+      
+    if(x != 0){
+      p00 = terrainVector->at(ySize-2).at(x-1); // vector is zero indexed
+      p10 = terrainVector->at(ySize-1).at(x-1); // vector is zero indexed
+      
+      blendHors(p10,p11);
+      blendCorners(p00,p01,p10,p11);
+    }
+  }
+}
+
+void LinearBlender::blendSouth(vector<vector<TerrainPatch*>> *terrainVector) {
+
+  int xSize = terrainVector->at(0).size();
+  int ySize = terrainVector->size(); // 
+
+  // Blend in the new terrain
+  
+  for(int x = 0; x < xSize; x++){
+    TerrainPatch *p00,*p01,*p10,*p11;
+    p01 = terrainVector->at(0).at(x);
+    p11 = terrainVector->at(1).at(x);
+    blendVert(p01,p11);
+      
+    if(x != 0){
+      p00 = terrainVector->at(0).at(x-1);
+      p10 = terrainVector->at(1).at(x-1);
+      
+      blendHors(p10,p11);
+      blendCorners(p00,p01,p10,p11);
+    }
+  }
+
+
+}
+
+void LinearBlender::blendEast(vector<vector<TerrainPatch*>> *terrainVector) {
+
+  int xSize = terrainVector->at(0).size();
+  int ySize = terrainVector->size(); // 
+
+
+  // Blend in the new terrain
+  for(int y = 0; y < ySize; y++){
+    TerrainPatch *p00,*p01,*p10,*p11;
+    p10 = terrainVector->at(y).at(0);
+    p11 = terrainVector->at(y).at(1);
+    blendHors(p10,p11);
+      
+    if(y != 0){
+      p00 = terrainVector->at(y-1).at(0);
+      p01 = terrainVector->at(y-1).at(1);
+      blendVert(p01,p11);
+      blendCorners(p00,p01,p10,p11);
+    }
+  }
+
+
+
+}
+
+void LinearBlender::blendWest(vector<vector<TerrainPatch*>> *terrainVector) {
+  
+  
+  int xSize = terrainVector->at(0).size();
+  int ySize = terrainVector->size(); // 
+  
+  // Blend in the new terrain
+  for(int y = 0; y < ySize; y++){
+    TerrainPatch *p00,*p01,*p10,*p11;
+    p10 = terrainVector->at(y).at(xSize-2);
+    p11 = terrainVector->at(y).at(xSize-1);
+    blendHors(p10,p11);
+      
+    if(y != 0){
+      p00 = terrainVector->at(y-1).at(xSize-2);
+      p01 = terrainVector->at(y-1).at(xSize-1);
+      blendVert(p01,p11);
+      blendCorners(p00,p01,p10,p11);
+    }
+  }
+    
+
+}
+
+
+void LinearBlender::blendAll(vector<vector<TerrainPatch*>> *terrainVector) {
+
+    // Blend!
+  cout << "Blending patches... " << endl;
+  for(int y = 0; y < terrainVector->size(); y++){
+    for(int x = 0; x < terrainVector->at(y).size(); x++){
+      // Blend horizontal
+      if(x != 0){
+	      TerrainPatch *pWest,*pEast;
+	      pWest = terrainVector->at(y).at(x-1);
+	      pEast = terrainVector->at(y).at(x);
+	      blendHors(pWest,pEast);
+      }
+      // Blend vertical
+      if(y != 0){
+	      TerrainPatch *pSouth,*pNorth;
+	      pSouth = terrainVector->at(y-1).at(x);
+	      pNorth = terrainVector->at(y).at(x);
+	      blendVert(pSouth,pNorth);
+      }
+      // Blend corners
+      if(y != 0 && x != 0){
+	      TerrainPatch *p00,*p01,*p10,*p11;
+	      p00 = terrainVector->at(y-1).at(x-1);
+	      p01 = terrainVector->at(y-1).at(x);
+	      p10 = terrainVector->at(y).at(x-1);
+	      p11 = terrainVector->at(y).at(x);
+	      blendCorners(p00,p01,p10,p11);
+      }    
+    }
+  }
+
+
+}
+
 
 
 

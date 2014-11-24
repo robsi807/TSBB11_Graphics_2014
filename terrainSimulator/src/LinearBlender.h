@@ -4,6 +4,7 @@
 #include "LoadTGA.h"
 #include "Blender.h"
 #include "TerrainPatch.h"
+#include <vector>
 #include <iostream>
 
 class LinearBlender : public Blender{
@@ -23,6 +24,14 @@ class LinearBlender : public Blender{
 
   void blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast);
   void blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth);
+  
+  void blendNorth(vector<vector<TerrainPatch*>> *terrainVector);
+  void blendSouth(vector<vector<TerrainPatch*>> *terrainVector);
+  void blendEast(vector<vector<TerrainPatch*>> *terrainVector);
+  void blendWest(vector<vector<TerrainPatch*>> *terrainVector);
+  
+  void blendAll(vector<vector<TerrainPatch*>> *terrainVector);
+  
 };
 
 
