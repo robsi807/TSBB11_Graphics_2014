@@ -22,6 +22,7 @@
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
+#include "Plant.h"
 
 #include <vector>
 #include <algorithm>
@@ -57,16 +58,19 @@ class World
     
 
   public:
+    GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader;
     Model* sphere;
     
     int gridSize;
     
-    GLuint phongShader,skyboxShader,terrainShader;
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
     PatchGenerator* patchGenerator;
     Blender* blender;
+    Model* plantModel; // TODO: Add to destructor
+    Plant* plant;
+
     std::vector<vector<TerrainPatch*>> terrainVector;
     std::mutex terrainMutex;
     std::mutex terrainGenerationMutex; // so generation threads can block each other

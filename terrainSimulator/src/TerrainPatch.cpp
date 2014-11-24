@@ -1,6 +1,6 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
   
   blendedSize = patchSize-overlap+1;
 
@@ -8,8 +8,8 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   xPos = x * (patchSize - overlap);
   yPos = y * (patchSize - overlap);
 
-  shader = phongShader;
-  texture = terrainTexture;
+  terrainShader = terrainShade;
+  grassShader = grassShade;
   
   //generateGeometry();
   geometry = NULL;
@@ -209,19 +209,25 @@ TerrainPatch::~TerrainPatch(){
 }
 
 
-void TerrainPatch::draw(mat4 cameraMatrix){
+void TerrainPatch::draw(mat4 cameraMatrix,float time){
 
   if(hasGeometry()){
     mat4 modelView = T(xPos,0, yPos);
-    glUseProgram(*shader);
-    glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
-    glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
-    // glBindTexture(GL_TEXTURE_2D, *texture); 
-    //glBindVertexArray(geometry->vao);
-    
-    
-    
-    DrawModel(geometry, *shader, "inPosition", "inNormal","inTexCoord"); 
+    // Draw terrain normally
+    glUseProgram(*terrainShader);
+    glUniformMatrix4fv(glGetUniformLocation(*terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
+    glUniformMatrix4fv(glGetUniformLocation(*terrainShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+    DrawModel(geometry, *terrainShader, "inPosition", "inNormal","inTexCoord"); 
+
+    // Draw grass w/o z-buffer and culling
+#if GRASS == 1
+    glEnable (GL_POLYGON_SMOOTH);
+    glUseProgram(*grassShader);
+    glUniformMatrix4fv(glGetUniformLocation(*grassShader, "mdl2World"), 1, GL_TRUE, modelView.m);
+    glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+    glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
+    DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
+#endif
   }
   else {
     //printf("Warning, patch (%i,%i) has no geometry to draw.\n",xGrid,yGrid); 

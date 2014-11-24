@@ -12,9 +12,14 @@ World::World(){
 
   // Load shaders
   terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
+  //terrainShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
-
+  plantShader = loadShadersG("shaders/plant.vert","shaders/plant.frag","shaders/plant.gs");
+#if GRASS == 1
+  grassShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/grass.gs");
+#endif
+  
   // Init objects
   int biotope = 1; // 1 = mountains, 2 = desert
   int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
@@ -38,26 +43,72 @@ World::World(){
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
+#if GRASS == 1
+  glUseProgram(grassShader);
+  glUniform3fv(glGetUniformLocation(grassShader, "lightDirection"), 1, &lightDir.x);
+  glUniform1fv(glGetUniformLocation(grassShader, "specularExponent"), 1, &specularExponent);
+  glUniformMatrix4fv(glGetUniformLocation(grassShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
+#endif
+
+  glUseProgram(phongShader);
+  glUniform3fv(glGetUniformLocation(phongShader, "lightDirection"), 1, &lightDir.x);
+  glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
+  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
+  
   // Upload textures to terrain shader
+  glUseProgram(terrainShader);
   GLuint grassTex1;
   glActiveTexture(GL_TEXTURE0);
-  LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex1);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex1"), 0); 
+  LoadTGATextureSimple("../textures/grass4_1024_lp.tga", &grassTex1);
+  glUniform1i(glGetUniformLocation(terrainShader, "grassTex"), 0); 
   
-  GLuint grassTex2;
+  GLuint noiseTex;
   glActiveTexture(GL_TEXTURE0+1);
-  LoadTGATextureSimple("../textures/grass3_1024.tga", &grassTex2);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex2"), 1); 
+  LoadTGATextureSimple("../textures/fft-terrain.tga", &noiseTex);
+  glUniform1i(glGetUniformLocation(terrainShader, "noiseTex"), 1); 
 
   GLuint rockTex1;
   glActiveTexture(GL_TEXTURE0+2);
   LoadTGATextureSimple("../textures/rock2_1024.tga", &rockTex1);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex3"), 2);
+  glUniform1i(glGetUniformLocation(terrainShader, "rockTex1"), 2);
 
   GLuint rockTex2;
   glActiveTexture(GL_TEXTURE0+3);
   LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex4"), 3); 
+  glUniform1i(glGetUniformLocation(terrainShader, "rockTex2"), 3); 
+
+  // Upload textures to grass shader
+#if GRASS == 1
+  glUseProgram(grassShader);
+  GLuint grassTexLowPass;
+  glActiveTexture(GL_TEXTURE0+4);
+  LoadTGATextureSimple("../textures/grass4_1024_lp.tga",&grassTexLowPass);
+  glUniform1i(glGetUniformLocation(grassShader,"grassTex"),4);
+
+  GLuint noiseTex2;
+  glActiveTexture(GL_TEXTURE0+5);
+  LoadTGATextureSimple("../textures/noise/uniformNoise1.tga",&noiseTex2);
+  glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),5);
+#endif
+
+  // Loading of plant model, and shader uploads
+  plantModel = LoadModelPlus("../objects/groundsphere.obj");
+  plant = new Plant(&phongShader,&plantShader,plantModel,vec3(0,10,0),0.0,5.0);
+
+  glUseProgram(plantShader);
+  glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
+  glUniform1fv(glGetUniformLocation(plantShader, "specularExponent"), 1, &specularExponent);
+  glUniformMatrix4fv(glGetUniformLocation(plantShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+  
+  glActiveTexture(GL_TEXTURE0+4);
+  glUniform1i(glGetUniformLocation(plantShader,"grassTex"),4);
+  glActiveTexture(GL_TEXTURE0+5);
+  glUniform1i(glGetUniformLocation(plantShader,"noiseTex"),5);
+  
+  glUseProgram(phongShader);
+  // Upload textures to phong shader
+  glActiveTexture(GL_TEXTURE0+2);
+  glUniform1i(glGetUniformLocation(phongShader, "tex"), 2);
 
   generateStartingPatches(GRID_BEGIN_SIZE);
 }
@@ -217,7 +268,7 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 
   vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY);
 
-  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &terrainTexture);
+  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &grassShader);
 }
 
 
@@ -512,16 +563,16 @@ void World::update(){
 void World::draw(){
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  skybox->draw(camera->cameraMatrix);
   
+  skybox->draw(camera->cameraMatrix);
+
   if(terrainMutex.try_lock()) {
 
     for(int y = 0; y < terrainVector.size(); y++){
       for(int x = 0; x < terrainVector.at(y).size(); x++){
         TerrainPatch *patch = terrainVector.at(y).at(x);
-        if(camera->isInFrustum(patch) && terrainVector.at(y).at(x)->hasGeometry()){
-    	    terrainVector.at(y).at(x)->draw(camera->cameraMatrix);
+        if(camera->isInFrustum(patch) && patch->hasGeometry()){
+	  patch->draw(camera->cameraMatrix,time);
         }
       }
     }
@@ -535,17 +586,19 @@ void World::draw(){
       for(int x = 1; x < gridSize-1; x++){
         TerrainPatch *patch = terrainVector.at(y).at(x);
         if(camera->isInFrustum(patch) && terrainVector.at(y).at(x)->hasGeometry()){
-    	    terrainVector.at(y).at(x)->draw(camera->cameraMatrix);
+	  terrainVector.at(y).at(x)->draw(camera->cameraMatrix,time);
         }
       }
     }
   
   }
 
+  plant -> draw(camera,time);
   mat4 modelView = T(0,35,0);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "world2View"), 1, GL_TRUE, camera->cameraMatrix.m);
   DrawModel(sphere, terrainShader, "inPosition", "inNormal","inTexCoord"); 
+
 }
 
 void World::updateTerrain(){
