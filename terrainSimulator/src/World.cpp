@@ -593,7 +593,7 @@ void World::draw(){
   
   }
 
-  plant -> draw(camera,time);
+  //plant -> draw(camera,time);
   mat4 modelView = T(0,35,0);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "world2View"), 1, GL_TRUE, camera->cameraMatrix.m);
