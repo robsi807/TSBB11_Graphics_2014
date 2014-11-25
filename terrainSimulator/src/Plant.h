@@ -22,8 +22,8 @@
 
 using namespace std;
 
-class Plant
-{
+class Plant{
+
  public:
   vec3 position;
   mat4 mdl2World;
