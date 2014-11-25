@@ -1,6 +1,6 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade,Model* plantModel) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
   
   blendedSize = patchSize-overlap+1;
 
@@ -14,7 +14,8 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   //generateGeometry();
   geometry = NULL;
   geometryBoolean = false;
-
+  
+  // Add some plants
 }
 
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
@@ -206,6 +207,10 @@ float TerrainPatch::calcHeight(float x,float z,int texWidth)
 TerrainPatch::~TerrainPatch(){
   std::cout << "TerrainPatch destructor is used, geometry is deleted\n";
   delete geometry;
+  
+  // Delete all objects in the object vector
+  objects.clear();
+  
 }
 
 
@@ -228,6 +233,8 @@ void TerrainPatch::draw(mat4 cameraMatrix,float time){
     glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
     DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
 #endif
+
+    // Draw all objects 
   }
   else {
     //printf("Warning, patch (%i,%i) has no geometry to draw.\n",xGrid,yGrid); 

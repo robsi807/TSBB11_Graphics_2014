@@ -18,21 +18,19 @@
 #include "LoadTGA.h"
 #include "loadobj.h"
 #include "VectorUtils3.h"
-#include "Camera.h"
+#include "WorldObject.h"
 
 using namespace std;
 
-class Plant{
+class Plant : public WorldObject {
 
  public:
-  vec3 position;
   mat4 mdl2World;
   float scale;
-  Model *model;
   GLuint *shader,*geomShader;
 
   Plant(GLuint *shade,GLuint *geoShade,Model* mod,vec3 pos,float yRot,float scaling);
-  void draw(Camera* cam,float time);
+  void draw(mat4 cameraMatrix,float time);
 };
 
 #endif

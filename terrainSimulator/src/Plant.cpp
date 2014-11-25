@@ -1,8 +1,8 @@
 #include "Plant.h"
 
 Plant::Plant(GLuint *shade,GLuint *geoShade,Model* mod,vec3 pos,float yRot,float scaling)
-  : shader(shade),geomShader(geoShade),model(mod){  
-  
+  : shader(shade),geomShader(geoShade){  
+  model = mod;
   position = pos;  
   mat4 trans = T(position.x,position.y,position.z);
   mat4 rot = Ry(yRot);
@@ -11,9 +11,8 @@ Plant::Plant(GLuint *shade,GLuint *geoShade,Model* mod,vec3 pos,float yRot,float
 }
 
 
-void Plant::draw(Camera* cam,float time){
+void Plant::draw(mat4 cameraMatrix,float time){
   
-  mat4 cameraMatrix = cam->cameraMatrix;
   glUseProgram(*shader);
   float specularExponent = 2.0;
   glUniform1fv(glGetUniformLocation(*shader, "specularExponent"), 1, &specularExponent);

@@ -18,6 +18,7 @@
 #include "LoadTGA.h"
 #include "loadobj.h"
 #include "VectorUtils3.h"
+#include "Plant.h"
 
 #include<vector>
 
@@ -47,11 +48,14 @@ class TerrainPatch
   vector<float> rawHeightMap;
   vector<float> blendedHeightMap;
   
+  // Objects in the patch
+  vector<Plant*> objects; 
+  
   // Geometry
   Model* geometry;
 
   // Constructor and destructor
-  TerrainPatch(vector<float> initHeightMap,int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture);
+  TerrainPatch(vector<float> initHeightMap,int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture,Model* plantModel);
   ~TerrainPatch();
 
   // Functions
