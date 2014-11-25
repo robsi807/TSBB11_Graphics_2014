@@ -18,8 +18,12 @@
 #include "LoadTGA.h"
 #include "loadobj.h"
 #include "VectorUtils3.h"
+#include "Water.h"
 
 #include<vector>
+
+
+
 using namespace std;
 
 class TerrainPatch
@@ -29,6 +33,8 @@ class TerrainPatch
   GLuint* texture;
 
   vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
+  
+  Water water;
 
  public:
   int size,blendedSize,patchOverlap; 

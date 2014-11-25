@@ -53,6 +53,10 @@ World::World(){
   LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
   glUniform1i(glGetUniformLocation(terrainShader, "tex4"), 3); 
 
+  
+  glUniform1i(glGetUniformLocation(terrainShader, "water"), 10); 
+
+
   generateStartingPatches(GRID_BEGIN_SIZE);
 }
 

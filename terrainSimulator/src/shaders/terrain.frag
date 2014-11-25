@@ -23,6 +23,7 @@ uniform sampler2D tex1;
 uniform sampler2D tex2;
 uniform sampler2D tex3;
 uniform sampler2D tex4;
+uniform sampler2D water;
 
 // From:
 // http://www.itn.liu.se/~stegu/simplexnoise/GLSL-noise-vs-noise.zip
@@ -226,6 +227,16 @@ void main(void)
 
 	shade = (0.7*diffuseShade + 0.3*specularStrength);
 	vec4 color = applyDistanceFog(shade*calculateColor());
+	
+	// water mapping:
+	
+  float texScale = 1.0;//512.0-64; // Scale up the texture coordinates
+	vec4 waterColor = texture(water,(vec2(texCoord.x,texCoord.y) ) / texScale);
+	
+	//color = color * vec4(0.0);
+	color = color * waterColor;
+	
+	
 	outColor = clamp(color, 0,1);
 	  
 }

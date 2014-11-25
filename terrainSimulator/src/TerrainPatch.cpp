@@ -13,6 +13,9 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   
   //generateGeometry();
   geometry = NULL;
+  
+  water = Water(tex, patchSize);
+  
 
 }
 
