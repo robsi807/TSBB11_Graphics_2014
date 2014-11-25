@@ -1,0 +1,96 @@
+[From minimal.vert:]
+0(1) : error C0205: invalid profile "in"
+0(1) : error C0206: invalid token "vec3" in version line
+
+[From minimal.frag:]
+0(1) : error C0205: invalid profile "out"
+0(1) : error C0206: invalid token "vec4" in version line
+
+[From minimal.vert+minimal.frag+passthrough.gs:]
+Vertex info
+-----------
+0(1) : error C0205: invalid profile "in"
+0(1) : error C0206: invalid token "vec3" in version line
+
+Fragment info
+-------------
+0(1) : error C0205: invalid profile "out"
+0(1) : error C0206: invalid token "vec4" in version line
+
+[From minimal.vert:]
+0(1) : error C0205: invalid profile "in"
+0(1) : error C0206: invalid token "vec3" in version line
+
+[From minimal.frag:]
+0(1) : error C0205: invalid profile "out"
+0(1) : error C0206: invalid token "vec4" in version line
+
+[From minimal.vert+minimal.frag+flatshading.gs:]
+Vertex info
+-----------
+0(1) : error C0205: invalid profile "in"
+0(1) : error C0206: invalid token "vec3" in version line
+
+Geometry info
+-------------
+(0) : error C6022: No input primitive type
+(0) : error C6029: No output primitive type
+
+Fragment info
+-------------
+0(1) : error C0205: invalid profile "out"
+0(1) : error C0206: invalid token "vec4" in version line
+
+[From minimal.vert:]
+0(1) : error C0205: invalid profile "in"
+0(1) : error C0206: invalid token "vec3" in version line
+
+[From minimal.frag:]
+0(1) : error C0205: invalid profile "out"
+0(1) : error C0206: invalid token "vec4" in version line
+
+[From minimal.vert+minimal.frag+cracking.gs:]
+Vertex info
+-----------
+0(1) : error C0205: invalid profile "in"
+0(1) : error C0206: invalid token "vec3" in version line
+
+Geometry info
+-------------
+(0) : error C6022: No input primitive type
+(0) : error C6029: No output primitive type
+
+Fragment info
+-------------
+0(1) : error C0205: invalid profile "out"
+0(1) : error C0206: invalid token "vec4" in version line
+
+[From minimal.vert:]
+0(1) : error C0205: invalid profile "in"
+0(1) : error C0206: invalid token "vec3" in version line
+
+[From black.frag:]
+0(1) : error C0205: invalid profile "out"
+0(1) : error C0206: invalid token "vec4" in version line
+
+[From minimal.vert+black.frag+wireframe.gs:]
+Vertex info
+-----------
+0(1) : error C0205: invalid profile "in"
+0(1) : error C0206: invalid token "vec3" in version line
+
+Geometry info
+-------------
+(0) : error C6022: No input primitive type
+(0) : error C6029: No output primitive type
+
+Fragment info
+-------------
+0(1) : error C0205: invalid profile "out"
+0(1) : error C0206: invalid token "vec4" in version line
+
+Found 899 triangles
+maxx 0.060936 minx -0.094948 
+maxy 0.187292 miny 0.033493 
+maxz 0.058266 minz -0.061591 
+

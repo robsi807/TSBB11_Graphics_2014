@@ -23,18 +23,20 @@
 #include<vector>
 
 
-
 using namespace std;
 
 class TerrainPatch
 {
  private:
-  GLuint* shader;
+  GLuint *terrainShader,*grassShader;
   GLuint* texture;
 
   vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
   
   Water water;
+  
+  bool geometryBoolean;
+  
 
  public:
   int size,blendedSize,patchOverlap; 
@@ -59,7 +61,10 @@ class TerrainPatch
   // Functions
   float calcHeight(float x,float z,int texWidth);
   void generateGeometry();
-  void draw(mat4 cameraMatrix);
+  void draw(mat4 cameraMatrix,float time);
+  void uploadGeometry();
+  void generateAndUploadGeometry();
+  bool hasGeometry();
 
 };
 

@@ -20,23 +20,28 @@
 #include <climits>
 #include <iostream>
 
+
 using namespace std;
 
 class ValuePatchGenerator : public PatchGenerator{
 
   private:
 
+    int biotope;
+    int NoF;
+    int amplitudeScale;
+    int gridSize;
 
-	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2, int gridSize);
+	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2);
 	float interpolateValues(float a, float b, float x);
 	vector<float> createGradients(int gradientPoints);
-	vector<float> createPatch(int gridSize, int frequency, int gradientPoints, float amplitude);
+	vector<float> createPatch(int frequency, int gradientPoints, float amplitude);
 
   public:
 
-    ValuePatchGenerator();
-    void printMatrix(vector<float> matrix, int matrixSize);
-    vector<float> generatePatch(int xPatch, int yPatch, int size);
+    ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize);
+    void printMatrix(vector<float> matrix);
+    vector<float> generatePatch(int xPatch, int yPatch);
 
 };
 
