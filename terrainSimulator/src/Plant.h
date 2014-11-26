@@ -25,12 +25,20 @@ using namespace std;
 class Plant : public WorldObject {
 
  public:
+  // Static variables
+  static Model* model;
+  static GLuint *shader;
+  static GLuint *geomShader;
+  
+  // Initialize static variables
+  static void initPlants(GLuint *shade,GLuint *geoShade,Model* mod);
+  
   mat4 mdl2World;
   float scale;
-  GLuint *shader,*geomShader;
 
-  Plant(GLuint *shade,GLuint *geoShade,Model* mod,vec3 pos,float yRot,float scaling);
+  Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos);
   void draw(mat4 cameraMatrix,float time);
+  
 };
 
 #endif

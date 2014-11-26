@@ -19,6 +19,7 @@
 #include "loadobj.h"
 #include "VectorUtils3.h"
 #include "Plant.h"
+#include "WorldObject.h"
 
 #include<vector>
 
@@ -27,6 +28,7 @@ using namespace std;
 class TerrainPatch
 {
  private:
+  float heightScale;
   GLuint *terrainShader,*grassShader;
   GLuint* texture;
 
@@ -34,7 +36,8 @@ class TerrainPatch
   
   bool geometryBoolean;
   
-
+  void addPlants();
+  bool checkPlantPosition(vec3 pos);
  public:
   int size,blendedSize,patchOverlap; 
 
@@ -49,7 +52,7 @@ class TerrainPatch
   vector<float> blendedHeightMap;
   
   // Objects in the patch
-  vector<Plant*> objects; 
+  vector<WorldObject*> objects; 
   
   // Geometry
   Model* geometry;
@@ -59,7 +62,9 @@ class TerrainPatch
   ~TerrainPatch();
 
   // Functions
-  float calcHeight(float x,float z,int texWidth);
+  vec3 calcNormalSimple(float xPos, float zPos);
+  float calcHeightSimple(int x,int z);
+  float calcHeight(float x,float z);
   void generateGeometry();
   void draw(mat4 cameraMatrix,float time);
   void uploadGeometry();

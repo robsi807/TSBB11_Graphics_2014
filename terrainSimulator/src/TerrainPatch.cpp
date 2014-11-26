@@ -15,7 +15,7 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   geometry = NULL;
   geometryBoolean = false;
   
-  // Add some plants
+  heightScale = 0.0025;
 }
 
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
@@ -46,8 +46,6 @@ void TerrainPatch::generateGeometry(){
     // GLfloat normalArray[3 * vertexCount];
     // GLfloat texCoordArray[ 2 * vertexCount];
     // GLuint indexArray[3 * triangleCount];
-
-    float heightScale = 0.0025;
 
     for (x = 0; x < blendedWidth; x++)
       for (z = 0; z < blendedHeight; z++)
@@ -150,9 +148,47 @@ void TerrainPatch::generateGeometry(){
 	// move away when threading...
 	//uploadGeometry();   
 	
+  // Add plants
+  addPlants();
   }
   
+}
+
+bool TerrainPatch::checkPlantPosition(vec3 pos){
+  bool okPos = true;
+  vec3 normal0 = calcNormalSimple(pos.x,pos.z);
+  float slope = 1.2-normal0.y;
+  if(slope > 0.5){
+    okPos = false;
+  }
   
+  return okPos;
+}
+
+void TerrainPatch::addPlants(){  
+  //Position based seed
+  int n=xPos+yPos*57;
+  n=(n<<13)^n;
+  int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
+  srand(seed);
+  // Randomize a middle position
+  int xMid = patchOverlap/2 + rand() % blendedSize;  
+  int zMid = patchOverlap/2 + rand() % blendedSize;  
+  
+  for(int i = 0; i < 5; i ++){
+    // Randomize offset from middle position
+    int newXPos = xMid + (rand() % 10);
+    int newZPos = xMid + (rand() % 10);
+    float newYPos = calcHeightSimple(newXPos,newZPos);
+    vec3 newPos = vec3(newXPos,newYPos,newZPos);
+    
+    // Place plant if position is OK
+    if(checkPlantPosition(newPos)){
+      WorldObject* plant = new Plant(newPos,0.0,1.0,vec3(xPos,0.0,yPos));
+      objects.push_back(plant);
+      
+    }
+  }
 }
 
 void TerrainPatch::uploadGeometry() {
@@ -169,9 +205,33 @@ void TerrainPatch::generateAndUploadGeometry() {
   uploadGeometry();
 }
 
-
-float TerrainPatch::calcHeight(float x,float z,int texWidth)
+vec3 TerrainPatch::calcNormalSimple(float xPos, float zPos)
 {
+
+  int x,z;
+  int offset = patchOverlap/2;
+  vec3 normalVec;
+  x = (int) floor(xPos-offset);
+  z = (int) floor(zPos-offset);
+  normalVec.x = geometry->normalArray[(x + z * blendedSize)*3 + 0];
+  normalVec.y = geometry->normalArray[(x + z * blendedSize)*3 + 1];
+  normalVec.z = geometry->normalArray[(x + z * blendedSize)*3 + 2];
+  return normalVec;
+}
+
+// Only takes integer positions
+float TerrainPatch::calcHeightSimple(int xPos,int zPos){
+  int offset = patchOverlap/2;
+  int x = xPos - offset;
+  int z = zPos - offset; 
+  return geometry->vertexArray[(x + z * blendedSize)*3 + 1];
+}
+
+float TerrainPatch::calcHeight(float xPos,float zPos)
+{  
+  float offset = ((float)patchOverlap)/2.0;
+  float x = xPos - offset;
+  float z = zPos - offset;
   int x0,x1,z0,z1;
   float y00,y01,y10,y11,dx0,dz0,yTot;
   x0 = floor(x); 
@@ -181,11 +241,11 @@ float TerrainPatch::calcHeight(float x,float z,int texWidth)
   dx0 = x - x0;
   dz0 = z - z0;
 
-  y00 = geometry->vertexArray[(x0 + z0 * texWidth)*3 + 1];
-  y01 = geometry->vertexArray[(x1 + z0 * texWidth)*3 + 1];
-  y10 = geometry->vertexArray[(x0 + z1 * texWidth)*3 + 1];
-  y11 = geometry->vertexArray[(x1 + z1 * texWidth)*3 + 1];
-
+  y00 = geometry->vertexArray[(x0 + z0 * blendedSize)*3 + 1];
+  y01 = geometry->vertexArray[(x1 + z0 * blendedSize)*3 + 1];
+  y10 = geometry->vertexArray[(x0 + z1 * blendedSize)*3 + 1];
+  y11 = geometry->vertexArray[(x1 + z1 * blendedSize)*3 + 1];
+  
   if(dx0 > dz0)
     {
       // Upper triangle
@@ -235,6 +295,9 @@ void TerrainPatch::draw(mat4 cameraMatrix,float time){
 #endif
 
     // Draw all objects 
+    for(int i = 0;i < objects.size();i++){
+      objects.at(i)->draw(cameraMatrix,time);
+    }
   }
   else {
     //printf("Warning, patch (%i,%i) has no geometry to draw.\n",xGrid,yGrid); 

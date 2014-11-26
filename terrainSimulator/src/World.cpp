@@ -91,8 +91,9 @@ World::World(){
   glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),5);
 #endif
 
-  // Loading of plant model, and shader uploads
+  // Loading of plant model, and shader uploads and initialization of plants
   plantModel = LoadModelPlus("../objects/BushLow.obj");
+  Plant::initPlants(&phongShader,&plantShader,plantModel);
  
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
@@ -571,7 +572,7 @@ void World::draw(){
       for(int x = 0; x < terrainVector.at(y).size(); x++){
         TerrainPatch *patch = terrainVector.at(y).at(x);
         if(camera->isInFrustum(patch) && patch->hasGeometry()){
-	  patch->draw(camera->cameraMatrix,time);
+	        patch->draw(camera->cameraMatrix,time);
         }
       }
     }
@@ -585,17 +586,13 @@ void World::draw(){
       for(int x = 1; x < gridSize-1; x++){
         TerrainPatch *patch = terrainVector.at(y).at(x);
         if(camera->isInFrustum(patch) && terrainVector.at(y).at(x)->hasGeometry()){
-	        terrainVector.at(y).at(x)->draw(camera->cameraMatrix,time);
+	        patch->draw(camera->cameraMatrix,time);
         }
       }
     }
   
   }
-
-  //mat4 modelView = T(0,35,0);
-  //glUniformMatrix4fv(glGetUniformLocation(terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
-  //glUniformMatrix4fv(glGetUniformLocation(terrainShader, "world2View"), 1, GL_TRUE, camera->cameraMatrix.m);
-  //DrawModel(sphere, terrainShader, "inPosition", "inNormal","inTexCoord"); 
+   
 
 }
 
