@@ -149,12 +149,16 @@ void TerrainPatch::generateGeometry(){
 	//uploadGeometry();   
 	
   // Add plants
+#if PLANTS == 1
   addPlants();
+#endif
   }
   
 }
 
+// Checks so the plants postion is OK
 bool TerrainPatch::checkPlantPosition(vec3 pos){
+  // Make sure the plant is not on a steep hill
   bool okPos = true;
   vec3 normal0 = calcNormalSimple(pos.x,pos.z);
   float slope = 1.2-normal0.y;
@@ -162,6 +166,12 @@ bool TerrainPatch::checkPlantPosition(vec3 pos){
     okPos = false;
   }
   
+  // Make sure the plant is inside the patch
+  if(pos.x < patchOverlap/2 || pos.x > blendedSize - patchOverlap/2 
+    || pos.z < patchOverlap/2 || pos.z > blendedSize - patchOverlap/2){
+    okPos = false;
+  }    
+       
   return okPos;
 }
 
@@ -171,22 +181,33 @@ void TerrainPatch::addPlants(){
   n=(n<<13)^n;
   int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
   srand(seed);
-  // Randomize a middle position
-  int xMid = patchOverlap/2 + rand() % blendedSize;  
-  int zMid = patchOverlap/2 + rand() % blendedSize;  
   
-  for(int i = 0; i < 5; i ++){
-    // Randomize offset from middle position
-    int newXPos = xMid + (rand() % 10);
-    int newZPos = xMid + (rand() % 10);
-    float newYPos = calcHeightSimple(newXPos,newZPos);
-    vec3 newPos = vec3(newXPos,newYPos,newZPos);
+  // Randomize a start position
+  int xMid = patchOverlap + rand() % ((int)((float)blendedSize*0.8));  
+  int zMid = patchOverlap + rand() % ((int)((float)blendedSize*0.8));  
+  
+  // Randomize a grid size between 3 and 5
+  int xGridSize = 3 + rand() % 3;
+  int zGridSize = 3 + rand() % 3;
+  float gridOffset = 12.0 + ((float)(rand()%300 - 150))/100.0;
+  printf("xGridSize=%i, zGridSize=%i, gridOffset=%i\n",xGridSize,zGridSize,gridOffset);
+  
+  for(int x = 0; x < xGridSize; x++){
+    for(int z = 0; z < zGridSize; z++){
+      // Randomize offset from middle position
+      float newXPos = ((float)xMid) + x*gridOffset + (rand()%8 - 4);
+      float newZPos = ((float)zMid) + z*gridOffset + (rand()%8 - 4);
+      float newYPos = calcHeight(newXPos,newZPos);
+      vec3 newPos = vec3(newXPos,newYPos,newZPos);
     
-    // Place plant if position is OK
-    if(checkPlantPosition(newPos)){
-      WorldObject* plant = new Plant(newPos,0.0,1.0,vec3(xPos,0.0,yPos));
-      objects.push_back(plant);
-      
+      // Place plant if position is OK
+      if(checkPlantPosition(newPos)){
+        WorldObject* plant = new Plant(newPos,0.0,1.0,vec3(xPos,0.0,yPos));
+        objects.push_back(plant);
+      }
+      else{
+        printf("Position not allowed: %f, %f !\n",newXPos,newYPos);
+      }
     }
   }
 }
@@ -274,9 +295,10 @@ TerrainPatch::~TerrainPatch(){
 }
 
 
-void TerrainPatch::draw(mat4 cameraMatrix,float time){
+void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float time){
 
   if(hasGeometry()){
+    mat4 cameraMatrix = cam->cameraMatrix;
     mat4 modelView = T(xPos,0, yPos);
     // Draw terrain normally
     glUseProgram(*terrainShader);
@@ -296,7 +318,10 @@ void TerrainPatch::draw(mat4 cameraMatrix,float time){
 
     // Draw all objects 
     for(int i = 0;i < objects.size();i++){
-      objects.at(i)->draw(cameraMatrix,time);
+      Plant* plant = (Plant*)objects.at(i);
+      if(cam->isInFrustum(plant)){
+        plant->draw(cameraMatrix,time);
+      }
     }
   }
   else {

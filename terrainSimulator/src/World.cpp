@@ -572,7 +572,7 @@ void World::draw(){
       for(int x = 0; x < terrainVector.at(y).size(); x++){
         TerrainPatch *patch = terrainVector.at(y).at(x);
         if(camera->isInFrustum(patch) && patch->hasGeometry()){
-	        patch->draw(camera->cameraMatrix,time);
+	        patch->draw(camera,time);
         }
       }
     }
@@ -586,7 +586,7 @@ void World::draw(){
       for(int x = 1; x < gridSize-1; x++){
         TerrainPatch *patch = terrainVector.at(y).at(x);
         if(camera->isInFrustum(patch) && terrainVector.at(y).at(x)->hasGeometry()){
-	        patch->draw(camera->cameraMatrix,time);
+	        patch->draw(camera,time);
         }
       }
     }

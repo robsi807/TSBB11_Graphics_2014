@@ -18,6 +18,7 @@
 #include "GL_utilities.h"
 #include "TerrainPatch.h"
 #include "Frustum.h"
+#include "Plant.h"
 
 #include <cmath>
 #include <iostream>
@@ -61,6 +62,7 @@ class Camera
 
   // Frustum checks
   bool isInFrustum(TerrainPatch* patch);
+  bool isInFrustum(Plant* plant);
 
   // DEBUGGING PURPOSE CODE START
   int addTerrain;

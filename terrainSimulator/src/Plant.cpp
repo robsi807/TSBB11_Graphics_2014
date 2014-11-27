@@ -14,6 +14,8 @@ void Plant::initPlants(GLuint *shade,GLuint *geoShade,Model* mod){
 
 Plant::Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos){  
   position = pos;
+  globalPosition = pos + terrainPos;
+  scale = scaling;
   mat4 transTerrain = T(terrainPos.x,0.0,terrainPos.z);  
   mat4 trans = T(position.x,position.y,position.z);
   mat4 rot = Ry(yRot);

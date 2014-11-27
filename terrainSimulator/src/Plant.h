@@ -35,6 +35,7 @@ class Plant : public WorldObject {
   
   mat4 mdl2World;
   float scale;
+  vec3 globalPosition;
 
   Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos);
   void draw(mat4 cameraMatrix,float time);

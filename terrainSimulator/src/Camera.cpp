@@ -202,3 +202,8 @@ vec3 Camera::getPosition(){
 bool Camera::isInFrustum(TerrainPatch* patch){
   return frustumPlanes->containsPatch(patch);
 }
+
+
+bool Camera::isInFrustum(Plant* plant){
+  return frustumPlanes->containsPlant(plant);
+}

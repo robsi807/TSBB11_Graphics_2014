@@ -20,6 +20,7 @@
 #include "VectorUtils3.h"
 #include "Plant.h"
 #include "WorldObject.h"
+#include "Camera.h"
 
 #include<vector>
 
@@ -66,7 +67,7 @@ class TerrainPatch
   float calcHeightSimple(int x,int z);
   float calcHeight(float x,float z);
   void generateGeometry();
-  void draw(mat4 cameraMatrix,float time);
+  void draw(class Camera* cam,float time);
   void uploadGeometry();
   void generateAndUploadGeometry();
   bool hasGeometry();
