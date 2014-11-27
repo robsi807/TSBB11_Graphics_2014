@@ -18,6 +18,7 @@
 #include "GL_utilities.h"
 #include "TerrainPatch.h"
 #include "Frustum.h"
+#include "Plant.h"
 
 #include <cmath>
 #include <iostream>
@@ -46,8 +47,8 @@ class Camera
 
  public:
 
-  static const int SCREEN_WIDTH = 1024;
-  static const int SCREEN_HEIGHT = 860;
+  static const int SCREEN_WIDTH = 1280;
+  static const int SCREEN_HEIGHT = 720;
 
   mat4 cameraMatrix;
   mat4 projectionMatrix;
@@ -61,6 +62,7 @@ class Camera
 
   // Frustum checks
   bool isInFrustum(TerrainPatch* patch);
+  bool isInFrustum(Plant* plant);
 
   // DEBUGGING PURPOSE CODE START
   int addTerrain;

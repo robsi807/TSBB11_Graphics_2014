@@ -69,7 +69,6 @@ class World
     PatchGenerator* patchGenerator;
     Blender* blender;
     Model* plantModel; // TODO: Add to destructor
-    Plant* plant;
 
     std::vector<vector<TerrainPatch*>> terrainVector;
     std::mutex terrainMutex;

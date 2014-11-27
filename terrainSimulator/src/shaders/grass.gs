@@ -1,7 +1,7 @@
 #version 150
 
 layout(triangles) in;
-layout(triangle_strip, max_vertices = 12) out;
+layout(triangle_strip, max_vertices = 15) out;
 
 in vec3 exNormal[3];
 in vec3 exPosition[3];

@@ -10,9 +10,8 @@ using namespace std;
 class WorldObject{
 
   public:
-    Model* model;
     vec3 position;
-    virtual void draw(Camera* cam, float time) = 0;
+    virtual void draw(mat4 cameraMatrix, float time) = 0;
 };
 
 

@@ -1,18 +1,31 @@
 #include "Plant.h"
 
-Plant::Plant(GLuint *shade,GLuint *geoShade,Model* mod,vec3 pos,float yRot,float scaling)
-  : shader(shade),geomShader(geoShade),model(mod){  
-    
+// Static variables
+Model* Plant::model;
+GLuint* Plant::shader;
+GLuint* Plant::geomShader;
+
+// Initialize static variables
+void Plant::initPlants(GLuint *shade,GLuint *geoShade,Model* mod){
+   shader = shade;
+   geomShader = geoShade;
+   model = mod;
+}
+
+Plant::Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos){  
+  position = pos;
+  globalPosition = pos + terrainPos;
+  scale = scaling;
+  mat4 transTerrain = T(terrainPos.x,0.0,terrainPos.z);  
   mat4 trans = T(position.x,position.y,position.z);
   mat4 rot = Ry(yRot);
   mat4 scale = S(scaling,scaling,scaling);
-  mdl2World = scale * rot * trans;
+  mdl2World =  transTerrain * trans;
 }
 
 
-void Plant::draw(Camera* cam,float time){
+void Plant::draw(mat4 cameraMatrix,float time){
   
-  mat4 cameraMatrix = cam->cameraMatrix;
   glUseProgram(*shader);
   float specularExponent = 2.0;
   glUniform1fv(glGetUniformLocation(*shader, "specularExponent"), 1, &specularExponent);
@@ -27,4 +40,5 @@ void Plant::draw(Camera* cam,float time){
   glUniform1f(glGetUniformLocation(*geomShader,"time"), time); 
   DrawModel(model, *geomShader, "inPosition", "inNormal","inTexCoord");
   glDisable (GL_POLYGON_SMOOTH);
+  
 }

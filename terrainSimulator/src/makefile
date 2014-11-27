@@ -4,7 +4,8 @@ COMMONDIR = ../common/
 # Determine system and compiler
 UNAME := $(shell uname)
 
-GRASS=0
+GRASS=1
+PLANTS=1
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc
@@ -16,7 +17,7 @@ GLUT	= $(COMMONDIR)MicroGlut.m
 endif
 ifeq ($(UNAME), Linux)
 CXX     = gcc
-CCFLAGS = -g -std=c++0x -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR) -DGRASS=$(GRASS)
+CCFLAGS = -g -std=c++0x -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR) -DGRASS=$(GRASS) -DPLANTS=$(PLANTS)
 CFLAGS  = -g -std=c99 -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR)
 LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -lpthread -DGL_GLEXT_PROTOTYPES -lX11 -I$(COMMONDIR)
 GLUTPATH = $(COMMONDIR)linux
