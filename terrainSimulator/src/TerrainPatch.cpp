@@ -1,6 +1,6 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade,Model* plantModel) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
   
   blendedSize = patchSize-overlap+1;
 
@@ -202,7 +202,7 @@ void TerrainPatch::addPlants(){
     
       // Place plant if position is OK
       if(checkPlantPosition(newPos)){
-        WorldObject* plant = new Plant(newPos,0.0,1.0,vec3(xPos,0.0,yPos));
+        WorldObject* plant = new Plant(newPos,0.0,10.0,vec3(xPos,0.0,yPos));
         objects.push_back(plant);
       }
       else{

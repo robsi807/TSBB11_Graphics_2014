@@ -59,7 +59,7 @@ class TerrainPatch
   Model* geometry;
 
   // Constructor and destructor
-  TerrainPatch(vector<float> initHeightMap,int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture,Model* plantModel);
+  TerrainPatch(vector<float> initHeightMap,int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture);
   ~TerrainPatch();
 
   // Functions

@@ -29,9 +29,10 @@ class Plant : public WorldObject {
   static Model* model;
   static GLuint *shader;
   static GLuint *geomShader;
+  static GLuint woodTexture;
   
   // Initialize static variables
-  static void initPlants(GLuint *shade,GLuint *geoShade,Model* mod);
+  static void initPlants(GLuint *shade,GLuint *geoShade);
   
   mat4 mdl2World;
   float scale;

@@ -92,8 +92,7 @@ World::World(){
 #endif
 
   // Loading of plant model, and shader uploads and initialization of plants
-  plantModel = LoadModelPlus("../objects/BushLow.obj");
-  Plant::initPlants(&phongShader,&plantShader,plantModel);
+  Plant::initPlants(&phongShader,&plantShader);
  
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
@@ -268,7 +267,7 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 
   vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY);
 
-  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &grassShader,plantModel);
+  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &grassShader);
 }
 
 
