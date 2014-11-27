@@ -26,7 +26,7 @@ class Plant : public WorldObject {
 
  public:
   // Static variables
-  static Model* model;
+  static Model *model,*trunkModel;
   static GLuint *shader;
   static GLuint *geomShader;
   static GLuint woodTexture;
