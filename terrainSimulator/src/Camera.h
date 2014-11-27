@@ -32,6 +32,8 @@ class Camera
   GLfloat velocity;
   GLfloat sensitivity;
 
+  vector<vector<TerrainPatch*>> *terrainVector;
+
   bool warpPointer,lockFrustum;
 
   // Perspective
@@ -51,7 +53,7 @@ class Camera
 
   mat4 cameraMatrix;
   mat4 projectionMatrix;
-  Camera(vec3 pos, GLfloat vel, GLfloat sens);
+  Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>> *terrain);
   Camera(float left, float right, float bottom, float top, float near, float far);
   void handleKeyPress();
   void handleMouse(int x, int y);

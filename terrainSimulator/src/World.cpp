@@ -23,7 +23,7 @@ World::World(){
   patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize);
   //patchGenerator = new DebugPatchGenerator(false);
 
-  camera = new Camera(vec3(patchSize/2.0,60,patchSize/2.0), 1, 7);
+  camera = new Camera(vec3(patchSize/2.0,60,patchSize/2.0), 1, 7, &terrainVector);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 

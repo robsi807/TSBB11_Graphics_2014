@@ -54,7 +54,7 @@ class TerrainPatch
   ~TerrainPatch();
 
   // Functions
-  float calcHeight(float x,float z,int texWidth);
+  float calcHeight(float x,float z);
   void generateGeometry();
   void uploadGeometry();
   void generateAndUploadGeometry();

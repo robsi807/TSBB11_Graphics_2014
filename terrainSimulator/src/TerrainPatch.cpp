@@ -169,7 +169,7 @@ void TerrainPatch::generateAndUploadGeometry() {
 }
 
 
-float TerrainPatch::calcHeight(float x,float z,int texWidth)
+float TerrainPatch::calcHeight(float x,float z)
 {
   int x0,x1,z0,z1;
   float y00,y01,y10,y11,dx0,dz0,yTot;
@@ -180,10 +180,10 @@ float TerrainPatch::calcHeight(float x,float z,int texWidth)
   dx0 = x - x0;
   dz0 = z - z0;
 
-  y00 = geometry->vertexArray[(x0 + z0 * texWidth)*3 + 1];
-  y01 = geometry->vertexArray[(x1 + z0 * texWidth)*3 + 1];
-  y10 = geometry->vertexArray[(x0 + z1 * texWidth)*3 + 1];
-  y11 = geometry->vertexArray[(x1 + z1 * texWidth)*3 + 1];
+  y00 = geometry->vertexArray[(x0 + z0 * blendedSize)*3 + 1];
+  y01 = geometry->vertexArray[(x1 + z0 * blendedSize)*3 + 1];
+  y10 = geometry->vertexArray[(x0 + z1 * blendedSize)*3 + 1];
+  y11 = geometry->vertexArray[(x1 + z1 * blendedSize)*3 + 1];
 
   if(dx0 > dz0)
     {

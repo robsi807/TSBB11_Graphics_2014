@@ -1,12 +1,13 @@
 
 #include "Camera.h"
 
-Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
+Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>>* terrain)
 {
   vec3 r = vec3(0.5,0,0.5);
   position = pos;
   lookAtPoint = VectorAdd(position,r);
   upVector = vec3(0,1,0);
+  terrainVector = terrain;
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector);
   velocity = 1.5;
@@ -115,7 +116,13 @@ void Camera::handleKeyPress()
       printf("Pos: (%3.1f,%3.1f,%3.1f)\n",position.x,position.y,position.z);
       printf("Dir: ((%1.2f,%1.2f,%1.2f))\n",dir.x,dir.y,dir.z);
     }
-
+    float xPosition = fmod(position.x,256.0-64.0);
+    float zPosition = fmod(position.z,256.0-64.0);
+    int testY = terrainVector->at(2).at(2)->calcHeight(xPosition,zPosition);
+    cout << "Flying Y: " << position.y << "\n";
+    cout << "Actual Y: " << testY << "\n";
+//position.y = testY;
+      
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
   // DEBUGGING PURPOSE CODE START
@@ -186,6 +193,7 @@ void Camera::update()
   // std::cout << "temp.z = " << std::abs(temp.z) << std::endl;
 
   //if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09)
+    
   cameraMatrix = lookAtv(position,lookAtPoint,upVector);
   if(!lockFrustum)
     frustumPlanes->update(this);
