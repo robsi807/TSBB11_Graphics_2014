@@ -18,9 +18,11 @@
 #include "GL_utilities.h"
 #include "TerrainPatch.h"
 #include "Frustum.h"
+#include "Plant.h"
 
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 class Camera
 {
@@ -32,7 +34,7 @@ class Camera
   GLfloat velocity;
   GLfloat sensitivity;
 
-  vector<vector<TerrainPatch*>> *terrainVector;
+  std::vector<std::vector<TerrainPatch*>> *terrainVector;
 
   bool warpPointer,lockFrustum;
 
@@ -48,12 +50,12 @@ class Camera
 
  public:
 
-  static const int SCREEN_WIDTH = 1024;
-  static const int SCREEN_HEIGHT = 860;
+  static const int SCREEN_WIDTH = 1280;
+  static const int SCREEN_HEIGHT = 720;
 
   mat4 cameraMatrix;
   mat4 projectionMatrix;
-  Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>> *terrain);
+  Camera(vec3 pos, GLfloat vel, GLfloat sens, std::vector<std::vector<TerrainPatch*>> *terrain);
   Camera(float left, float right, float bottom, float top, float near, float far);
   void handleKeyPress();
   void handleMouse(int x, int y);
@@ -63,6 +65,7 @@ class Camera
 
   // Frustum checks
   bool isInFrustum(TerrainPatch* patch);
+  bool isInFrustum(Plant* plant);
 
   // DEBUGGING PURPOSE CODE START
   int addTerrain;

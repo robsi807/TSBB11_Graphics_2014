@@ -35,9 +35,4 @@ void main(void)
 	terrainPosition = vec3(mdl2World*vec4(inPosition,1.0));
 	terrainNormal = inNormal;
 
-	// TODO: Better to upload as uniform once ??
-	mat4 viewModel = inverse(world2View);
-  	vec4 homogCameraPos = viewModel[3];
-	cameraPos = homogCameraPos.xyz/homogCameraPos.w;
-
 }

@@ -1,6 +1,6 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade,Model* plantModel) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
   
   blendedSize = patchSize-overlap+1;
 
@@ -8,13 +8,14 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   xPos = x * (patchSize - overlap);
   yPos = y * (patchSize - overlap);
 
-  shader = phongShader;
-  texture = terrainTexture;
+  terrainShader = terrainShade;
+  grassShader = grassShade;
   
   //generateGeometry();
   geometry = NULL;
   geometryBoolean = false;
-
+  
+  heightScale = 0.0025;
 }
 
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
@@ -45,8 +46,6 @@ void TerrainPatch::generateGeometry(){
     // GLfloat normalArray[3 * vertexCount];
     // GLfloat texCoordArray[ 2 * vertexCount];
     // GLuint indexArray[3 * triangleCount];
-
-    float heightScale = 0.0025;
 
     for (x = 0; x < blendedWidth; x++)
       for (z = 0; z < blendedHeight; z++)
@@ -149,17 +148,74 @@ void TerrainPatch::generateGeometry(){
 	// move away when threading...
 	//uploadGeometry();   
 	
+  // Add plants
+#if PLANTS == 1
+  addPlants();
+#endif
   }
-  
   
 }
 
+// Checks so the plants postion is OK
+bool TerrainPatch::checkPlantPosition(vec3 pos){
+  // Make sure the plant is not on a steep hill
+  bool okPos = true;
+  vec3 normal0 = calcNormalSimple(pos.x,pos.z);
+  float slope = 1.2-normal0.y;
+  if(slope > 0.5){
+    okPos = false;
+  }
+  
+  // Make sure the plant is inside the patch
+  if(pos.x < patchOverlap/2 || pos.x > blendedSize - patchOverlap/2 
+    || pos.z < patchOverlap/2 || pos.z > blendedSize - patchOverlap/2){
+    okPos = false;
+  }    
+       
+  return okPos;
+}
+
+void TerrainPatch::addPlants(){  
+  //Position based seed
+  int n=xPos+yPos*57;
+  n=(n<<13)^n;
+  int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
+  srand(seed);
+  
+  // Randomize a start position
+  int xMid = patchOverlap + rand() % ((int)((float)blendedSize*0.8));  
+  int zMid = patchOverlap + rand() % ((int)((float)blendedSize*0.8));  
+  
+  // Randomize a grid size between 3 and 5
+  int xGridSize = 3 + rand() % 3;
+  int zGridSize = 3 + rand() % 3;
+  float gridOffset = 12.0 + ((float)(rand()%300 - 150))/100.0;
+ // printf("xGridSize=%i, zGridSize=%i, gridOffset=%i\n",xGridSize,zGridSize,gridOffset);
+  
+  for(int x = 0; x < xGridSize; x++){
+    for(int z = 0; z < zGridSize; z++){
+      // Randomize offset from middle position
+      float newXPos = ((float)xMid) + x*gridOffset + (rand()%8 - 4);
+      float newZPos = ((float)zMid) + z*gridOffset + (rand()%8 - 4);
+      float newYPos = calcHeight(newXPos,newZPos);
+      vec3 newPos = vec3(newXPos,newYPos,newZPos);
+    
+      // Place plant if position is OK
+      if(checkPlantPosition(newPos)){
+        WorldObject* plant = new Plant(newPos,0.0,1.0,vec3(xPos,0.0,yPos));
+        objects.push_back(plant);
+      }
+      else{
+        //printf("Position not allowed: %f, %f !\n",newXPos,newYPos);
+      }
+    }
+  }
+}
+
 void TerrainPatch::uploadGeometry() {
-  cout << "TerrainPatch::uploadGeometry: uploading geometry!\n";
   
 	BuildModelVAO2(geometry);
 	
-  cout << "TerrainPatch::uploadGeometry: geometry DONE uploading! <3\n";
   geometryBoolean = true;
 }
 
@@ -168,9 +224,33 @@ void TerrainPatch::generateAndUploadGeometry() {
   uploadGeometry();
 }
 
-
-float TerrainPatch::calcHeight(float x,float z)
+vec3 TerrainPatch::calcNormalSimple(float xPos, float zPos)
 {
+
+  int x,z;
+  int offset = patchOverlap/2;
+  vec3 normalVec;
+  x = (int) floor(xPos-offset);
+  z = (int) floor(zPos-offset);
+  normalVec.x = geometry->normalArray[(x + z * blendedSize)*3 + 0];
+  normalVec.y = geometry->normalArray[(x + z * blendedSize)*3 + 1];
+  normalVec.z = geometry->normalArray[(x + z * blendedSize)*3 + 2];
+  return normalVec;
+}
+
+// Only takes integer positions
+float TerrainPatch::calcHeightSimple(int xPos,int zPos){
+  int offset = patchOverlap/2;
+  int x = xPos - offset;
+  int z = zPos - offset; 
+  return geometry->vertexArray[(x + z * blendedSize)*3 + 1];
+}
+
+float TerrainPatch::calcHeight(float xPos,float zPos)
+{  
+  float offset = ((float)patchOverlap)/2.0;
+  float x = xPos - offset;
+  float z = zPos - offset;
   int x0,x1,z0,z1;
   float y00,y01,y10,y11,dx0,dz0,yTot;
   x0 = floor(x); 
@@ -184,7 +264,6 @@ float TerrainPatch::calcHeight(float x,float z)
   y01 = geometry->vertexArray[(x1 + z0 * blendedSize)*3 + 1];
   y10 = geometry->vertexArray[(x0 + z1 * blendedSize)*3 + 1];
   y11 = geometry->vertexArray[(x1 + z1 * blendedSize)*3 + 1];
-
   if(dx0 > dz0)
     {
       // Upper triangle
@@ -206,22 +285,41 @@ float TerrainPatch::calcHeight(float x,float z)
 TerrainPatch::~TerrainPatch(){
   std::cout << "TerrainPatch destructor is used, geometry is deleted\n";
   delete geometry;
+  
+  // Delete all objects in the object vector
+  objects.clear();
+  
 }
 
 
-void TerrainPatch::draw(mat4 cameraMatrix){
+void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float time){
 
   if(hasGeometry()){
+    mat4 cameraMatrix = cam->cameraMatrix;
     mat4 modelView = T(xPos,0, yPos);
-    glUseProgram(*shader);
-    glUniformMatrix4fv(glGetUniformLocation(*shader, "mdl2World"), 1, GL_TRUE, modelView.m);
-    glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
-    // glBindTexture(GL_TEXTURE_2D, *texture); 
-    //glBindVertexArray(geometry->vao);
-    
-    
-    
-    DrawModel(geometry, *shader, "inPosition", "inNormal","inTexCoord"); 
+    // Draw terrain normally
+    glUseProgram(*terrainShader);
+    glUniformMatrix4fv(glGetUniformLocation(*terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
+    glUniformMatrix4fv(glGetUniformLocation(*terrainShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+    DrawModel(geometry, *terrainShader, "inPosition", "inNormal","inTexCoord"); 
+
+    // Draw grass w/o z-buffer and culling
+#if GRASS == 1
+    glEnable (GL_POLYGON_SMOOTH);
+    glUseProgram(*grassShader);
+    glUniformMatrix4fv(glGetUniformLocation(*grassShader, "mdl2World"), 1, GL_TRUE, modelView.m);
+    glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+    glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
+    DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
+#endif
+
+    // Draw all objects 
+    for(int i = 0;i < objects.size();i++){
+      Plant* plant = (Plant*)objects.at(i);
+      if(cam->isInFrustum(plant)){
+        plant->draw(cameraMatrix,time);
+      }
+    }
   }
   else {
     //printf("Warning, patch (%i,%i) has no geometry to draw.\n",xGrid,yGrid); 

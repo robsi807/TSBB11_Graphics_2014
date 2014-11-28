@@ -1,7 +1,7 @@
 
 #include "Camera.h"
 
-Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>>* terrain)
+Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>> * terrain)
 {
   vec3 r = vec3(0.5,0,0.5);
   position = pos;
@@ -126,7 +126,7 @@ void Camera::handleKeyPress()
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
   // DEBUGGING PURPOSE CODE START
-  if(terrainTimer > 40){
+  if(terrainTimer > 100){
     if(keyIsDown('8'))
       {
 	addTerrain = 8;
@@ -209,4 +209,9 @@ vec3 Camera::getPosition(){
 
 bool Camera::isInFrustum(TerrainPatch* patch){
   return frustumPlanes->containsPatch(patch);
+}
+
+
+bool Camera::isInFrustum(Plant* plant){
+  return frustumPlanes->containsPlant(plant);
 }

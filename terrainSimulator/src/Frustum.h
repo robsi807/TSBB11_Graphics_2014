@@ -37,8 +37,9 @@ class Frustum{
   Plane planes[6];
   Frustum(class Camera* cam);
   void update(class Camera* cam);
-  bool containsPatch(TerrainPatch* patch);
-  bool checkPatch(TerrainPatch* patch);
+  bool containsPatch(class TerrainPatch* patch);
+  bool checkPatch(class TerrainPatch* patch);
+  bool containsPlant(class Plant* plant);
 };
 
 float planeDistanceToPoint(Plane plane, vec3 pos);

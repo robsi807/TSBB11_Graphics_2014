@@ -18,21 +18,27 @@
 #include "LoadTGA.h"
 #include "loadobj.h"
 #include "VectorUtils3.h"
+#include "Plant.h"
+#include "WorldObject.h"
+#include "Camera.h"
 
 #include<vector>
+
 using namespace std;
 
 class TerrainPatch
 {
  private:
-  GLuint* shader;
+  float heightScale;
+  GLuint *terrainShader,*grassShader;
   GLuint* texture;
 
   vec3 calcNormal(vec3 v0, vec3 v1, vec3 v2);
   
   bool geometryBoolean;
   
-
+  void addPlants();
+  bool checkPlantPosition(vec3 pos);
  public:
   int size,blendedSize,patchOverlap; 
 
@@ -46,19 +52,24 @@ class TerrainPatch
   vector<float> rawHeightMap;
   vector<float> blendedHeightMap;
   
+  // Objects in the patch
+  vector<class WorldObject*> objects; 
+  
   // Geometry
   Model* geometry;
 
   // Constructor and destructor
-  TerrainPatch(vector<float> initHeightMap,int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture);
+  TerrainPatch(vector<float> initHeightMap,int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture,Model* plantModel);
   ~TerrainPatch();
 
   // Functions
+  vec3 calcNormalSimple(float xPos, float zPos);
+  float calcHeightSimple(int x,int z);
   float calcHeight(float x,float z);
   void generateGeometry();
+  void draw(class Camera* cam,float time);
   void uploadGeometry();
   void generateAndUploadGeometry();
-  void draw(mat4 cameraMatrix);
   bool hasGeometry();
 
 };

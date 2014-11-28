@@ -79,15 +79,35 @@ bool Frustum::containsPatch(TerrainPatch* patch){
   int i = 0;
   while(i<6 && found == true)
     {
-      if(planeClassifyInfiniteCylinder(planes[i],patchPos,patchRadius) < 0)
-	{
-	  found = false;
-	}
-      i++;
-
       // Skip bottom and top plane
       if(i == 2)
-	i = 4;
+	    i = 4;
+      if(planeClassifyInfiniteCylinder(planes[i],patchPos,patchRadius) < 0)
+	    {
+	      found = false;
+	    }
+      i++;
+    }
+  return found;
+}
+
+
+bool Frustum::containsPlant(Plant* plant){
+  vec3 plantPos = plant->globalPosition;
+  float plantRadius = 6.0 * plant->scale;
+  
+  bool found = true;
+  int i = 0;
+  while(i<6 && found == true)
+    {
+      // Skip bottom and top plane
+      if(i == 2)
+	    i = 4;
+      if(planeClassifyInfiniteCylinder(planes[i],plantPos,plantRadius) < 0)
+	    {
+	     found = false;
+    	}
+      i++;
     }
   return found;
 }
@@ -168,3 +188,5 @@ Halfspace planeClassifyInfiniteCylinder(Plane plane, vec3 pos, float radius)
       return ON_PLANE;
   }
 }
+
+
