@@ -50,6 +50,12 @@ void generateTextureMap(vector<float> waterMap, int mapSize) {
 
 
 
+Water::void draw(mat4 cameraMatrix,float time) {
+  
+}
+
+
+
 Water::~Water()
 {
 

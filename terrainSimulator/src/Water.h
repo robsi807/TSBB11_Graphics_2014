@@ -42,6 +42,7 @@ class Water
   
   void generateWaterMap(vector<float> initHeightMap, int mapSize);
   Water(vector<float> initHeightMap, int mapSize);
+  void draw(mat4 cameraMatrix,float time);
   Water();
   ~Water();
 

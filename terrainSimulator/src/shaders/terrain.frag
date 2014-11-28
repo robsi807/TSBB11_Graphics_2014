@@ -56,14 +56,14 @@ vec4 calculateColor()
 	
 	float texScale = 9.0; // Scale up the texture coordinates
 	vec4 grass1;
-	vec4 brown = vec4(0.5,0.25,0.0,1.0);
+	vec4 sandColor = vec4(237.0/255.0,201.0/255.0,175.0/255.0,1.0);
 	
 	
 	if((terrainPosition).y > seaLevel) {
 	  grass1 = texture(grassTex,texCoord / texScale);
 	} else {
 	  grass1 = texture(seaTex1,texCoord / texScale);
-	  grass1 = grass1 * brown; // multiply it with brown color.
+	  grass1 = sandColor * sandColor; // multiply it with brown color.
 	}
 	vec4 rock1 = texture(rockTex1,texCoord / texScale);
 	vec4 rock2 = texture(rockTex2,texCoord / texScale);	
