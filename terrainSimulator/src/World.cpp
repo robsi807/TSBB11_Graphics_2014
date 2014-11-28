@@ -27,7 +27,9 @@ World::World(){
   glUseProgram(terrainShader);
 
   lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
+  lightDirNight = Normalize(vec3(0.0f, 2.0f, 0.0f));
   GLfloat specularExponent = 2.0;
+  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirectionNight"), 1, &lightDirNight.x);
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);

@@ -14,6 +14,7 @@ in vec3 cameraPos;
 out vec4 outColor;
 
 uniform vec3 lightDirection;
+uniform vec3 lightDirectionNight;
 uniform float specularExponent;
 uniform vec4 fogColor;
 

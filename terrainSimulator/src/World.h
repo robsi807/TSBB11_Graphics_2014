@@ -48,6 +48,7 @@ class World
     long worldSeed;
     GLfloat time;
     vec3 lightDir;
+    vec3 lightDirNight;
     int patchOverlap,patchSize,gridSize;
     void init();
     void drawTerrainVector(TerrainPatch* t);
