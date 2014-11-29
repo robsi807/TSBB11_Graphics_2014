@@ -118,9 +118,7 @@ void Camera::handleKeyPress()
     }
     float xPosition = fmod(position.x,256.0-64.0);
     float zPosition = fmod(position.z,256.0-64.0);
-    int testY = terrainVector->at(2).at(2)->calcHeight(xPosition,zPosition);
-    cout << "Flying Y: " << position.y << "\n";
-    cout << "Actual Y: " << testY << "\n";
+    //int testY = terrainVector->at(2).at(2)->calcHeight(xPosition,zPosition);
 //position.y = testY;
       
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!

@@ -288,13 +288,15 @@ TerrainPatch::~TerrainPatch(){
   
   // Delete all objects in the object vector
   objects.clear();
+  rawHeightMap.clear();
+  blendedHeightMap.clear();
   
 }
 
 
 void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float time){
 
-  if(hasGeometry()){
+  if(hasGeometry() && geometry != NULL){
     mat4 cameraMatrix = cam->cameraMatrix;
     mat4 modelView = T(xPos,0, yPos);
     // Draw terrain normally
