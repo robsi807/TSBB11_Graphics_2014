@@ -6,9 +6,11 @@ layout(triangle_strip, max_vertices = 15) out;
 in vec3 exNormal[3];
 in vec3 exPosition[3];
 in vec2 texCoord[3];
+in vec3 surf[3];
 out vec2 texCoordG;
 out vec3 exNormalG;
 out vec3 exPositionG;
+out vec3 surfG;
 
 uniform mat4 projMatrix;
 uniform mat4 mdl2World;
@@ -105,6 +107,7 @@ void createGrassBlade(vec4 position,vec3 normal,vec2 texCord,float height,float 
     exNormalG = normal;
     vec4 newPos = position;
     exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     
@@ -112,6 +115,7 @@ void createGrassBlade(vec4 position,vec3 normal,vec2 texCord,float height,float 
     exNormalG = normal;
     newPos = position;
      exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     gl_Position.x += 0.2;
     EmitVertex();
@@ -123,6 +127,7 @@ void createGrassBlade(vec4 position,vec3 normal,vec2 texCord,float height,float 
     newPos.x += sin(angle1)*height;
     newPos.z += sin(angle2)*height;
     exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     EndPrimitive();
@@ -134,6 +139,7 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
     exNormalG = normal;
     vec4 newPos = position;
     exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     
@@ -141,6 +147,7 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
     exNormalG = normal;
     newPos = position;
     exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     gl_Position.x += width;
     EmitVertex();
@@ -150,6 +157,7 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
     newPos = position;
     newPos.y += height;
     exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     gl_Position.x += width;
     EmitVertex();
@@ -159,6 +167,7 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
     newPos = position;
     newPos.y += height;
     exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     EndPrimitive();
