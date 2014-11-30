@@ -17,6 +17,7 @@ Water::Water()
 void Water::generateWaterMap(vector<float> initHeightMap, int mapSize) {
   
   waterMap.resize(initHeightMap.size(), 0.0);
+  //mountainMap.resize(initHeightMap.size(), 0.0);
   
   float waterMax = 0.0;
   
@@ -29,9 +30,20 @@ void Water::generateWaterMap(vector<float> initHeightMap, int mapSize) {
       //cout << "The level is:  " << initHeightMap.at(i) << "\n";
       waterMap.at(i) = 1.0;
     }
+    
+    if(initHeightMap.at(i) > MOUNTAIN_LEVEL) {
+      highPointIndexVector.push_back(i);
+    }
   }
   
-  //cout << "generated water map! Highest point was: " << waterMax << "! \n";
+  for (int i = 0; i < NUMBER_OF_WATER_SOURCES;i++) {
+    waterSources.push_back(rand() % highPointIndexVector.size());
+  }
+  
+  cout << "generated water map! Highest point was: " << waterMax << "! \n";
+  cout << "we got " << highPointIndexVector.size() << " high points! \n";
+  
+  
 }
 
 void generateTextureMap(vector<float> waterMap, int mapSize) {
@@ -50,7 +62,7 @@ void generateTextureMap(vector<float> waterMap, int mapSize) {
 
 
 
-Water::void draw(mat4 cameraMatrix,float time) {
+void Water::draw(mat4 cameraMatrix,float time) {
   
 }
 

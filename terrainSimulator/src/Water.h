@@ -24,6 +24,8 @@
 
 
 #define WATER_LEVEL 0.1
+#define MOUNTAIN_LEVEL 0.3
+#define NUMBER_OF_WATER_SOURCES = 1;
 
 
 using namespace std;
@@ -34,7 +36,9 @@ class Water
   //TextureData texture[6];
  
   GLuint* shader;
-  vector<float> waterMap; 
+  vector<float> waterMap;
+  vector<int> highPointIndexVector; 
+  vector<int> waterSources;
   int mapSize;
 
  public:
