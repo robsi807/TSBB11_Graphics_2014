@@ -1,10 +1,16 @@
 #include "ValuePatchGenerator.h"
 
-ValuePatchGenerator::ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize){
+ValuePatchGenerator::ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize,int x,int y){
     biotope = inputBiotope;
     NoF = inputNoF;
     amplitudeScale = inputAmplitude;
     gridSize = inputSize;
+
+    //Position based seed
+    int n=x+y*57;
+    n=(n<<13)^n;
+    seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
+    rng.seed(seed);
 }
 
 void ValuePatchGenerator::printMatrix(vector<float> matrix){
@@ -46,10 +52,13 @@ vector<float> ValuePatchGenerator::createGradients(int gradientPoints) {
 
 	vector<float> gradients;
     float value;
-    
-	for(int row = 0; row < gradientPoints; row++) {
+ 
+    boost::uniform_int<> one_to_six( 0, INT_MAX );
+    boost::variate_generator<RNGType, boost::uniform_int<>> dice(rng, one_to_six);
+	
+  for(int row = 0; row < gradientPoints; row++) {
 		for(int col = 0; col < gradientPoints; col++) {
-            value = (rand() / (float)INT_MAX)*(rand() / (float)INT_MAX);
+            value = (dice() / (float)INT_MAX)*(dice()/(float)INT_MAX);
             gradients.push_back(value);
        	} 
 	}
@@ -98,11 +107,7 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y)
     
 	heightMapPatch.assign(gridSize*gridSize,0);
     
-    //Position based seed
-    int n=x+y*57;
-    n=(n<<13)^n;
-    int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
-    srand(seed);
+  //srand(seed);
 
 	for(int n = 1; n <= NoF; n = n+2){ //max value on n: 2^n <= size
 

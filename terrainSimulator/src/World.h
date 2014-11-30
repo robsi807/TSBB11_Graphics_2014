@@ -15,9 +15,6 @@
 #endif
 
 #include "Camera.h"
-#include "PatchGenerator.h"
-#include "PerlinPatchGenerator.h"
-#include "ValuePatchGenerator.h"
 //#include "DebugPatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
@@ -39,7 +36,7 @@
 
 #define PATCH_OVERLAP 64
 #define PATCH_SIZE 512
-#define GRID_BEGIN_SIZE 9
+#define GRID_BEGIN_SIZE 5
 
 // Direction specific defines
 #define NORTH 8
@@ -66,7 +63,7 @@ class World
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
-    PatchGenerator* patchGenerator;
+    //PatchGenerator* patchGenerator;
     Blender* blender;
     Model* plantModel; // TODO: Add to destructor
 

@@ -19,29 +19,37 @@
 #include <vector>
 #include <climits>
 #include <iostream>
+#include <random>
 
+// Random things
+#include "boost/random.hpp"
+#include "boost/generator_iterator.hpp"
 
 using namespace std;
 
+typedef boost::mt19937 RNGType;
+
 class ValuePatchGenerator : public PatchGenerator{
 
-  private:
+ private:
+  int seed;
+  int biotope;
+  int NoF;
+  int amplitudeScale;
+  int gridSize;
 
-    int biotope;
-    int NoF;
-    int amplitudeScale;
-    int gridSize;
-
+  RNGType rng;
+  
 	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2);
 	float interpolateValues(float a, float b, float x);
 	vector<float> createGradients(int gradientPoints);
 	vector<float> createPatch(int frequency, int gradientPoints, float amplitude);
 
-  public:
+ public:
 
-    ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize);
-    void printMatrix(vector<float> matrix);
-    vector<float> generatePatch(int xPatch, int yPatch);
+  ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize,int x,int y);
+  void printMatrix(vector<float> matrix);
+  vector<float> generatePatch(int xPatch, int yPatch);
 
 };
 

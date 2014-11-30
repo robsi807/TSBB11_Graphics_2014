@@ -21,11 +21,8 @@ World::World(){
 #endif
   
   // Init objects
-  int biotope = 1; // 1 = mountains, 2 = desert
-  int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
-  int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.
   //patchGenerator = new PerlinPatchGenerator(biotope, NoF, amplitude, patchSize);
-  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize);
+  //patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize);
   //patchGenerator = new DebugPatchGenerator(false);
 
   camera = new Camera(vec3(patchSize/2.0,60,patchSize/2.0), 1, 7,&terrainVector);
@@ -347,9 +344,7 @@ void World::removeTerrainWest() {
 
 TerrainPatch* World::generatePatch(int patchX, int patchY){
 
-  vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY);
-
-  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &grassShader,plantModel);
+  return new TerrainPatch(patchSize, patchX, patchY,patchOverlap, &terrainShader, &grassShader);
 }
 
 void threadAddPatchNorth(World *w){
@@ -492,7 +487,7 @@ void World::updateTerrain(){
         
         updatingWorld = true;
         thread threadWest(threadAddPatchWest, this);
-        threadWest.detach();
+        threadWest.detach(); 
     }
     
     if(yCam < yPatch) { // move SOUTH.
@@ -514,5 +509,4 @@ World::~World(){
   delete skybox;
   delete blender;
   terrainVector.clear();
-  delete patchGenerator;
 }

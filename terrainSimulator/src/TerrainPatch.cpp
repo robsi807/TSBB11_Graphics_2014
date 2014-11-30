@@ -1,6 +1,6 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade,Model* plantModel) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
+TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade) : xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
   
   blendedSize = patchSize-overlap+1;
 
@@ -16,6 +16,13 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   geometryBoolean = false;
   
   heightScale = 0.0025;
+  
+  int biotope = 1; // 1 = mountains, 2 = desert
+  int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
+  int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.  
+  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,x,y);
+  rawHeightMap = patchGenerator->generatePatch(x,y);
+  blendedHeightMap = rawHeightMap;
 }
 
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
