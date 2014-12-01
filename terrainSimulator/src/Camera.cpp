@@ -24,8 +24,6 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
 
   projectionNear = 0.8;
   projectionFar = 1700.0;
-  //projectionRight = 0.5;
-  //projectionLeft = -0.5;
   projectionRight = 0.5/0.75; // for wide screen
   projectionLeft = -0.5/0.75; // for wide screen
   projectionTop = 0.5;
@@ -72,6 +70,7 @@ Camera::Camera(float left, float right, float bottom, float top, float near, flo
 
 void Camera::handleKeyPress()
 {
+
   if(keyIsDown('w'))
     {
       vec3 w = Normalize(VectorSub(lookAtPoint,position));
@@ -148,7 +147,7 @@ void Camera::handleKeyPress()
       printf("Pos: (%3.1f,%3.1f,%3.1f)\n",position.x,position.y,position.z);
       printf("Dir: ((%1.2f,%1.2f,%1.2f))\n",dir.x,dir.y,dir.z);
     }
-          
+
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
   // DEBUGGING PURPOSE CODE START
