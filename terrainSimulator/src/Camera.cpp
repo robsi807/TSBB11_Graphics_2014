@@ -14,10 +14,10 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
 
   projectionNear = 0.8;
   projectionFar = 1700.0;
-  projectionRight = 0.5;
-  projectionLeft = -0.5;
-  projectionTop = 0.5;
-  projectionBottom = -0.5;
+  projectionRight = 0.8;
+  projectionLeft = -0.8;
+  projectionTop = 0.45;
+  projectionBottom = -0.45;
 
   warpPointer=true;
   lockFrustum=false;
@@ -60,6 +60,7 @@ Camera::Camera(float left, float right, float bottom, float top, float near, flo
 
 void Camera::handleKeyPress()
 {
+
   if(keyIsDown('w'))
     {
       vec3 w = Normalize(VectorSub(lookAtPoint,position));
@@ -118,9 +119,7 @@ void Camera::handleKeyPress()
     }
     float xPosition = fmod(position.x,256.0-64.0);
     float zPosition = fmod(position.z,256.0-64.0);
-    int testY = terrainVector->at(2).at(2)->calcHeight(xPosition,zPosition);
-    cout << "Flying Y: " << position.y << "\n";
-    cout << "Actual Y: " << testY << "\n";
+    int testY = 0;// terrainVector->at(2).at(2)->calcHeight(xPosition,zPosition);
 //position.y = testY;
       
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
