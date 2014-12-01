@@ -5,7 +5,7 @@ COMMONDIR = ../common/
 UNAME := $(shell uname)
 
 GRASS=1
-PLANTS=1
+PLANTS=0
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc

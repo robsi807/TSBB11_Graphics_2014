@@ -79,16 +79,22 @@ World::World(){
 
   // Upload textures to grass shader
 #if GRASS == 1
+  glEnable (GL_POLYGON_SMOOTH);
   glUseProgram(grassShader);
   GLuint grassTexLowPass;
   glActiveTexture(GL_TEXTURE0+4);
-  LoadTGATextureSimple("../textures/grass4_1024_lp.tga",&grassTexLowPass);
+  LoadTGATextureSimple("../textures/grass4_1024_lp2.tga",&grassTexLowPass);
   glUniform1i(glGetUniformLocation(grassShader,"grassTex"),4);
 
   GLuint noiseTex2;
   glActiveTexture(GL_TEXTURE0+5);
   LoadTGATextureSimple("../textures/noise/uniformNoise1.tga",&noiseTex2);
   glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),5);
+  
+  GLuint grassBillboardTex;
+  glActiveTexture(GL_TEXTURE0+6);
+  LoadTGATextureSimple("../textures/grass_billboard2.tga",&grassBillboardTex);
+  glUniform1i(glGetUniformLocation(grassShader,"grassBillboard"),6);
 #endif
 
   // Loading of plant model, and shader uploads and initialization of plants

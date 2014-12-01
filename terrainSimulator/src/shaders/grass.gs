@@ -11,6 +11,7 @@ out vec2 texCoordG;
 out vec3 exNormalG;
 out vec3 exPositionG;
 out vec3 surfG;
+flat out int isBillboard;
 
 uniform mat4 projMatrix;
 uniform mat4 mdl2World;
@@ -109,6 +110,7 @@ void createGrassBlade(vec4 position,vec3 normal,vec2 texCord,float height,float 
     exPositionG = vec3( world2View * mdl2World * newPos);
     surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
+    isBillboard = 0;
     EmitVertex();
     
     texCoordG = texCord+vec2(0.1,0.1); 
@@ -118,6 +120,7 @@ void createGrassBlade(vec4 position,vec3 normal,vec2 texCord,float height,float 
     surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     gl_Position.x += 0.2;
+    isBillboard = 0;
     EmitVertex();
 
     texCoordG = texCord; 
@@ -129,6 +132,7 @@ void createGrassBlade(vec4 position,vec3 normal,vec2 texCord,float height,float 
     exPositionG = vec3( world2View * mdl2World * newPos);
     surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
+    isBillboard = 0;
     EmitVertex();
     EndPrimitive();
 }
@@ -141,6 +145,7 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
     exPositionG = vec3( world2View * mdl2World * newPos);
     surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
+    isBillboard = 0;
     EmitVertex();
     
     texCoordG = texCord + vec2(0.0,texScale); 
@@ -150,6 +155,7 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
     surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     gl_Position.x += width;
+    isBillboard = 0;
     EmitVertex();
     
     texCoordG = texCord  + vec2(texScale,texScale);; 
@@ -160,6 +166,7 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
     surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     gl_Position.x += width;
+    isBillboard = 0;
     EmitVertex();
 
     texCoordG = texCord + vec2(texScale,0.0);;
@@ -169,6 +176,51 @@ void createGrassBladeSimple(vec4 position,vec3 normal,vec2 texCord,float height,
     exPositionG = vec3( world2View * mdl2World * newPos);
     surfG = surf[0];
     gl_Position = projMatrix * vec4(exPositionG,1.0);
+    isBillboard = 0;
+    EmitVertex();
+    EndPrimitive();
+}
+
+void createBillboardGrass(vec4 position,vec3 normal,float height,float width){
+    float texScale = width;
+    texCoordG = vec2(0.0,0.0); 
+    exNormalG = normal;
+    vec4 newPos = position;
+    exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
+    gl_Position = projMatrix * vec4(exPositionG,1.0);
+    isBillboard = 1;
+    EmitVertex();
+    
+    texCoordG = vec2(1.0,0.0); 
+    exNormalG = normal;
+    newPos = position;
+    exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
+    gl_Position = projMatrix * vec4(exPositionG,1.0);
+    gl_Position.x += width;
+    isBillboard = 1;
+    EmitVertex();
+    
+    texCoordG = vec2(1.0,1.0); 
+    exNormalG = normal;
+    newPos = position;
+    newPos.y += height;
+    exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
+    gl_Position = projMatrix * vec4(exPositionG,1.0);
+    gl_Position.x += width;
+    isBillboard = 1;
+    EmitVertex();
+
+    texCoordG = vec2(0.0,1.0);
+    exNormalG = normal;
+    newPos = position;
+    newPos.y += height;
+    exPositionG = vec3( world2View * mdl2World * newPos);
+    surfG = surf[0];
+    gl_Position = projMatrix * vec4(exPositionG,1.0);
+    isBillboard = 1;
     EmitVertex();
     EndPrimitive();
 }
@@ -228,7 +280,7 @@ void main(){
             createGrassBlade(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x);
             createGrassBlade(grPos2,normal0,tex0,height+heightScale*rgbNoise1.z,angleScale*rgbNoise2.y,angleScale*rgbNoise2.z);
             createGrassBlade(grPos3,normal0,tex0,height+heightScale*rgbNoise2.x,angleScale*rgbNoise3.x,angleScale*rgbNoise3.y);
-            createGrassBlade(grPos4,normal0,tex0,height+heightScale*rgbNoise2.y,angleScale*rgbNoise3.z,angleScale*rgbNoise3.z);
+            //createGrassBlade(grPos4,normal0,tex0,height+heightScale*rgbNoise2.y,angleScale*rgbNoise3.z,angleScale*rgbNoise3.z);
             //createGrassBlade(grPos4,normal0,tex0,height+heightScale*rgbNoise2.z,angleScale*rgbNoise4.x,angleScale*rgbNoise4.y);
             
             /*            
@@ -256,7 +308,7 @@ void main(){
             
             createGrassBlade(grPos0,normal0,tex0,height+heightScale*rgbNoise1.x,angleScale*rgbNoise1.x,angleScale*rgbNoise1.y);
             createGrassBlade(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x);
-            createGrassBlade(grPos2,normal0,tex0,height+heightScale*rgbNoise1.z,angleScale*rgbNoise2.y,angleScale*rgbNoise2.z);
+            //createGrassBlade(grPos2,normal0,tex0,height+heightScale*rgbNoise1.z,angleScale*rgbNoise2.y,angleScale*rgbNoise2.z);
             /*
             float rnd1 = cnoise(vec3(mix(pos0,pos1,0.25)))+1;
             createGrassBlade(mix(pos0,pos1,0.25 + posScale*rnd1),normal0,mix(tex0,tex1,0.25),height + heightScale*rnd1,angleScale*(rnd1-1));
@@ -273,7 +325,7 @@ void main(){
             vec4 grPos1 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise1.z),pos2,0.5+posScale*rgbNoise2.x);
             
             createGrassBlade(grPos0,normal0,tex0,height+heightScale*rgbNoise1.x,angleScale*rgbNoise1.x,angleScale*rgbNoise1.y);
-            createGrassBlade(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x);
+            //createGrassBlade(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x);
         
             /*
             float rnd1 = cnoise(vec3(mix(pos0,pos1,0.25)))+1;
@@ -283,16 +335,13 @@ void main(){
         else if(cameraCoord.z < zLod3 && cameraCoord.x > -xLod3 && cameraCoord.x < xLod3){
         // LOD 3
             // Calculate the resolution...
-            float d = cameraCoord.z-zLod2;
-            float k = 8.0/1000.0;
-            float res = floor(k*d + 2.0);
-            float res1 = mod(pos0.x,res);
-            float res2 = mod(pos0.z,res);
-            float width = res + 0.1;
-            if(res1 == 0 && res2 == 0){
-                vec3 rgbNoise1 = 2*vec3(texture(noiseTex,tex0/scaleNoise))-1;
+            vec3 rgbNoise1 = 2*vec3(texture(noiseTex,tex0/scaleNoise))-1;
+            float resNoise = (rgbNoise1.x+rgbNoise1.y+rgbNoise1.z)/3;
+            float res = (1.0-(cameraCoord.z-zLod2)/1000.0);
+            float width = 5.0 + rgbNoise1.y;
+            if(resNoise > res){
                 vec4 grPos0 = mix(mix(pos0,pos1,0.4+posScale*rgbNoise1.x),pos2,0.5+posScale*rgbNoise1.y);
-                createGrassBladeSimple(grPos0,normal0,tex0,height+heightScale*rgbNoise1.x,width);
+                createBillboardGrass(grPos0,normal0,height+heightScale*rgbNoise1.x,width);
             }
         }
     }

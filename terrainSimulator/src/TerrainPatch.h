@@ -39,6 +39,7 @@ class TerrainPatch
   
   void addPlants();
   bool checkPlantPosition(vec3 pos);
+  
  public:
   int size,blendedSize,patchOverlap; 
 
