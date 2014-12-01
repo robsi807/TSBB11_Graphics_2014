@@ -1,6 +1,6 @@
 #include "PerlinPatchGenerator.h"
 
-
+//Constructor
 PerlinPatchGenerator::PerlinPatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize){
     biotope = inputBiotope;
     NoF = inputNoF;
@@ -8,6 +8,7 @@ PerlinPatchGenerator::PerlinPatchGenerator(int inputBiotope, int inputNoF, int i
     gridSize = inputSize;
 }
 
+//Prints any matrix in matrix form, not as a vector
 void PerlinPatchGenerator::printMatrix(vector<float> matrix){
 	printf("[");
 	for(int row = 0; row < gridSize; row++) {
@@ -19,6 +20,7 @@ void PerlinPatchGenerator::printMatrix(vector<float> matrix){
 	printf("]");
 }
 
+//Add two matrices(vectors) together
 vector<float> PerlinPatchGenerator::addMatrices(vector<float> inGrid1, vector<float> inGrid2){
 
 	for(int index = 0; index < gridSize * gridSize; index++){
@@ -27,13 +29,8 @@ vector<float> PerlinPatchGenerator::addMatrices(vector<float> inGrid1, vector<fl
 
 	return inGrid1;
 }
-
+//Interpolates a value from a and b, with x being the distance from a to the point
 float PerlinPatchGenerator::interpolateValues(float a, float b, float x){
-
-	/*float ft = x*3.1415927;
-	float f = (1.0-cos(ft))*0.5;
-	float res = a*(1.0-f) + b*f;
-    */
 
     //float Sx = 3.0*pow(x,2.0)-2.0*pow(x,3.0);
     //float res = a+Sx*(b-a);
@@ -43,6 +40,7 @@ float PerlinPatchGenerator::interpolateValues(float a, float b, float x){
 
 }
 
+//Creates a matrix(vector) with gradients. gradientPoints are the amount of elements along each axis
 vector<vector<float>> PerlinPatchGenerator::createGradients(int gradientPoints) {
 
 	vector<vector<float>> gradients;
@@ -75,6 +73,7 @@ float PerlinPatchGenerator::dotProduct(vector<float> a,float b[2]){
 }
 
 
+//Creates a full patch for one frequency. Calculates gradientpoints, and interpolates values for all pixels between them
 vector<float> PerlinPatchGenerator::createPatch(int frequency, int gradientPoints, float amplitude){
     
 	vector<vector<float>> gradients;
@@ -84,17 +83,19 @@ vector<float> PerlinPatchGenerator::createPatch(int frequency, int gradientPoint
     float s,t,u,v,diffX,diffY,a,b,z;
     int gradientX, gradientY;
     vector<float> finalGrid;
-
+    float sVec[2], tVec[2], uVec[2], vVec[2];
+            
 	for(int row = 0; row < gridSize; row++) {
 		diffY = (float)(row % numberOfPixels)/(float)numberOfPixels;
 
 		for(int col = 0; col < gridSize; col++) {
 			diffX = (float)(col % numberOfPixels)/(float)numberOfPixels;            
 
+            //Check what gradientpoints we should interpolate values from
 			gradientX = floor(col/numberOfPixels);
 			gradientY = floor(row/numberOfPixels);
 
-            float sVec[2], tVec[2], uVec[2], vVec[2];
+            //Calculate vectors from each gradientpoint to the pixel
             sVec[0] = diffX;
             sVec[1] = diffY;
             tVec[0] = diffX-1;
@@ -104,11 +105,13 @@ vector<float> PerlinPatchGenerator::createPatch(int frequency, int gradientPoint
             vVec[0] = diffX-1;
             vVec[1] = diffY-1;
 
+            //Calculate values to interpolate between for each pixel
             s = dotProduct(gradients.at(gradientY*gradientPoints + gradientX),sVec);
             t = dotProduct(gradients.at(gradientY*gradientPoints + gradientX+1),tVec);
             u = dotProduct(gradients.at((gradientY+1)*gradientPoints + gradientX),uVec);
             v = dotProduct(gradients.at((gradientY+1)*gradientPoints + gradientX+1),vVec);
 
+            //Interpolate in x-axis and y-axis
             a = interpolateValues(s,t,diffX); 
             b = interpolateValues(u,v,diffX);
             z = interpolateValues(a,b,diffY);;
@@ -116,21 +119,26 @@ vector<float> PerlinPatchGenerator::createPatch(int frequency, int gradientPoint
 			finalGrid.push_back(z * amplitude);
             
 		} 
-	}
-    
+	}   
 	return finalGrid;	
 }
 
+//Generates a full patch of value noise. Parameters can be set in constructor.
 vector<float> PerlinPatchGenerator::generatePatch(int x, int y)
 {
-    cout << "generatePatch begin\n";
-	vector<float> tempPatch;
+    vector<float> tempPatch;
 	vector<float> heightMapPatch;
 	int frequency;
 	int gradientPoints;
 	float amplitude;
     
 	heightMapPatch.assign(gridSize*gridSize,0);
+
+    //Position based seed
+    int n=x+y*57;
+    n=(n<<13)^n;
+    int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
+    srand(seed);
 
 	for(int n = 0; n <= NoF; n = n+1){ //max value on n: 2^n <= size
 		frequency = pow(2,n);
@@ -146,7 +154,6 @@ vector<float> PerlinPatchGenerator::generatePatch(int x, int y)
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch);
       
 	}
-    cout << "generatePatch end\n";
 	return heightMapPatch;
 }
 

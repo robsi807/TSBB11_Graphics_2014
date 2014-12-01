@@ -22,13 +22,13 @@ World::World(){
   
   // Init objects
   int biotope = 1; // 1 = mountains, 2 = desert
-  int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
+  int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 7 for noise, 9 for perlin. Max value on n: 2^n <= size
   int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.
   //patchGenerator = new PerlinPatchGenerator(biotope, NoF, amplitude, patchSize);
   patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize);
-  //patchGenerator = new DebugPatchGenerator(false);
-
-  camera = new Camera(vec3(patchSize/2.0,60,patchSize/2.0), 1, 7,&terrainVector);
+  
+  //camera = new Camera(vec3(patchSize/2.0,60,patchSize/2.0), 1, 7,&terrainVector, patchSize, patchOverlap,gridSize);
+  camera = new Camera(vec3(0.0,60,0.0), 1, 7,&terrainVector, patchSize, patchOverlap,gridSize);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox3/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
@@ -343,10 +343,7 @@ void World::addTerrainNorth2() {
   
   
   
-  printf("Terrain added north at yGrid = %i.\n",terrainVector.at(ySize-2).at(0)->yGrid+1);
-  
-  
-  
+  printf("Terrain added north at yGrid = %i.\n",terrainVector.at(ySize-2).at(0)->yGrid+1);  
 }
 
 

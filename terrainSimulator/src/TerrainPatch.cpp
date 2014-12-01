@@ -3,7 +3,7 @@
 TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade,Model* plantModel) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
   
   blendedSize = patchSize-overlap+1;
-
+ 
   // Calculate positions
   xPos = x * (patchSize - overlap);
   yPos = y * (patchSize - overlap);
@@ -230,8 +230,8 @@ vec3 TerrainPatch::calcNormalSimple(float xPos, float zPos)
   int x,z;
   int offset = patchOverlap/2;
   vec3 normalVec;
-  x = (int) floor(xPos-offset);
-  z = (int) floor(zPos-offset);
+  x = (int) floor(xPos);
+  z = (int) floor(zPos);
   normalVec.x = geometry->normalArray[(x + z * blendedSize)*3 + 0];
   normalVec.y = geometry->normalArray[(x + z * blendedSize)*3 + 1];
   normalVec.z = geometry->normalArray[(x + z * blendedSize)*3 + 2];
@@ -249,8 +249,8 @@ float TerrainPatch::calcHeightSimple(int xPos,int zPos){
 float TerrainPatch::calcHeight(float xPos,float zPos)
 {  
   float offset = ((float)patchOverlap)/2.0;
-  float x = xPos - offset;
-  float z = zPos - offset;
+  float x = xPos;
+  float z = zPos;
   int x0,x1,z0,z1;
   float y00,y01,y10,y11,dx0,dz0,yTot;
   x0 = floor(x); 
@@ -282,6 +282,7 @@ float TerrainPatch::calcHeight(float xPos,float zPos)
   return yTot;
 }
 
+
 TerrainPatch::~TerrainPatch(){
   std::cout << "TerrainPatch destructor is used, geometry is deleted\n";
   delete geometry;
@@ -296,7 +297,7 @@ void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float 
 
   if(hasGeometry()){
     mat4 cameraMatrix = cam->cameraMatrix;
-    mat4 modelView = T(xPos,0, yPos);
+    mat4 modelView = T(xPos-patchOverlap/2,0, yPos-patchOverlap/2);
     // Draw terrain normally
     glUseProgram(*terrainShader);
     glUniformMatrix4fv(glGetUniformLocation(*terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);

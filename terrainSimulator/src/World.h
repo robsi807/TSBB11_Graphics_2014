@@ -18,7 +18,6 @@
 #include "PatchGenerator.h"
 #include "PerlinPatchGenerator.h"
 #include "ValuePatchGenerator.h"
-//#include "DebugPatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
