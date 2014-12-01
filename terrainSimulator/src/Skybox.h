@@ -39,6 +39,7 @@ class Skybox
   GLuint* shader;
 
  public:
+  
   vec3 bottomColor;
   vec3 topColor;
   Model* model;

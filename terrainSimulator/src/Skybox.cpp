@@ -7,7 +7,7 @@
 
 #include "Skybox.h"
 
-Skybox::Skybox(GLuint* skyboxShader,mat4 projectionMatrix, const char *imagePath)
+Skybox::Skybox(GLuint* skyboxShader, mat4 projectionMatrix, const char *imagePath)
 {
   //bottomColor = vec3(1,1,1);
   //topColor = vec3(.6,.87,0.99);
@@ -99,5 +99,5 @@ void Skybox::draw(mat4 cameraMatrix, GLfloat time)
   glUniform1f(glGetUniformLocation(*shader, "time"), time);
   DrawModel(model, *shader,"vertices",NULL,NULL);
   
-  glEnable(GL_DEPTH_TEST);
+  //glEnable(GL_DEPTH_TEST);
 }

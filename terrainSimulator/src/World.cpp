@@ -12,6 +12,7 @@ World::World(){
   terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
+  sunShader = loadShaders("shaders/sun.vert", "shaders/sun.frag");
 
   // Init objects
   //patchGenerator = new PerlinPatchGenerator();
@@ -22,12 +23,19 @@ World::World(){
   blender = new LinearBlender(patchOverlap);
 
   sphere = LoadModelPlus("../objects/groundsphere.obj");
+  sun = LoadModelPlus("../objects/groundsphere.obj");
+
+  glUseProgram(sunShader);
+  glUniformMatrix4fv(glGetUniformLocation(sunShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
 
   // Init light to terrain shader
   glUseProgram(terrainShader);
 
   lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
+  sunPosition = vec3(0.0, 2.0, 1.0)*30.0;
+
   lightDirNight = Normalize(vec3(0.0f, 2.0f, 0.0f));
+  
   GLfloat specularExponent = 2.0;
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirectionNight"), 1, &lightDirNight.x);
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
@@ -260,12 +268,18 @@ void threadAddPatchRow(World *w, int dir){
 }
 
 void World::update(){
-  time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
+  time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
   updateTerrain(camera->getPosition(), camera->getDirection());
   camera->update();
 
   lightDir = Normalize(vec3(0.0, 2.0*cos(time/5.0), 2.0*sin(time/5.0)));
+  sunPosition.y = cos(time/5.0);
+  sunPosition.z = sin(time/5.0);
+  sunPosition = Normalize(sunPosition)*400.0;
+
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
+
+  cout << "Sun position: (" << sunPosition.x << "," << sunPosition.y << "," << sunPosition.z << ")" << endl;
 
   // DEBUGGING PURPOSE CODE START
   if(camera->addTerrain != 0){
@@ -303,6 +317,20 @@ void World::draw(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   cout << "time = " << time << endl;
   skybox->draw(camera->cameraMatrix, time/5.0);
+  glUseProgram(sunShader);
+  //_______draw_sun_______
+  mat4 sunSize = S(10.0,10.0,10.0);
+  mat4 sunTranslation = T(sunPosition.x,sunPosition.y,sunPosition.z);
+  mat4 modelViewSun = Mult(sunTranslation,sunSize);
+  glUniformMatrix4fv(glGetUniformLocation(sunShader, "mdl2World"), 1, GL_TRUE, modelViewSun.m);
+  mat4 world2ViewSun = camera->cameraMatrix;
+  world2ViewSun.m[3] = 0;
+  world2ViewSun.m[7] = 0;
+  world2ViewSun.m[11] = 0;
+  glUniformMatrix4fv(glGetUniformLocation(sunShader, "world2View"), 1, GL_TRUE, world2ViewSun.m);
+  DrawModel(sun, sunShader, "inPosition", NULL,NULL);
+  //______________________
+  glEnable(GL_DEPTH_TEST);
 
   for(int y = 0; y < terrainVector.size(); y++){
     for(int x = 0; x < terrainVector.at(y).size(); x++){

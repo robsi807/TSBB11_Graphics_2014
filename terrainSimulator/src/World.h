@@ -55,8 +55,10 @@ class World
     
   public:
     Model* sphere;
+    Model* sun;
+    vec3 sunPosition;
     
-    GLuint phongShader,skyboxShader,terrainShader;
+    GLuint phongShader,skyboxShader,terrainShader,sunShader;
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
