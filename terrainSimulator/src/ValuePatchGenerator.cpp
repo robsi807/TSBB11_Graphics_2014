@@ -93,7 +93,7 @@ vector<float> ValuePatchGenerator::createPatch(int frequency, int gradientPoints
 
 		} 
 	}
-
+  gradients.clear();
 	return finalGrid;	
 }
 
@@ -124,6 +124,7 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y)
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch);
  
 	}
+	tempPatch.clear();
 	return heightMapPatch;
 }
 

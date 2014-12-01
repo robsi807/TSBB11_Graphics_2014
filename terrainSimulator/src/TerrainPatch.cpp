@@ -290,13 +290,22 @@ float TerrainPatch::calcHeight(float xPos,float zPos)
 }
 
 TerrainPatch::~TerrainPatch(){
-  std::cout << "TerrainPatch destructor is used, geometry is deleted\n";
-  delete geometry;
   
-  // Delete all objects in the object vector
+  cout << "Deleting patch x= " << xGrid << " y= " << yGrid << endl;
+  
+  if(hasGeometry()) {
+  
+		free(geometry->vertexArray);   
+	  free(geometry->texCoordArray); 
+	  free(geometry->normalArray);   
+	  free(geometry->indexArray);     
+  }
+  
   objects.clear();
   rawHeightMap.clear();
   blendedHeightMap.clear();
+  delete geometry;
+  delete patchGenerator;
   
 }
 
