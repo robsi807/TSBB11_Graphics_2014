@@ -12,5 +12,5 @@ out vec4 outColor;
 
 void main(void)
 {
-	outColor = vec4(0.9,0.9,0.5,1.0); //texture(tex, texCoord); //vec4(1.0,1.0,0.0,1.0);
+	outColor = vec4(0.9,0.9,0.4,1.0); //texture(tex, texCoord); //vec4(1.0,1.0,0.0,1.0);
 }

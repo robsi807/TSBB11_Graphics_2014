@@ -3,6 +3,7 @@
 World::World(){
 	
   time = 0;
+  dayTime = time/20.0;
 
   patchOverlap = PATCH_OVERLAP;
   patchSize = PATCH_SIZE;
@@ -31,8 +32,8 @@ World::World(){
   // Init light to terrain shader
   glUseProgram(terrainShader);
 
-  lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
-  sunPosition = vec3(0.0, 2.0, 1.0)*30.0;
+  lightDir = Normalize(vec3(0.0, 2.0, 2.0))*400.0;
+  sunPosition = Normalize(vec3(0.0, 2.0, 2.0))*400.0;
 
   lightDirNight = Normalize(vec3(0.0f, 2.0f, 0.0f));
   
@@ -269,12 +270,14 @@ void threadAddPatchRow(World *w, int dir){
 
 void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
+  dayTime = time/10.0;
+ 
   updateTerrain(camera->getPosition(), camera->getDirection());
   camera->update();
 
-  lightDir = Normalize(vec3(0.0, 2.0*cos(time/5.0), 2.0*sin(time/5.0)));
-  sunPosition.y = cos(time/5.0);
-  sunPosition.z = sin(time/5.0);
+  lightDir = Normalize(vec3(0.0, 2.0*cos(dayTime), 2.0*sin(dayTime)))*400.0;
+  sunPosition.y = 2.0*cos(dayTime);
+  sunPosition.z = 2.0*sin(dayTime);
   sunPosition = Normalize(sunPosition)*400.0;
 
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
@@ -315,10 +318,11 @@ void World::update(){
 void World::draw(){
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  cout << "time = " << time << endl;
-  skybox->draw(camera->cameraMatrix, time/5.0);
-  glUseProgram(sunShader);
+  cout << "Day time = " << dayTime << endl;
+  skybox->draw(camera->cameraMatrix, dayTime);
+  
   //_______draw_sun_______
+  glUseProgram(sunShader);
   mat4 sunSize = S(10.0,10.0,10.0);
   mat4 sunTranslation = T(sunPosition.x,sunPosition.y,sunPosition.z);
   mat4 modelViewSun = Mult(sunTranslation,sunSize);

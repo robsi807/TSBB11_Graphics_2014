@@ -47,6 +47,7 @@ class World
   private:
     long worldSeed;
     GLfloat time;
+    GLfloat dayTime;
     vec3 lightDir;
     vec3 lightDirNight;
     int patchOverlap,patchSize,gridSize;
