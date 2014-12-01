@@ -4,8 +4,8 @@ COMMONDIR = ../common/
 # Determine system and compiler
 UNAME := $(shell uname)
 
-GRASS=0
-PLANTS=0
+GRASS=1
+PLANTS=1
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc

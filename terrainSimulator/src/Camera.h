@@ -35,7 +35,9 @@ class Camera
   int blendedSize;
   int gridSize;
   bool flying;
+  std::vector<std::vector<TerrainPatch*>> *terrainVector;
 
+  // Variables for calculating height
   int actualPatchXIndex; 
   int actualPatchZIndex;
   float groundOffset;
@@ -44,8 +46,6 @@ class Camera
 
   GLfloat velocity;
   GLfloat sensitivity;
-
-  std::vector<std::vector<TerrainPatch*>> *terrainVector;
 
   bool warpPointer,lockFrustum;
 
@@ -64,9 +64,6 @@ class Camera
   static const int SCREEN_WIDTH = 1280;
   static const int SCREEN_HEIGHT = 720;
   
-  //static const int SCREEN_WIDTH = 640*2;
-  //static const int SCREEN_HEIGHT = 480*2;
-
   mat4 cameraMatrix;
   mat4 projectionMatrix;
   Camera(vec3 pos, GLfloat vel, GLfloat sens, std::vector<std::vector<TerrainPatch*>> *terrain, int sizePatch, int overlap, int sizeGrid);

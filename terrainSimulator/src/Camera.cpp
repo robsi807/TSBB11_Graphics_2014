@@ -1,6 +1,6 @@
 
 #include "Camera.h"
-
+//Constructor
 Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>> * terrain, int sizePatch, int overlap,int sizeGrid)
 {
   vec3 r = vec3(0.5,0,0);
@@ -8,11 +8,13 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
   lookAtPoint = VectorAdd(position,r);
   upVector = vec3(0,1,0);
   
+  //Terrain information
   terrainVector = terrain;
   patchSize = sizePatch;
   patchOverlap = overlap;
   blendedSize = patchSize-patchOverlap;
-  gridSize = sizeGrid; 
+  gridSize = sizeGrid;
+  //Set inital patch not to equal to starting patch for comparison in  
   actualPatchXIndex = 100;
   actualPatchZIndex = 100;
   groundOffset = 10;
@@ -46,8 +48,8 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
   terrainTimer = 0; 
   // DEBUGGING PURPOSE CODE END
 }
-
-Camera::Camera(float left, float right, float bottom, float top, float near, float far)
+// Constructor for initializing frustum
+/*Camera::Camera(float left, float right, float bottom, float top, float near, float far)
 {
   vec3 r = SetVector(-0.5,0,-0.5);
   //position = SetVector(0,0,0);
@@ -65,12 +67,12 @@ Camera::Camera(float left, float right, float bottom, float top, float near, flo
   projectionFar = far;
 
   warpPointer = false;
-}
+}*/
 
-
+//Keyhandler class to move araound in the world.
 void Camera::handleKeyPress()
 {
-
+  //w,a,s,d to move forward,backwards and sideways
   if(keyIsDown('w'))
     {
       vec3 w = Normalize(VectorSub(lookAtPoint,position));
@@ -97,6 +99,8 @@ void Camera::handleKeyPress()
       lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(d,velocity));
       position = VectorAdd(position,ScalarMult(d,velocity));
     }
+  
+  //space and c to increase or decrease height
   if(keyIsDown(' '))
     {
       vec3 w = vec3(0,1,0);
@@ -109,6 +113,8 @@ void Camera::handleKeyPress()
       lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(w,velocity));
       position = VectorAdd(position,ScalarMult(w,velocity));
     }
+
+  //p and o to toggle warp pointer on and off
   if(keyIsDown('p'))
     {
       warpPointer = true;
@@ -117,6 +123,8 @@ void Camera::handleKeyPress()
     {
       warpPointer = false;
     }
+
+  //m and n to toggle flight mode on and off
   if(keyIsDown('m'))
     {
       flying = true;
@@ -125,6 +133,8 @@ void Camera::handleKeyPress()
     {
       flying = false;
     }
+
+  //+ and - to increase or decrease movement speed
   if(keyIsDown('+'))
     {
       velocity += 1.1;
@@ -133,6 +143,8 @@ void Camera::handleKeyPress()
     {
       velocity /= 1.1;
     }
+
+  //1 and 3 to lock or unlock frustum, for debugging purposes
   if(keyIsDown('1'))
     {
       lockFrustum = true;
@@ -141,6 +153,8 @@ void Camera::handleKeyPress()
     {
       lockFrustum = false;
     }
+
+  //f to print current position and direction
   if(keyIsDown('f'))
     {
       vec3 dir = getDirection();
@@ -223,55 +237,56 @@ void Camera::update()
 
   // calc patch coordinate to adjust our height.
 
-        float xPosition,zPosition;    
-        if(position.x < 0) {
-            xPosition = blendedSize-1*(fmod(-1*position.x,(float)(blendedSize)));
-        } 
-        else {
-            xPosition = fmod(position.x,(float)(blendedSize));  
-        }   
-        if(position.z < 0) {
-            zPosition = blendedSize-1*(fmod(-1*position.z,(float)(blendedSize)));
-        } 
-        else {
-            zPosition = fmod(position.z,(float)(blendedSize));  
-        }   
-        
-        int tempPatchXIndex = floor((position.x - xPosition)/(float)(blendedSize));
-        int tempPatchZIndex = floor((position.z - zPosition)/(float)(blendedSize));
+  float xPosition,zPosition;    
+  if(position.x < 0) {
+      xPosition = blendedSize-1*(fmod(-1*position.x,(float)(blendedSize)));
+  }  
+  else {
+      xPosition = fmod(position.x,(float)(blendedSize));  
+  }   
+  if(position.z < 0) {
+      zPosition = blendedSize-1*(fmod(-1*position.z,(float)(blendedSize)));
+  } 
+  else {
+      zPosition = fmod(position.z,(float)(blendedSize));  
+  }   
 
-        int i,j;    
-        if( tempPatchXIndex != actualPatchXIndex || tempPatchZIndex != actualPatchZIndex){     
-            actualPatchXIndex = tempPatchXIndex;        
-            actualPatchZIndex = tempPatchZIndex;        
-            for(i = 0; i < gridSize; i++){
-                if(terrainVector->at(i).at(0)->yGrid == actualPatchZIndex){
-                    actualPatchRow = terrainVector->at(i);
-                }
-            }
-            for(i = 0; i < gridSize; i++){
-                if(actualPatchRow.at(i)->xGrid == actualPatchXIndex){
-                    actualPatch = actualPatchRow.at(i);
-                }
-            }
-        }
-    float actualY = actualPatch->calcHeight(xPosition,zPosition);
-    float yDiff = position.y - (actualY + groundOffset);
-    if(!flying){
-        position.y += -yDiff/2;
-        lookAtPoint.y += -yDiff/2;
-    }
-    else{
-        if(yDiff < 0){
-        position.y += -yDiff/2;
-        lookAtPoint.y += -yDiff/2;
+  int tempPatchXIndex = floor((position.x - xPosition)/(float)(blendedSize));
+  int tempPatchZIndex = floor((position.z - zPosition)/(float)(blendedSize));
+
+  int i,j;    
+  if( tempPatchXIndex != actualPatchXIndex || tempPatchZIndex != actualPatchZIndex){     
+    actualPatchXIndex = tempPatchXIndex;        
+    actualPatchZIndex = tempPatchZIndex;        
+    for(i = 0; i < gridSize; i++){
+        if(terrainVector->at(i).at(0)->yGrid == actualPatchZIndex){
+            actualPatchRow = terrainVector->at(i);
         }
     }
+    for(i = 0; i < gridSize; i++){
+        if(actualPatchRow.at(i)->xGrid == actualPatchXIndex){
+            actualPatch = actualPatchRow.at(i);
+        }
+    }
+  }
+  float actualY = actualPatch->calcHeight(xPosition,zPosition);
+  float yDiff = position.y - (actualY + groundOffset);
+  if(!flying){
+    position.y += -yDiff/2;
+    lookAtPoint.y += -yDiff/2;
+  }
+  else{
+    if(yDiff < 0){
+    position.y += -yDiff/2;
+    lookAtPoint.y += -yDiff/2;
+    }
+  }
       
   cameraMatrix = lookAtv(position,lookAtPoint,upVector);
   if(!lockFrustum)
     frustumPlanes->update(this);
 }
+
 
 vec3 Camera::getDirection(){
   return VectorSub(lookAtPoint, position);
@@ -281,11 +296,12 @@ vec3 Camera::getPosition(){
   return position;
 }
 
+//Check if a patch in inside the frustum
 bool Camera::isInFrustum(TerrainPatch* patch){
   return frustumPlanes->containsPatch(patch);
 }
 
-
+//Check if a plant in inside the frustum
 bool Camera::isInFrustum(Plant* plant){
   return frustumPlanes->containsPlant(plant);
 }

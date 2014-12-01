@@ -12,6 +12,7 @@ void Plant::initPlants(GLuint *shade,GLuint *geoShade,Model* mod){
    model = mod;
 }
 
+//Constructor
 Plant::Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos){  
   position = pos;
   globalPosition = pos + terrainPos;
@@ -23,7 +24,7 @@ Plant::Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos){
   mdl2World =  transTerrain * trans;
 }
 
-
+//Draws the plant
 void Plant::draw(mat4 cameraMatrix,float time){
   
   glUseProgram(*shader);

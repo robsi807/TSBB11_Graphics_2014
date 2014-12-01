@@ -62,9 +62,11 @@ vector<float> ValuePatchGenerator::createPatch(int frequency, int gradientPoints
     vector<float> finalGrid;
 
 	for(int row = 0; row < gridSize; row++) {
+		//Calculate distance from pixel to closest gradient point in Y-axis
 		float diffY = (float)(row % numberOfPixels)/(float)numberOfPixels;
 
 		for(int col = 0; col < gridSize; col++) {
+    		//Calculate distance from pixel to closest gradient point in X-axis
 			float diffX = (float)(col % numberOfPixels)/(float)numberOfPixels;
 
             //Check what gradientpoints we should interpolate values from
@@ -105,18 +107,23 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y)
     int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
     srand(seed);
 
-	for(int n = 1; n <= NoF; n = n+2){ //max value on n: 2^n <= size
-
+	//Creates a height map for each frequency, and adds them together 
+	for(int n = 1; n <= NoF; n = n+2){ 
+        //Each frequency should be a multiple of the previous one  
 		frequency = pow(2,n);
 		gradientPoints = frequency + 1;
-    	amplitude = 1.0/((float)frequency);
+        //Amplitude decreases as frequency increases. Higher frequencies should have smaller inpact on the heightmap  
+    	amplitude = 1.0/(float)frequency;
 
+        // Biotope = 2 gives the patch desert like shape
         if(biotope == 2){
             amplitude *= amplitude;
         }
         amplitude *= amplitudeScale;
 
+        //Calculate patch for that frequency
 		tempPatch = createPatch(frequency,gradientPoints, amplitude);
+        //Add the temporary patch together with previous patches
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch);
  
 	}

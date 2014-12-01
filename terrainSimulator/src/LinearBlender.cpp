@@ -6,21 +6,6 @@ LinearBlender::LinearBlender(int initOverlap){
   initCornerWeight();
 }
 
-
-/*void printMatrix(TerrainPatch * patch){
-    
-	int gridSize = patch->blendedSize;
-    printf("[");
-	for(int row = 0; row < gridSize; row++) {
-		for(int col = 0; col < gridSize; col++) {
-			printf("%1.3f  ", patch->blendedHeightMap.at(row*gridSize + col));
-		} 
-		printf(";");
-	} 
-	printf("]");
-}*/
-
-
 // Private functions
 void LinearBlender::initCornerWeight(){
   
@@ -103,7 +88,6 @@ void LinearBlender::blendCorners(TerrainPatch* patch00,
 
     }
   }
-
 }
 
 void LinearBlender::blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast){
@@ -187,8 +171,6 @@ void LinearBlender::blendSouth(vector<vector<TerrainPatch*>> *terrainVector) {
       blendCorners(p00,p01,p10,p11);
     }
   }
-
-
 }
 
 void LinearBlender::blendEast(vector<vector<TerrainPatch*>> *terrainVector) {
@@ -216,9 +198,7 @@ void LinearBlender::blendEast(vector<vector<TerrainPatch*>> *terrainVector) {
 
 }
 
-void LinearBlender::blendWest(vector<vector<TerrainPatch*>> *terrainVector) {
-  
-  
+void LinearBlender::blendWest(vector<vector<TerrainPatch*>> *terrainVector) { 
   int xSize = terrainVector->at(0).size();
   int ySize = terrainVector->size(); // 
   
@@ -272,9 +252,6 @@ void LinearBlender::blendAll(vector<vector<TerrainPatch*>> *terrainVector) {
       }    
     }
   }
-  //printMatrix(terrainVector->at(1).at(1));
-  //cout <<"\n";
-
 }
 
 
