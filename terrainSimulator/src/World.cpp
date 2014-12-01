@@ -21,11 +21,8 @@ World::World(){
 #endif
   
   // Init objects
-  //patchGenerator = new PerlinPatchGenerator(biotope, NoF, amplitude, patchSize);
-  //patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize);
-  //patchGenerator = new DebugPatchGenerator(false);
+  camera = new Camera(vec3(0.0,60,0.0), 1, 7,&terrainVector, patchSize, patchOverlap,gridSize);
 
-  camera = new Camera(vec3(patchSize/2.0,60,patchSize/2.0), 1, 7,&terrainVector);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox3/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
@@ -345,6 +342,7 @@ void World::removeTerrainWest() {
 TerrainPatch* World::generatePatch(int patchX, int patchY){
 
   return new TerrainPatch(patchSize, patchX, patchY,patchOverlap, &terrainShader, &grassShader);
+
 }
 
 void threadAddPatchNorth(World *w){

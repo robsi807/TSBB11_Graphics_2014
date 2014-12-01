@@ -15,7 +15,6 @@
 #endif
 
 #include "Camera.h"
-//#include "DebugPatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
@@ -36,7 +35,7 @@
 
 #define PATCH_OVERLAP 128
 #define PATCH_SIZE 512
-#define GRID_BEGIN_SIZE 5
+#define GRID_BEGIN_SIZE 9
 
 // Direction specific defines
 #define NORTH 8

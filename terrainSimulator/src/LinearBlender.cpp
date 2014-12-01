@@ -6,6 +6,21 @@ LinearBlender::LinearBlender(int initOverlap){
   initCornerWeight();
 }
 
+
+/*void printMatrix(TerrainPatch * patch){
+    
+	int gridSize = patch->blendedSize;
+    printf("[");
+	for(int row = 0; row < gridSize; row++) {
+		for(int col = 0; col < gridSize; col++) {
+			printf("%1.3f  ", patch->blendedHeightMap.at(row*gridSize + col));
+		} 
+		printf(";");
+	} 
+	printf("]");
+}*/
+
+
 // Private functions
 void LinearBlender::initCornerWeight(){
   
@@ -257,7 +272,8 @@ void LinearBlender::blendAll(vector<vector<TerrainPatch*>> *terrainVector) {
       }    
     }
   }
-
+  //printMatrix(terrainVector->at(1).at(1));
+  //cout <<"\n";
 
 }
 
