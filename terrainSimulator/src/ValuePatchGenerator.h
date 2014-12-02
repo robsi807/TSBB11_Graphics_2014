@@ -37,8 +37,6 @@ class ValuePatchGenerator : public PatchGenerator{
   int NoF;
   int amplitudeScale;
   int gridSize;
-
-  RNGType rng;
   
 	vector<float> addMatrices(vector<float> inGrid1, vector<float> inGrid2);
 	float interpolateValues(float a, float b, float x);
@@ -47,7 +45,9 @@ class ValuePatchGenerator : public PatchGenerator{
 
  public:
 
-  ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize,int x,int y);
+  RNGType rng;
+
+  ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize,int seed);
   void printMatrix(vector<float> matrix);
   vector<float> generatePatch(int xPatch, int yPatch);
 

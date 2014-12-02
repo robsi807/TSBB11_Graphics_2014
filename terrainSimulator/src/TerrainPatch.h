@@ -47,6 +47,10 @@ class TerrainPatch
  public:
   int size,blendedSize,patchOverlap; 
 
+  // Position based random seed
+  int seed;
+  RNGType rng;
+
   // Position in world coordinates
   int xPos, yPos;
 

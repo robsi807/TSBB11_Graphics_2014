@@ -22,23 +22,32 @@
 
 using namespace std;
 
+enum PlantType { 
+  Bush,
+  Tree
+};
+
 class Plant : public WorldObject {
 
  public:
   // Static variables
-  static Model *model,*trunkModel;
+  static Model *bushModel,*bushTrunkModel,*treeModel,*treeTrunkModel;
   static GLuint *shader;
-  static GLuint *geomShader;
+  static GLuint *geomBushShader;
+  static GLuint *geomTreeShader;
   static GLuint woodTexture;
   
+  // Plant type
+  PlantType type;
+
   // Initialize static variables
-  static void initPlants(GLuint *shade,GLuint *geoShade);
+  static void initPlants(GLuint *shade,GLuint *geoBushShade,GLuint *geoTreeShade);
   
   mat4 mdl2World;
   float scale;
   vec3 globalPosition;
 
-  Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos);
+  Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos,PlantType plantType);
   void draw(mat4 cameraMatrix,float time);
   
 };

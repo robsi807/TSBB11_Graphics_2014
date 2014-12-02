@@ -225,16 +225,16 @@ void main(){
             //createGrassBlade(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x);
         
         }
-        else if(cameraCoord.z < zLod3 && cameraCoord.x > -xLod3 && cameraCoord.x < xLod3){
+        else if(cameraCoord.z < zLod3 && cameraCoord.x > -xLod3 && cameraCoord.x < xLod3 ){
         // LOD 3
             // Calculate the resolution...
-            vec3 rgbNoise1 = 2*vec3(texture(noiseTex,tex0/scaleNoise))-1;
+            vec3 rgbNoise1 = vec3(texture(noiseTex,tex0/scaleNoise));
             float resNoise = (rgbNoise1.x+rgbNoise1.y+rgbNoise1.z)/3;
             float res = (1.0-(cameraCoord.z-zLod2)/1000.0);
             float width = 5.0 + rgbNoise1.y;
             if(resNoise > res){
                 vec4 grPos0 = mix(mix(pos0,pos1,0.4+posScale*rgbNoise1.x),pos2,0.5+posScale*rgbNoise1.y);
-                createGrassBladeSimple(grPos0,normal0,height+heightScale*rgbNoise1.x,width);
+                createGrassBladeSimple(grPos0,normal0,tex0,height+heightScale*rgbNoise1.x,width);
             }
         }
     }

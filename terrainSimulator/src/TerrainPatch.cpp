@@ -20,7 +20,12 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
   int biotope = 1; // 1 = mountains, 2 = desert
   int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
   int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.  
-  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,x,y);
+  
+  int n=x+y*57;
+  n=(n<<13)^n;
+  seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
+  rng.seed(seed);
+  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
   rawHeightMap = patchGenerator->generatePatch(x,y);
   blendedHeightMap = rawHeightMap;
 }
@@ -184,36 +189,75 @@ bool TerrainPatch::checkPlantPosition(vec3 pos){
 
 void TerrainPatch::addPlants(){  
   //Position based seed
-  int n=xPos+yPos*57;
-  n=(n<<13)^n;
-  int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
-  srand(seed);
+  boost::uniform_int<> one_to_six( 0, INT_MAX );
+  boost::variate_generator<RNGType, boost::uniform_int<>> dice(rng, one_to_six);
   
-  // Randomize a start position
-  int xMid = patchOverlap + rand() % ((int)((float)blendedSize*0.8));  
-  int zMid = patchOverlap + rand() % ((int)((float)blendedSize*0.8));  
-  
-  // Randomize a grid size between 3 and 5
-  int xGridSize = 3 + rand() % 3;
-  int zGridSize = 3 + rand() % 3;
-  float gridOffset = 12.0 + ((float)(rand()%300 - 150))/100.0;
- // printf("xGridSize=%i, zGridSize=%i, gridOffset=%i\n",xGridSize,zGridSize,gridOffset);
-  
-  for(int x = 0; x < xGridSize; x++){
-    for(int z = 0; z < zGridSize; z++){
-      // Randomize offset from middle position
-      float newXPos = ((float)xMid) + x*gridOffset + (rand()%8 - 4);
-      float newZPos = ((float)zMid) + z*gridOffset + (rand()%8 - 4);
-      float newYPos = calcHeight(newXPos,newZPos);
-      vec3 newPos = vec3(newXPos,newYPos,newZPos);
+  int bushPatches = 1;
+  for(int i=0;i<bushPatches;i++){
+    // Add bushes
+    // Randomize a start position
+    int xMid = patchOverlap + dice() % ((int)((float)blendedSize - patchOverlap));  
+    int zMid = patchOverlap + dice() % ((int)((float)blendedSize - patchOverlap));  
     
-      // Place plant if position is OK
-      if(checkPlantPosition(newPos)){
-        WorldObject* plant = new Plant(newPos,0.0,10.0,vec3(xPos,0.0,yPos));
-        objects.push_back(plant);
+    // Randomize a grid size between 3 and 5
+    int xGridSize = 3 + dice() % 3;
+    int zGridSize = 3 + dice() % 3;
+    float gridOffset = 10.0 + ((float)((dice()%300) - 150))/100.0;
+   // printf("xGridSize=%i, zGridSize=%i, gridOffset=%i\n",xGridSize,zGridSize,gridOffset);
+    
+    for(int x = 0; x < xGridSize; x++){
+      for(int z = 0; z < zGridSize; z++){
+        // Randomize offset from middle position
+        float newXPos = ((float)xMid) + x*gridOffset + (dice()%8 - 4);
+        float newZPos = ((float)zMid) + z*gridOffset + (dice()%8 - 4);
+        float newYPos = calcHeight(newXPos,newZPos);
+        vec3 newPos = vec3(newXPos,newYPos,newZPos);
+      
+        // Place plant if position is OK
+        if(checkPlantPosition(newPos)){
+          float scale = 1.5 + ((float)(dice() % 150)) /100.0;
+          float angle = 3.1415*((float)(dice() % 200))/100.0;
+          WorldObject* plant = new Plant(newPos,angle,scale,vec3(xPos,0.0,yPos),Bush);
+          objects.push_back(plant);
+        }
+        else{
+          //printf("Position not allowed: %f, %f !\n",newXPos,newYPos);
+        }
       }
-      else{
-        //printf("Position not allowed: %f, %f !\n",newXPos,newYPos);
+    }
+  }
+
+  // Add trees
+  int treePatches = 1;  
+  for(int i=0;i<treePatches;i++){  
+    // Randomize a start position
+    int xMid = patchOverlap + dice() % ((int)((float)blendedSize - patchOverlap));  
+    int zMid = patchOverlap + dice() % ((int)((float)blendedSize - patchOverlap));  
+    
+    // Randomize a grid size between 3 and 5
+    int xGridSize = 3 + dice() % 3;
+    int zGridSize = 3 + dice() % 3;
+    float gridOffset = 22.0 + ((float)((dice()%800) - 400))/100.0;
+   // printf("xGridSize=%i, zGridSize=%i, gridOffset=%i\n",xGridSize,zGridSize,gridOffset);
+    
+    for(int x = 0; x < xGridSize; x++){
+      for(int z = 0; z < zGridSize; z++){
+        // Randomize offset from middle position
+        float newXPos = ((float)xMid) + x*gridOffset + ((dice()%16) - 8);
+        float newZPos = ((float)zMid) + z*gridOffset + ((dice()%16) - 8);
+        float newYPos = calcHeight(newXPos,newZPos);
+        vec3 newPos = vec3(newXPos,newYPos,newZPos);
+      
+        // Place plant if position is OK
+        if(checkPlantPosition(newPos)){
+          float scale = 10.5 + ((float)(dice() % 250)) /100.0;
+          float angle = 3.1415*((float)(dice() % 200))/100.0;
+          WorldObject* plant = new Plant(newPos,angle,scale,vec3(xPos,0.0,yPos),Tree);
+          objects.push_back(plant);
+        }
+        else{
+          //printf("Position not allowed: %f, %f !\n",newXPos,newYPos);
+        }
       }
     }
   }

@@ -92,7 +92,7 @@ World::World(){
 #endif
 
   // Loading of plant model, and shader uploads and initialization of plants
-  Plant::initPlants(&phongShader,&plantShader);
+  Plant::initPlants(&phongShader,&plantShader,&plantShader);
  
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);

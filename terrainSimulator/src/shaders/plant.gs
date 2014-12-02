@@ -104,9 +104,9 @@ void main(){
             vec3 grNorm1 = mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.z),normal2,0.5+posScale*rgbNoise2.x);
             vec3 grNorm2 = mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.y),normal2,0.5+posScale*rgbNoise1.z);
             
-            createGrassBladeSimple(grPos0,grNorm0,tex0,height+heightScale*rgbNoise1.x,width,angleScale*rgbNoise1.x,angleScale*rgbNoise1.y,normalMatrix);
-            createGrassBladeSimple(grPos1,grNorm1,tex0,height+heightScale*rgbNoise1.y,width,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x,normalMatrix);
-            createGrassBladeSimple(grPos2,grNorm2,tex0,height+heightScale*rgbNoise1.z,width,angleScale*rgbNoise2.y,angleScale*rgbNoise2.z,normalMatrix);
+            //createGrassBladeSimple(grPos0,grNorm0,tex0,height+heightScale*rgbNoise1.x,width,angleScale*rgbNoise1.x,angleScale*rgbNoise1.y,normalMatrix);
+            //createGrassBladeSimple(grPos1,grNorm1,tex0,height+heightScale*rgbNoise1.y,width,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x,normalMatrix);
+            //createGrassBladeSimple(grPos2,grNorm2,tex0,height+heightScale*rgbNoise1.z,width,angleScale*rgbNoise2.y,angleScale*rgbNoise2.z,normalMatrix);
             
         }
  
