@@ -308,16 +308,12 @@ void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float 
     // Draw grass w/o z-buffer and culling
 #if GRASS == 1
 
-    glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
     glUseProgram(*grassShader);
     glUniformMatrix4fv(glGetUniformLocation(*grassShader, "mdl2World"), 1, GL_TRUE, modelView.m);
     glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
     glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
     DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
-    glDisable(GL_BLEND);
+
 #endif
 
     // Draw all objects 
