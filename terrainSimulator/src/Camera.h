@@ -22,6 +22,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 class Camera
 {
@@ -29,9 +30,22 @@ class Camera
   vec3 position;
   vec3 lookAtPoint;
   vec3 upVector;
+  int patchSize;
+  int patchOverlap;
+  int blendedSize;
+  int gridSize;
+  bool flying;
+
+  int actualPatchXIndex; 
+  int actualPatchZIndex;
+  float groundOffset;
+  TerrainPatch * actualPatch;
+  std::vector<TerrainPatch*> actualPatchRow;
 
   GLfloat velocity;
   GLfloat sensitivity;
+
+  std::vector<std::vector<TerrainPatch*>> *terrainVector;
 
   bool warpPointer,lockFrustum;
 
@@ -52,7 +66,7 @@ class Camera
 
   mat4 cameraMatrix;
   mat4 projectionMatrix;
-  Camera(vec3 pos, GLfloat vel, GLfloat sens);
+  Camera(vec3 pos, GLfloat vel, GLfloat sens, std::vector<std::vector<TerrainPatch*>> *terrain, int sizePatch, int overlap, int sizeGrid);
   Camera(float left, float right, float bottom, float top, float near, float far);
   void handleKeyPress();
   void handleMouse(int x, int y);

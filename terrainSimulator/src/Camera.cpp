@@ -1,20 +1,31 @@
 
 #include "Camera.h"
 
-Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens)
+Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>> * terrain, int sizePatch, int overlap,int sizeGrid)
 {
-  vec3 r = vec3(0.5,0,0.5);
+  vec3 r = vec3(0.5,0,0);
   position = pos;
   lookAtPoint = VectorAdd(position,r);
   upVector = vec3(0,1,0);
+  
+  terrainVector = terrain;
+  patchSize = sizePatch;
+  patchOverlap = overlap;
+  blendedSize = patchSize-patchOverlap;
+  gridSize = sizeGrid; 
+  actualPatchXIndex = 100;
+  actualPatchZIndex = 100;
+  groundOffset = 10;
+  flying = false;
+
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector);
   velocity = 1.5;
 
   projectionNear = 0.8;
   projectionFar = 1700.0;
-  projectionRight = 0.5;
-  projectionLeft = -0.5;
+  projectionRight = 0.5/0.75; // for wide screen
+  projectionLeft = -0.5/0.75; // for wide screen
   projectionTop = 0.5;
   projectionBottom = -0.5;
 
@@ -59,12 +70,13 @@ Camera::Camera(float left, float right, float bottom, float top, float near, flo
 
 void Camera::handleKeyPress()
 {
+
   if(keyIsDown('w'))
     {
       vec3 w = Normalize(VectorSub(lookAtPoint,position));
       lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(w,velocity));
       position = VectorAdd(position,ScalarMult(w,velocity));
-    }
+    }  
   if(keyIsDown('s'))
     {
       vec3 s = Normalize(VectorSub(position,lookAtPoint));
@@ -85,6 +97,18 @@ void Camera::handleKeyPress()
       lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(d,velocity));
       position = VectorAdd(position,ScalarMult(d,velocity));
     }
+  if(keyIsDown(' '))
+    {
+      vec3 w = vec3(0,1,0);
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(w,velocity));
+      position = VectorAdd(position,ScalarMult(w,velocity));
+    }
+  if(keyIsDown('c'))
+    {
+      vec3 w = vec3(0,-1,0);
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(w,velocity));
+      position = VectorAdd(position,ScalarMult(w,velocity));
+    }
   if(keyIsDown('p'))
     {
       warpPointer = true;
@@ -93,13 +117,21 @@ void Camera::handleKeyPress()
     {
       warpPointer = false;
     }
+  if(keyIsDown('m'))
+    {
+      flying = true;
+    }
+  if(keyIsDown('n'))
+    {
+      flying = false;
+    }
   if(keyIsDown('+'))
     {
-      velocity *= 1.1;
+      velocity += 1.1;
     }
   if(keyIsDown('-'))
     {
-      velocity *= 0.9;
+      velocity /= 1.1;
     }
   if(keyIsDown('1'))
     {
@@ -186,6 +218,56 @@ void Camera::update()
   // std::cout << "temp.z = " << std::abs(temp.z) << std::endl;
 
   //if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09)
+
+
+
+  // calc patch coordinate to adjust our height.
+
+        float xPosition,zPosition;    
+        if(position.x < 0) {
+            xPosition = blendedSize-1*(fmod(-1*position.x,(float)(blendedSize)));
+        } 
+        else {
+            xPosition = fmod(position.x,(float)(blendedSize));  
+        }   
+        if(position.z < 0) {
+            zPosition = blendedSize-1*(fmod(-1*position.z,(float)(blendedSize)));
+        } 
+        else {
+            zPosition = fmod(position.z,(float)(blendedSize));  
+        }   
+        
+        int tempPatchXIndex = floor((position.x - xPosition)/(float)(blendedSize));
+        int tempPatchZIndex = floor((position.z - zPosition)/(float)(blendedSize));
+
+        int i,j;    
+        if( tempPatchXIndex != actualPatchXIndex || tempPatchZIndex != actualPatchZIndex){     
+            actualPatchXIndex = tempPatchXIndex;        
+            actualPatchZIndex = tempPatchZIndex;        
+            for(i = 0; i < gridSize; i++){
+                if(terrainVector->at(i).at(0)->yGrid == actualPatchZIndex){
+                    actualPatchRow = terrainVector->at(i);
+                }
+            }
+            for(i = 0; i < gridSize; i++){
+                if(actualPatchRow.at(i)->xGrid == actualPatchXIndex){
+                    actualPatch = actualPatchRow.at(i);
+                }
+            }
+        }
+    float actualY = actualPatch->calcHeight(xPosition,zPosition);
+    float yDiff = position.y - (actualY + groundOffset);
+    if(!flying){
+        position.y += -yDiff/2;
+        lookAtPoint.y += -yDiff/2;
+    }
+    else{
+        if(yDiff < 0){
+        position.y += -yDiff/2;
+        lookAtPoint.y += -yDiff/2;
+        }
+    }
+      
   cameraMatrix = lookAtv(position,lookAtPoint,upVector);
   if(!lockFrustum)
     frustumPlanes->update(this);

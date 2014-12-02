@@ -1,9 +1,9 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
+TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade) : xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
   
   blendedSize = patchSize-overlap+1;
-
+ 
   // Calculate positions
   xPos = x * (patchSize - overlap);
   yPos = y * (patchSize - overlap);
@@ -16,6 +16,13 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   geometryBoolean = false;
   
   heightScale = 0.0025;
+  
+  int biotope = 1; // 1 = mountains, 2 = desert
+  int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
+  int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.  
+  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,x,y);
+  rawHeightMap = patchGenerator->generatePatch(x,y);
+  blendedHeightMap = rawHeightMap;
 }
 
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
@@ -230,8 +237,8 @@ vec3 TerrainPatch::calcNormalSimple(float xPos, float zPos)
   int x,z;
   int offset = patchOverlap/2;
   vec3 normalVec;
-  x = (int) floor(xPos-offset);
-  z = (int) floor(zPos-offset);
+  x = (int) floor(xPos);
+  z = (int) floor(zPos);
   normalVec.x = geometry->normalArray[(x + z * blendedSize)*3 + 0];
   normalVec.y = geometry->normalArray[(x + z * blendedSize)*3 + 1];
   normalVec.z = geometry->normalArray[(x + z * blendedSize)*3 + 2];
@@ -249,8 +256,8 @@ float TerrainPatch::calcHeightSimple(int xPos,int zPos){
 float TerrainPatch::calcHeight(float xPos,float zPos)
 {  
   float offset = ((float)patchOverlap)/2.0;
-  float x = xPos - offset;
-  float z = zPos - offset;
+  float x = xPos;
+  float z = zPos;
   int x0,x1,z0,z1;
   float y00,y01,y10,y11,dx0,dz0,yTot;
   x0 = floor(x); 
@@ -264,7 +271,6 @@ float TerrainPatch::calcHeight(float xPos,float zPos)
   y01 = geometry->vertexArray[(x1 + z0 * blendedSize)*3 + 1];
   y10 = geometry->vertexArray[(x0 + z1 * blendedSize)*3 + 1];
   y11 = geometry->vertexArray[(x1 + z1 * blendedSize)*3 + 1];
-  
   if(dx0 > dz0)
     {
       // Upper triangle
@@ -283,22 +289,33 @@ float TerrainPatch::calcHeight(float xPos,float zPos)
   return yTot;
 }
 
+
 TerrainPatch::~TerrainPatch(){
-  std::cout << "TerrainPatch destructor is used, geometry is deleted\n";
-  delete geometry;
   
-  // Delete all objects in the object vector
+  cout << "Deleting patch x= " << xGrid << " y= " << yGrid << endl;
+  
+  if(hasGeometry()) {
+  
+		free(geometry->vertexArray);   
+	  free(geometry->texCoordArray); 
+	  free(geometry->normalArray);   
+	  free(geometry->indexArray);     
+  }
+  
   objects.clear();
+  rawHeightMap.clear();
+  blendedHeightMap.clear();
+  delete geometry;
+  delete patchGenerator;
   
 }
 
 
 void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float time){
 
-  if(hasGeometry()){
-  
+  if(hasGeometry() && geometry != NULL){
     mat4 cameraMatrix = cam->cameraMatrix;
-    mat4 modelView = T(xPos,0, yPos);
+    mat4 modelView = T(xPos-patchOverlap/2,0, yPos-patchOverlap/2);
     // Draw terrain normally
     glUseProgram(*terrainShader);
     glUniformMatrix4fv(glGetUniformLocation(*terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);

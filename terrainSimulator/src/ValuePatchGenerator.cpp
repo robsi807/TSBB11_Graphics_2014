@@ -1,12 +1,20 @@
 #include "ValuePatchGenerator.h"
 
-ValuePatchGenerator::ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize){
+//Constructor
+ValuePatchGenerator::ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize,int x,int y){
     biotope = inputBiotope;
     NoF = inputNoF;
     amplitudeScale = inputAmplitude;
     gridSize = inputSize;
+
+    //Position based seed
+    int n=x+y*57;
+    n=(n<<13)^n;
+    seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
+    rng.seed(seed);
 }
 
+//Prints any matrix in matrix form, not as a vector
 void ValuePatchGenerator::printMatrix(vector<float> matrix){
 	printf("[");
 	for(int row = 0; row < gridSize; row++) {
@@ -18,6 +26,7 @@ void ValuePatchGenerator::printMatrix(vector<float> matrix){
 	printf("]");
 }
 
+//Add two matrices(vectors) together
 vector<float> ValuePatchGenerator::addMatrices(vector<float> inGrid1, vector<float> inGrid2){
 
 	vector<float> outGrid;
@@ -27,35 +36,32 @@ vector<float> ValuePatchGenerator::addMatrices(vector<float> inGrid1, vector<flo
 	return outGrid;
 }
 
+//Interpolates a value from a and b, with x being the distance from a to the point
 float ValuePatchGenerator::interpolateValues(float a, float b, float x){
 
-	/*float ft = x*3.1415927;
-	float f = (1.0-cos(ft))*0.5;
-	float res = a*(1.0-f) + b*f;
-    */
-    
     float Sx = 3.0*pow(x,2.0)-2.0*pow(x,3.0);
     float res = a+Sx*(b-a);
-
-    //float res = a+x*(b-a);
     return res;
-
 }
 
+//Creates a matrix(vector) with values to interpolate between. gradientPoints are the amount of elements along each axis
 vector<float> ValuePatchGenerator::createGradients(int gradientPoints) {
-
 	vector<float> gradients;
     float value;
-    
-	for(int row = 0; row < gradientPoints; row++) {
+ 
+    boost::uniform_int<> one_to_six( 0, INT_MAX );
+    boost::variate_generator<RNGType, boost::uniform_int<>> dice(rng, one_to_six);
+	
+  for(int row = 0; row < gradientPoints; row++) {
 		for(int col = 0; col < gradientPoints; col++) {
-            value = (rand() / (float)INT_MAX)*(rand() / (float)INT_MAX);
+            value = (dice() / (float)INT_MAX)*(dice()/(float)INT_MAX);
             gradients.push_back(value);
        	} 
 	}
 	return gradients;
 }
 
+//Creates a full patch for one frequency. Calculates gradientpoints, and interpolates values for all pixels between them
 vector<float> ValuePatchGenerator::createPatch(int frequency, int gradientPoints, float amplitude){
 
 	vector<float> gradients;
@@ -70,24 +76,28 @@ vector<float> ValuePatchGenerator::createPatch(int frequency, int gradientPoints
 		for(int col = 0; col < gridSize; col++) {
 			float diffX = (float)(col % numberOfPixels)/(float)numberOfPixels;
 
-			int gradientX = floor(col/numberOfPixels);
+            //Check what gradientpoints we should interpolate values from
+			int gradientX = floor(col/numberOfPixels); 
 			int gradientY = floor(row/numberOfPixels);
 
+            //Interpolates i x-axis            
 			float interpolatedX1 = interpolateValues(gradients.at(gradientY*gradientPoints 	+ gradientX),
  													 gradients.at((gradientY)*gradientPoints + gradientX+1),
 													 diffX);
 			float interpolatedX2 = interpolateValues(gradients.at((gradientY+1)*gradientPoints + gradientX),
 													 gradients.at((gradientY+1)*gradientPoints + gradientX+1),
 													 diffX);
-			float finalInterp = interpolateValues(interpolatedX1,interpolatedX2,diffY);
+            //Interpolates in y(z)-axis			
+            float finalInterp = interpolateValues(interpolatedX1,interpolatedX2,diffY);
 			finalGrid.push_back(finalInterp * amplitude);
 
 		} 
 	}
-
+  gradients.clear();
 	return finalGrid;	
 }
 
+//Generates a full patch of value noise. Parameters can be set in constructor.
 vector<float> ValuePatchGenerator::generatePatch(int x, int y)
 {
 	vector<float> tempPatch;
@@ -98,11 +108,7 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y)
     
 	heightMapPatch.assign(gridSize*gridSize,0);
     
-    //Position based seed
-    int n=x+y*57;
-    n=(n<<13)^n;
-    int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
-    srand(seed);
+  //srand(seed);
 
 	for(int n = 1; n <= NoF; n = n+2){ //max value on n: 2^n <= size
 
@@ -119,6 +125,7 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y)
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch);
  
 	}
+	tempPatch.clear();
 	return heightMapPatch;
 }
 

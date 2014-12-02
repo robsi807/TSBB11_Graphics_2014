@@ -1,25 +1,26 @@
 #Makefile by Carl Stejmar, 2014-09-11
 
 COMMONDIR = ../common/
+BOOSTDIR = ../../../boost_1_57_0/
 # Determine system and compiler
 UNAME := $(shell uname)
 
 GRASS=1
-PLANTS=0
+PLANTS=1
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc
-CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra -I$(COMMONDIR)
+CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra -I$(COMMONDIR) -I$(BOOSTDIR)
 CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -I$(COMMONDIR)
-LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa -I$(COMMONDIR)
+LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa -I$(COMMONDIR) -I$(BOOSTDIR)
 GLUTPATH = $(COMMONDIR)mac
 GLUT	= $(COMMONDIR)MicroGlut.m
 endif
 ifeq ($(UNAME), Linux)
 CXX     = gcc
-CCFLAGS = -g -std=c++0x -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR) -DGRASS=$(GRASS) -DPLANTS=$(PLANTS)
-CFLAGS  = -g -std=c99 -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR)
-LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -lpthread -DGL_GLEXT_PROTOTYPES -lX11 -I$(COMMONDIR)
+CCFLAGS = -g -std=c++0x -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR) -I$(BOOSTDIR) -DGRASS=$(GRASS) -DPLANTS=$(PLANTS)
+CFLAGS  = -g -std=c99 -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR)  
+LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -lpthread -DGL_GLEXT_PROTOTYPES -lX11 -I$(COMMONDIR) -I$(BOOSTDIR) 
 GLUTPATH = $(COMMONDIR)linux
 GLUT	= $(COMMONDIR)MicroGlut.c
 endif

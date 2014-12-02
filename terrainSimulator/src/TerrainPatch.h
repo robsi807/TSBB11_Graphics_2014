@@ -22,6 +22,10 @@
 #include "WorldObject.h"
 #include "Camera.h"
 
+#include "PatchGenerator.h"
+#include "PerlinPatchGenerator.h"
+#include "ValuePatchGenerator.h"
+
 #include<vector>
 
 using namespace std;
@@ -59,8 +63,11 @@ class TerrainPatch
   // Geometry
   Model* geometry;
 
+  PatchGenerator* patchGenerator;
+
   // Constructor and destructor
-  TerrainPatch(vector<float> initHeightMap,int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture);
+
+  TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture);
   ~TerrainPatch();
 
   // Functions

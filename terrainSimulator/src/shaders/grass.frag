@@ -4,14 +4,12 @@ in vec2 texCoordG;
 in vec3 exNormalG;
 in vec3 surfG;
 in vec3 exPositionG;
-flat in int isBillboard;
 
 out vec4 outColor;
 
 uniform vec3 lightDirection;
 uniform float specularExponent;
 uniform sampler2D grassTex;
-uniform sampler2D grassBillboard;
 uniform mat4 world2View;
 uniform mat4 mdl2World;
 
@@ -65,12 +63,7 @@ void main(void)
 
 	shade = (0.7*diffuseShade + 0.3*specularStrength);
 	
-	// Choose if billboard or normal grass
-	vec4 grass = texture(grassTex,texCoordG);
-	grass.w = 1.0;
-	vec4 billboard = texture(grassBillboard,texCoordG);
-	vec4 grassColor = isBillboard*billboard + (1-isBillboard)*grass;
-  vec4 color = applyDistanceFog(shade*grassColor);
+  vec4 color = applyDistanceFog(shade*texture(grassTex,texCoordG));
   
 	outColor = clamp(color,0,1);
 }
