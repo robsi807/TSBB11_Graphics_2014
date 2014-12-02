@@ -99,5 +99,5 @@ void Skybox::draw(mat4 cameraMatrix, GLfloat time)
   glUniform1f(glGetUniformLocation(*shader, "time"), time);
   DrawModel(model, *shader,"vertices",NULL,NULL);
   
-  //glEnable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
 }

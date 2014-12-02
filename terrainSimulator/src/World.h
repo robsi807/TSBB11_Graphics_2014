@@ -21,6 +21,9 @@
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
+#include "Sun.h"
+
+#include "../common/GL_utilities.h"
 
 #include <vector>
 #include <algorithm>
@@ -48,21 +51,19 @@ class World
     long worldSeed;
     GLfloat time;
     GLfloat dayTime;
-    vec3 lightDir;
-    vec3 lightDirNight;
+    FBOstruct *fbo;
     int patchOverlap,patchSize,gridSize;
     void init();
     void drawTerrainVector(TerrainPatch* t);
     
   public:
     Model* sphere;
-    Model* sun;
-    vec3 sunPosition;
     
     GLuint phongShader,skyboxShader,terrainShader,sunShader;
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
+    Sun* sun;
     PatchGenerator* patchGenerator;
     Blender* blender;
     std::vector<vector<TerrainPatch*>> terrainVector;

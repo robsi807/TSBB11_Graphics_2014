@@ -4,6 +4,7 @@ World::World(){
 	
   time = 0;
   dayTime = time/20.0;
+  fbo = initFBO(Camera::SCREEN_WIDTH,Camera::SCREEN_HEIGHT, 0);
 
   patchOverlap = PATCH_OVERLAP;
   patchSize = PATCH_SIZE;
@@ -22,37 +23,28 @@ World::World(){
   camera = new Camera(vec3(0,60,0), 1, 7);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox3/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
+  sun = new Sun(&sunShader, camera->projectionMatrix);
 
   sphere = LoadModelPlus("../objects/groundsphere.obj");
-  sun = LoadModelPlus("../objects/groundsphere.obj");
-
-  glUseProgram(sunShader);
-  glUniformMatrix4fv(glGetUniformLocation(sunShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
-
+  
   // Init light to terrain shader
   glUseProgram(terrainShader);
 
-  lightDir = Normalize(vec3(0.0, 2.0, 2.0))*400.0;
-  sunPosition = Normalize(vec3(0.0, 2.0, 2.0))*400.0;
-
-  lightDirNight = Normalize(vec3(0.0f, 2.0f, 0.0f));
-  
-  GLfloat specularExponent = 2.0;
-  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirectionNight"), 1, &lightDirNight.x);
-  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
-  glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
+  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirectionNight"), 1, &sun->lightDirNight.x);
+  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &sun->lightDir.x);
+  glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &sun->specularExponent);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
   // Upload textures to terrain shader
   GLuint grassTex1;
-  glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE0+4);
   LoadTGATextureSimple("../textures/grass2_1024.tga", &grassTex1);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex1"), 0); 
+  glUniform1i(glGetUniformLocation(terrainShader, "tex1"), 4); 
   
   GLuint grassTex2;
-  glActiveTexture(GL_TEXTURE0+1);
+  glActiveTexture(GL_TEXTURE0+5);
   LoadTGATextureSimple("../textures/grass3_1024.tga", &grassTex2);
-  glUniform1i(glGetUniformLocation(terrainShader, "tex2"), 1); 
+  glUniform1i(glGetUniformLocation(terrainShader, "tex2"), 5); 
 
   GLuint rockTex1;
   glActiveTexture(GL_TEXTURE0+2);
@@ -274,15 +266,10 @@ void World::update(){
  
   updateTerrain(camera->getPosition(), camera->getDirection());
   camera->update();
-
-  lightDir = Normalize(vec3(0.0, 2.0*cos(dayTime), 2.0*sin(dayTime)))*400.0;
-  sunPosition.y = 2.0*cos(dayTime);
-  sunPosition.z = 2.0*sin(dayTime);
-  sunPosition = Normalize(sunPosition)*400.0;
-
-  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
-
-  cout << "Sun position: (" << sunPosition.x << "," << sunPosition.y << "," << sunPosition.z << ")" << endl;
+  sun->update(dayTime);
+  glUseProgram(terrainShader);
+  glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &sun->lightDir.x);
+  
 
   // DEBUGGING PURPOSE CODE START
   if(camera->addTerrain != 0){
@@ -317,24 +304,11 @@ void World::update(){
 
 void World::draw(){
 
+  useFBO(fbo, 0L, 0L);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   cout << "Day time = " << dayTime << endl;
   skybox->draw(camera->cameraMatrix, dayTime);
-  
-  //_______draw_sun_______
-  glUseProgram(sunShader);
-  mat4 sunSize = S(10.0,10.0,10.0);
-  mat4 sunTranslation = T(sunPosition.x,sunPosition.y,sunPosition.z);
-  mat4 modelViewSun = Mult(sunTranslation,sunSize);
-  glUniformMatrix4fv(glGetUniformLocation(sunShader, "mdl2World"), 1, GL_TRUE, modelViewSun.m);
-  mat4 world2ViewSun = camera->cameraMatrix;
-  world2ViewSun.m[3] = 0;
-  world2ViewSun.m[7] = 0;
-  world2ViewSun.m[11] = 0;
-  glUniformMatrix4fv(glGetUniformLocation(sunShader, "world2View"), 1, GL_TRUE, world2ViewSun.m);
-  DrawModel(sun, sunShader, "inPosition", NULL,NULL);
-  //______________________
-  glEnable(GL_DEPTH_TEST);
+  sun->draw(camera->cameraMatrix, dayTime);
 
   for(int y = 0; y < terrainVector.size(); y++){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
@@ -351,7 +325,10 @@ void World::draw(){
   mat4 modelView = T(0,35,0);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "world2View"), 1, GL_TRUE, camera->cameraMatrix.m);
-  DrawModel(sphere, terrainShader, "inPosition", "inNormal","inTexCoord"); 
+  DrawModel(sphere, terrainShader, "inPosition", "inNormal","inTexCoord");
+
+  
+  sun->bloom(fbo);
 }
 
 void World::updateTerrain(vec3 position, vec3 direction){

@@ -1040,7 +1040,35 @@ Model* LoadDataToModel(
 	m->indexArray = indices;
 	m->numVertices = numVert;
 	m->numIndices = numInd;
+
+	BuildModelVAO2(m);
 	
+	return m;
+}
+
+Model* LoadDataToModel2(
+			GLfloat *vertices,
+			GLfloat *normals,
+			GLfloat *texCoords,
+			GLfloat *colors,
+			GLuint *indices,
+			int numVert,
+			int numInd)
+{
+	Model* m = malloc(sizeof(Model));
+	memset(m, 0, sizeof(Model));
+	
+	m->vertexArray = vertices;
+	m->texCoordArray = texCoords;
+	m->normalArray = normals;
+	m->indexArray = indices;
+	m->numVertices = numVert;
+	m->numIndices = numInd;
+	
+#ifdef __linux__
+	glGenVertexArrays(1, &m->vao);	
+#endif
+
 	BuildModelVAO2(m);
 	
 	return m;

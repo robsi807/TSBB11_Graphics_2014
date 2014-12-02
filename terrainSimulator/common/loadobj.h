@@ -51,6 +51,15 @@ Model* LoadDataToModel(
 			int numVert,
 			int numInd);
 
+ Model* LoadDataToModel2(
+			GLfloat *vertices,
+			GLfloat *normals,
+			GLfloat *texCoords,
+			GLfloat *colors,
+			GLuint *indices,
+			int numVert,
+			int numInd);
+
 /*
 Model* LoadDataToModel(
 			GLfloat *vertices,
