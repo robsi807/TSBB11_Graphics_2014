@@ -196,8 +196,8 @@ void TerrainPatch::addPlants(){
   for(int i=0;i<bushPatches;i++){
     // Add bushes
     // Randomize a start position
-    int xMid = patchOverlap + dice() % ((int)((float)blendedSize - patchOverlap));  
-    int zMid = patchOverlap + dice() % ((int)((float)blendedSize - patchOverlap));  
+    int xMid = dice() % ((int)((float)blendedSize - patchOverlap));  
+    int zMid = dice() % ((int)((float)blendedSize - patchOverlap));  
     
     // Randomize a grid size between 3 and 5
     int xGridSize = 3 + dice() % 3;
@@ -231,8 +231,8 @@ void TerrainPatch::addPlants(){
   int treePatches = 1;  
   for(int i=0;i<treePatches;i++){  
     // Randomize a start position
-    int xMid = patchOverlap + dice() % ((int)((float)blendedSize - patchOverlap));  
-    int zMid = patchOverlap + dice() % ((int)((float)blendedSize - patchOverlap));  
+    int xMid = dice() % ((int)((float)blendedSize - patchOverlap));  
+    int zMid = dice() % ((int)((float)blendedSize - patchOverlap));  
     
     // Randomize a grid size between 3 and 5
     int xGridSize = 3 + dice() % 3;
@@ -357,7 +357,7 @@ TerrainPatch::~TerrainPatch(){
 
 void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float time){
 
-  if(hasGeometry() && geometry != NULL){
+  if(hasGeometry() && cam->isInFrustum(this)){
     mat4 cameraMatrix = cam->cameraMatrix;
     mat4 modelView = T(xPos-patchOverlap/2,0, yPos-patchOverlap/2);
     // Draw terrain normally
@@ -366,15 +366,20 @@ void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float 
     glUniformMatrix4fv(glGetUniformLocation(*terrainShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
     DrawModel(geometry, *terrainShader, "inPosition", "inNormal","inTexCoord"); 
 
-    // Draw grass w/o z-buffer and culling
 #if GRASS == 1
-
-    glUseProgram(*grassShader);
-    glUniformMatrix4fv(glGetUniformLocation(*grassShader, "mdl2World"), 1, GL_TRUE, modelView.m);
-    glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
-    glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
-    DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
-
+		// Check if the patch is close, else don't draw grass		
+		vec3 camPos = cam -> getPosition();
+		camPos.y = 0.0;
+		vec3 terrainPos = vec3(xPos+blendedSize/2,0.0,yPos+blendedSize/2);
+		float maxDist = 500.0 + sqrt(2.0)*((float)(blendedSize/2));
+		if(Norm(camPos-terrainPos) < maxDist){
+		  // Draw grass 
+		  glUseProgram(*grassShader);
+		  glUniformMatrix4fv(glGetUniformLocation(*grassShader, "mdl2World"), 1, GL_TRUE, modelView.m);
+		  glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+		  glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
+		  DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
+		}
 #endif
 
     // Draw all objects 

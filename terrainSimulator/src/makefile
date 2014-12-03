@@ -5,8 +5,8 @@ BOOSTDIR = ../../../boost_1_57_0/
 # Determine system and compiler
 UNAME := $(shell uname)
 
-GRASS=0
-PLANTS=1
+GRASS=1
+PLANTS=0
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc
