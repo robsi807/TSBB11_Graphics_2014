@@ -27,8 +27,6 @@
 class Camera
 {
  private:
-  vec3 position;
-  vec3 lookAtPoint;
   vec3 upVector;
   int patchSize;
   int patchOverlap;
@@ -60,6 +58,13 @@ class Camera
   class Frustum* frustumPlanes;
 
  public:
+
+  vec3 position;
+  vec3 lookAtPoint;
+
+  int timer;
+  bool followFlock;
+  int flockIndex;
 
   static const int SCREEN_WIDTH = 1280;
   static const int SCREEN_HEIGHT = 720;

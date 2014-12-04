@@ -43,6 +43,9 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
 
   frustumPlanes = new Frustum(this);
 
+  timer = 30;
+  followFlock = false;
+  flockIndex = -1; // Is set to zero first time we choose to follow a flock.
 }
 // Constructor for initializing frustum
 /*Camera::Camera(float left, float right, float bottom, float top, float near, float far)
@@ -141,7 +144,7 @@ void Camera::handleKeyPress()
     {
       warpPointer = true;
     }
-  if(keyIsDown('o'))
+  if(keyIsDown('P'))
     {
       warpPointer = false;
     }
@@ -183,6 +186,19 @@ void Camera::handleKeyPress()
       printf("Pos: (%3.1f,%3.1f,%3.1f)\n",position.x,position.y,position.z);
       printf("Dir: ((%1.2f,%1.2f,%1.2f))\n",dir.x,dir.y,dir.z);
     }
+  if(keyIsDown('o') && timer > 30)
+    {
+      timer = 0;
+      followFlock = true;
+      flockIndex++; // Follow next flock each time 'o' is pressed.
+    }
+  if(keyIsDown('O') && followFlock)
+    {
+      followFlock = false;
+      flockIndex--; // Next time 'o' is pressed, we will follow the previous followed flock.
+    }
+
+  timer++;
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 

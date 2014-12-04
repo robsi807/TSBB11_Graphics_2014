@@ -14,6 +14,7 @@ World::World(){
   terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
   //terrainShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
+  birdShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
   plantShader = loadShadersG("shaders/plant.vert","shaders/plant.frag","shaders/plant.gs");
 #if GRASS == 1
@@ -22,9 +23,9 @@ World::World(){
   
   // Init objects
   camera = new Camera(vec3(0.0,60,0.0), 1, 7,&terrainVector, patchSize, patchOverlap,gridSize);
-
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
+  birds = new ManageChasersAndEvaders(&birdShader, "../objects/crowMedium.obj", "../textures/crow.tga", "../objects/eagle.obj", "../textures/eagleBrown.tga", *camera);
 
   sphere = LoadModelPlus("../objects/groundsphere.obj");
 
@@ -47,7 +48,12 @@ World::World(){
   glUseProgram(phongShader);
   glUniform3fv(glGetUniformLocation(phongShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
-  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
+  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+
+  glUseProgram(birdShader);
+  glUniform3fv(glGetUniformLocation(birdShader, "lightDirection"), 1, &lightDir.x);
+  glUniform1fv(glGetUniformLocation(birdShader, "specularExponent"), 1, &specularExponent);
+  glUniformMatrix4fv(glGetUniformLocation(birdShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
   // Upload textures to terrain shader
   glUseProgram(terrainShader);
@@ -349,9 +355,10 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 }
 
 void World::update(){
-  time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
+  time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
 
   updateTerrain();
+  birds->update(time,camera);
   camera->update();
 }
 
@@ -361,44 +368,45 @@ void World::draw(){
   
   skybox->draw(camera->cameraMatrix);
 
-	terrainMutex.lock();
+  terrainMutex.lock();
 	
-	for(int y = 0; y < terrainVector.size(); y++){
+  for(int y = 0; y < terrainVector.size(); y++){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       TerrainPatch *patch = terrainVector.at(y).at(x);
       if(patch != NULL){
-	      patch->draw(camera,time);
+	patch->draw(camera,time);
       }
     }
   }
 
-	terrainMutex.unlock();
-/*
-  if(terrainMutex.try_lock()){
+  terrainMutex.unlock();
+
+  birds->draw(time,camera->cameraMatrix);
+  /*
+    if(terrainMutex.try_lock()){
 
     for(int y = 0; y < terrainVector.size(); y++){
-      for(int x = 0; x < terrainVector.at(y).size(); x++){
-        TerrainPatch *patch = terrainVector.at(y).at(x);
-        if(camera->isInFrustum(patch) && patch->hasGeometry()){
-	        patch->draw(camera,time);
-        }
-      }
+    for(int x = 0; x < terrainVector.at(y).size(); x++){
+    TerrainPatch *patch = terrainVector.at(y).at(x);
+    if(camera->isInFrustum(patch) && patch->hasGeometry()){
+    patch->draw(camera,time);
+    }
+    }
     }
     terrainMutex.unlock();
     
     } else {
-     for(int y = 1; y < terrainVector.size()-1; y++){
-      for(int x = 1; x < terrainVector.at(y).size()-1; x++){
-        TerrainPatch *patch = terrainVector.at(y).at(x);
-        if(camera->isInFrustum(patch) && patch->hasGeometry()){
-	        patch->draw(camera,time);
-        }
-      }
+    for(int y = 1; y < terrainVector.size()-1; y++){
+    for(int x = 1; x < terrainVector.at(y).size()-1; x++){
+    TerrainPatch *patch = terrainVector.at(y).at(x);
+    if(camera->isInFrustum(patch) && patch->hasGeometry()){
+    patch->draw(camera,time);
     }
-   }
-    */
+    }
+    }
+    }
+  */
   //terrainMutex.unlock();
-  
 }
 
 void World::updateTerrain(){
@@ -446,6 +454,7 @@ World::~World(){
   delete camera;
   delete skybox;
   delete blender;
+  delete birds;
   terrainVector.clear();
 }
 

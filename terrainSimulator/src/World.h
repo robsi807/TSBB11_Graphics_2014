@@ -19,6 +19,7 @@
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
 #include "Plant.h"
+#include "ManageChasersAndEvaders.h"
 
 #include <vector>
 #include <algorithm>
@@ -54,7 +55,7 @@ class World
     void init();
 
   public:
-    GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader;
+    GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader, birdShader;
     Model* sphere;
     
     int gridSize;
@@ -62,6 +63,7 @@ class World
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
+    ManageChasersAndEvaders* birds;
     //PatchGenerator* patchGenerator;
     Blender* blender;
 
