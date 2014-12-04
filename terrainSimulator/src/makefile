@@ -5,8 +5,9 @@ BOOSTDIR = ../../../boost_1_57_0/
 # Determine system and compiler
 UNAME := $(shell uname)
 
-GRASS=0
+GRASS=1
 PLANTS=0
+PERLIN=0
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc
@@ -18,7 +19,7 @@ GLUT	= $(COMMONDIR)MicroGlut.m
 endif
 ifeq ($(UNAME), Linux)
 CXX     = gcc
-CCFLAGS = -g -std=c++0x -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR) -I$(BOOSTDIR) -DGRASS=$(GRASS) -DPLANTS=$(PLANTS)
+CCFLAGS = -g -std=c++0x -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR) -I$(BOOSTDIR) -DGRASS=$(GRASS) -DPLANTS=$(PLANTS) -DPERLIN=$(PERLIN)
 CFLAGS  = -g -std=c99 -lGL -DGL_GLEXT_PROTOTYPES -I$(COMMONDIR)  
 LINK    = -g -shared-libgcc -lstdc++ -lm -lGL -lpthread -DGL_GLEXT_PROTOTYPES -lX11 -I$(COMMONDIR) -I$(BOOSTDIR) 
 GLUTPATH = $(COMMONDIR)linux
