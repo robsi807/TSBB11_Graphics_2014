@@ -25,7 +25,7 @@ Evader::Evader(GLuint *phongShader, Model *evaderModel, GLuint evaderTexture, ve
   // Bounding the positions inside this cube. Should maybe center around camera position instead.
   xMin = cameraPosition.x - 256.0;
   xMax = cameraPosition.x + 256.0;
-  yMin = 30.0; // should be taken from calcHeight
+  yMin = 80.0; // should be taken from calcHeight
   yMax = 300.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
   zMin = cameraPosition.z - 256.0;
   zMax = cameraPosition.z + 256.0;
@@ -116,7 +116,7 @@ void Evader::updateLeader(GLfloat time)
 
 void Evader::checkMaxSpeed(Boid *boid)
 {
-  vec3 mSpeed = vec3(1.0,1.0,1.0);
+  vec3 mSpeed = vec3(0.7,0.7,0.7);
 if(Norm(boid->speed) > Norm(mSpeed))
     {
       boid->speed = (boid->speed/Norm(boid->speed))*Norm(mSpeed);
@@ -198,11 +198,12 @@ void Evader::flocking(vector<Boid> chaserVector)
       	evaderVector.at(i).alignmentVector*alignmentWeight +
 	follow*followWeight + avoidChaserVector*avoidChaserWeight;
 
+      evaderVector.at(i).direction = evaderVector.at(i).speed; // Should make the boids rotate in right direction when attacked
+
       checkMaxSpeed(&evaderVector.at(i));
       // if(Norm(evaderVector.at(i).speed) > maxSpeed)
       // 	evaderVector.at(i).speed /= 2.0;
 
-      evaderVector.at(i).direction = evaderVector.at(i).speed; // Should make the boids rotate in right direction when attacked
       evaderVector.at(i).setRotation();
 
       evaderVector.at(i).position += evaderVector.at(i).speed;

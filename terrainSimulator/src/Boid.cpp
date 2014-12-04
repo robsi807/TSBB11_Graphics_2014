@@ -89,6 +89,7 @@ void Boid::draw(mat4 cameraMatrix, GLuint* shader, Model* model, GLuint* texture
   DrawModel(model, *shader, "inPosition", "inNormal", "inTexCoord");
 }
 
+//Not used!
 void Boid::animate(GLfloat time)
 {
   float xSpeed = cos(time);

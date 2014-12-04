@@ -13,8 +13,8 @@
 #include <algorithm>    // std::move (ranges)
 #include <utility>      // std::move (objects)
 
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
+//#include <OpenAL/al.h>
+//#include <OpenAL/alc.h>
 
 #include "Camera.h"
 #include "Evader.h"
@@ -33,7 +33,7 @@ class ManageChasersAndEvaders
   void sortFlockIndex(Camera *cam);
   
   GLuint* shader;
-  Model *evaderModel;
+  //Model *evaderModel;
   Model *chaserModel;
   vector<Model*> evaderModels;
   GLuint evaderTexture;

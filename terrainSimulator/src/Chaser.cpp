@@ -23,7 +23,7 @@ Chaser::Chaser(GLuint *phongShader, Model *chaserModel, GLuint chaserTexture, ve
   // Bounding the positions inside this cube. Should maybe center around camera position instead.
   xMin = cameraPosition.x - 256.0;
   xMax = cameraPosition.x + 256.0;
-  yMin = 30.0; // should be taken from calcHeight
+  yMin = 80.0; // should be taken from calcHeight
   yMax = 300.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
   zMin = cameraPosition.z - 256.0;
   zMax = cameraPosition.z + 256.0;
@@ -98,7 +98,7 @@ void Chaser::setRandomSpeed(Boid *boidI, GLfloat time)
 
 void Chaser::checkMaxSpeed(Boid *boid)
 {
-  vec3 mSpeed = vec3(1.2,1.2,1.2);
+  vec3 mSpeed = vec3(0.9,0.9,0.9);
 if(Norm(boid->speed) > Norm(mSpeed))
     {
       boid->speed = (boid->speed/Norm(boid->speed))*Norm(mSpeed);
