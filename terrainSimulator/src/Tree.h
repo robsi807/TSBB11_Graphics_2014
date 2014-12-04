@@ -1,5 +1,5 @@
-#ifndef _PLANT_
-#define _PLANT_
+#ifndef _TREE_
+#define _TREE_
 
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
@@ -22,32 +22,23 @@
 
 using namespace std;
 
-enum PlantType { 
-  Bush,
-  Tree
-};
-
-class Plant : public WorldObject {
+class Tree : public WorldObject {
 
  public:
   // Static variables
-  static Model *bushModel,*bushTrunkModel,*treeModel,*treeTrunkModel;
+  static Model *model,*trunkModel;
   static GLuint *shader;
-  static GLuint *geomBushShader;
-  static GLuint *geomTreeShader;
+  static GLuint *geomShader;
   static GLuint woodTexture;
   
-  // Plant type
-  PlantType type;
-
   // Initialize static variables
-  static void initPlants(GLuint *shade,GLuint *geoBushShade,GLuint *geoTreeShade);
+  static void initTrees(GLuint *shade,GLuint *geoShade);
   
   mat4 mdl2World;
   float scale;
   vec3 globalPosition;
 
-  Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos,PlantType plantType);
+  Tree(vec3 pos,float yRot,float scaling,vec3 terrainPos);
   void draw(mat4 cameraMatrix,float time);
   
 };

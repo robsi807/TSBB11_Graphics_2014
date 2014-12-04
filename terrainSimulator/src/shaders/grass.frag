@@ -2,7 +2,7 @@
 
 in vec2 texCoordG;
 in vec3 exNormalG;
-in vec3 surf;
+in vec3 surfG;
 in vec3 exPositionG;
 
 out vec4 outColor;
@@ -43,7 +43,6 @@ vec4 applyDistanceFog(vec4 rgb){
 void main(void)
 {
 
-	
 	float shade,diffuseShade;
 	vec3 reflectedLightDirection,eyeDirection,lightDir;
 	vec3 normalizedNormal = normalize(exNormalG);
@@ -55,7 +54,7 @@ void main(void)
 	if(dot(normalizedNormal,lightDir) > 0.0)
 	{
 		reflectedLightDirection = reflect(normalize(-lightDir),normalize(exNormalG));
-		eyeDirection = -normalize(surf);
+		eyeDirection = -normalize(surfG);
 
 		specularStrength = dot(reflectedLightDirection, eyeDirection);
 		specularStrength = max(specularStrength, 0.01);
@@ -63,12 +62,8 @@ void main(void)
 	}
 
 	shade = (0.7*diffuseShade + 0.3*specularStrength);
-    vec4 color = applyDistanceFog(shade*texture(grassTex,texCoordG / 19.0));
-    //if(texColor.x < 0.01 && texColor.y < 0.01 && texColor.z < 0.01){
-    //    texColor = vec4(0.0,0.0,0.0,0.0);
-    //}
-    
-	//outColor = clamp(vec4(shade), 0,1);
+	
+  vec4 color = applyDistanceFog(shade*texture(grassTex,texCoordG));
+  
 	outColor = clamp(color,0,1);
-	//outColor = clamp(vec4(lightSource,1)*vec4(exNormalG,1)*vec4(surf,1)*texture(tex, texCoordG),0,1);
 }

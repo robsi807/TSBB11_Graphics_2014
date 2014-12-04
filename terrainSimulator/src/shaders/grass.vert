@@ -9,7 +9,6 @@ out vec3 exPosition;
 out vec3 surf;
 out vec2 texCoord;
 
-// NY
 uniform mat4 projMatrix;
 uniform mat4 mdl2World;
 uniform mat4 world2View;

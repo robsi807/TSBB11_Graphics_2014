@@ -64,7 +64,6 @@ class World
     Skybox* skybox;
     //PatchGenerator* patchGenerator;
     Blender* blender;
-    Model* plantModel; // TODO: Add to destructor
 
     vector<vector<TerrainPatch*>> terrainVector;
     mutex terrainMutex;

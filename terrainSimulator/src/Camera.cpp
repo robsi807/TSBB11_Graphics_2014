@@ -99,7 +99,33 @@ void Camera::handleKeyPress()
       lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(d,velocity));
       position = VectorAdd(position,ScalarMult(d,velocity));
     }
-  
+
+  //y,g,h,j to move north,south,west and east, independent of direction
+   if(keyIsDown('y'))
+    {
+      vec3 w = vec3(0.0,0.0,1.0);
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(w,velocity));
+      position = VectorAdd(position,ScalarMult(w,velocity));
+    }  
+  if(keyIsDown('h'))
+    {
+      vec3 s = vec3(0.0,0.0,-1.0);
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(s,velocity));
+      position = VectorAdd(position,ScalarMult(s,velocity));
+    }
+  if(keyIsDown('g'))
+    {
+      vec3 a = vec3(1.0,0.0,0.0);
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(a,velocity));
+      position = VectorAdd(position,ScalarMult(a,velocity));
+    }
+  if(keyIsDown('j'))
+    {
+      vec3 d = vec3(-1.0,0.0,0.0);
+      lookAtPoint = VectorAdd(lookAtPoint,ScalarMult(d,velocity));
+      position = VectorAdd(position,ScalarMult(d,velocity));
+    }
+
   //space and c to increase or decrease height
   if(keyIsDown(' '))
     {

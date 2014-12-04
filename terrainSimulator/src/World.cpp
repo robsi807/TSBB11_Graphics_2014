@@ -23,7 +23,7 @@ World::World(){
   // Init objects
   camera = new Camera(vec3(0.0,60,0.0), 1, 7,&terrainVector, patchSize, patchOverlap,gridSize);
 
-  skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox3/sky%d.tga");
+  skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
 
   sphere = LoadModelPlus("../objects/groundsphere.obj");
@@ -73,21 +73,26 @@ World::World(){
 
   // Upload textures to grass shader
 #if GRASS == 1
+  glEnable (GL_POLYGON_SMOOTH);
   glUseProgram(grassShader);
   GLuint grassTexLowPass;
   glActiveTexture(GL_TEXTURE0+4);
-  LoadTGATextureSimple("../textures/grass4_1024_lp.tga",&grassTexLowPass);
+  LoadTGATextureSimple("../textures/grass4_1024_lp2.tga",&grassTexLowPass);
   glUniform1i(glGetUniformLocation(grassShader,"grassTex"),4);
 
   GLuint noiseTex2;
   glActiveTexture(GL_TEXTURE0+5);
   LoadTGATextureSimple("../textures/noise/uniformNoise1.tga",&noiseTex2);
   glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),5);
+  
+  GLuint grassBillboardTex;
+  glActiveTexture(GL_TEXTURE0+6);
+  LoadTGATextureSimple("../textures/grass_billboard2.tga",&grassBillboardTex);
+  glUniform1i(glGetUniformLocation(grassShader,"grassBillboard"),6);
 #endif
 
   // Loading of plant model, and shader uploads and initialization of plants
-  plantModel = LoadModelPlus("../objects/BushLow.obj");
-  Plant::initPlants(&phongShader,&plantShader,plantModel);
+  //Plant::initPlants(&phongShader,&plantShader,&plantShader);
  
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
@@ -178,8 +183,10 @@ void World::addTerrainSouth() {
      threadVector.at(i).join();
   }
   
+  terrainMutex.lock();
   terrainVector.insert(terrainVector.begin(),newTerrainVec);
-
+	terrainMutex.unlock();
+	
   threadVector.clear();
 
   blender->blendSouth(&terrainVector);
@@ -214,8 +221,10 @@ void World::addTerrainNorth() {
   for(unsigned int i=0;i<threadVector.size();i++){
      threadVector.at(i).join();
   }
-  
+	
+	terrainMutex.lock();
   terrainVector.push_back(newTerrainVec);
+	terrainMutex.unlock();
 
   threadVector.clear();
 
@@ -254,9 +263,11 @@ void World::addTerrainEast(){
      threadVector.at(i).join();
   }
   
+  terrainMutex.lock();
   for(int y = 0; y < ySize; y++){
     terrainVector.at(y).insert(terrainVector.at(y).begin(),newTerrainVec.at(y));
   }
+	terrainMutex.unlock();
 
   threadVector.clear();
 
@@ -293,9 +304,11 @@ void World::addTerrainWest(){
      threadVector.at(i).join();
   }
   
+  terrainMutex.lock();
   for(int y = 0; y < ySize; y++){
     terrainVector.at(y).push_back(newTerrainVec.at(y));
   }
+  terrainMutex.unlock();
   
   threadVector.clear();
   
@@ -346,51 +359,58 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 }
 
 void threadAddPatchNorth(World *w){
+	printf("Adding north\n");
   makeWorkerCurrent();
     
-  w->terrainMutex.lock();
   w->addTerrainNorth();
+  w->terrainMutex.lock();
   w->removeTerrainSouth();
   w->terrainMutex.unlock();
   
   makeMainContextCurrent();
+  printf("Adding north done\n");
   w->updatingWorld = false;
 }
 
 void threadAddPatchSouth(World *w){
+	printf("Adding south\n");
   makeWorkerCurrent();
   
-  w->terrainMutex.lock();
   w->addTerrainSouth();
+  w->terrainMutex.lock();
   w->removeTerrainNorth();
   w->terrainMutex.unlock();
   
   makeMainContextCurrent();
+  printf("Adding south done\n");
   w->updatingWorld = false; 
 }
 
 void threadAddPatchWest(World *w){
+	printf("Adding west\n");
   makeWorkerCurrent();
   
-  
-  w->terrainMutex.lock();
   w->addTerrainWest();
+  w->terrainMutex.lock();
   w->removeTerrainEast();
   w->terrainMutex.unlock();
   
   makeMainContextCurrent();
+  printf("Adding west done\n");
   w->updatingWorld = false;
 }
 
 void threadAddPatchEast(World *w){
+printf("Adding east\n");	
   makeWorkerCurrent();
     
-  w->terrainMutex.lock();
   w->addTerrainEast();
+  w->terrainMutex.lock();
   w->removeTerrainWest();
   w->terrainMutex.unlock();
   
   makeMainContextCurrent();
+	printf("Adding east done\n");
   w->updatingWorld = false;
 }
 
@@ -434,6 +454,19 @@ void World::draw(){
   
   skybox->draw(camera->cameraMatrix);
 
+	terrainMutex.lock();
+	
+	for(int y = 0; y < terrainVector.size(); y++){
+    for(int x = 0; x < terrainVector.at(y).size(); x++){
+      TerrainPatch *patch = terrainVector.at(y).at(x);
+      if(patch != NULL){
+	      patch->draw(camera,time);
+      }
+    }
+  }
+
+	terrainMutex.unlock();
+/*
   if(terrainMutex.try_lock()){
 
     for(int y = 0; y < terrainVector.size(); y++){
@@ -455,8 +488,8 @@ void World::draw(){
         }
       }
     }
-    }
-    
+   }
+    */
   //terrainMutex.unlock();
   
 }

@@ -43,8 +43,13 @@ class TerrainPatch
   
   void addPlants();
   bool checkPlantPosition(vec3 pos);
+  
  public:
   int size,blendedSize,patchOverlap; 
+
+  // Position based random seed
+  int seed;
+  RNGType rng;
 
   // Position in world coordinates
   int xPos, yPos;
@@ -65,6 +70,7 @@ class TerrainPatch
   PatchGenerator* patchGenerator;
 
   // Constructor and destructor
+
   TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* phongShader, GLuint *terrainTexture);
   ~TerrainPatch();
 
