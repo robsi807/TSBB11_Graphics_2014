@@ -63,7 +63,6 @@ class Camera
 
   static const int SCREEN_WIDTH = 1280;
   static const int SCREEN_HEIGHT = 720;
-  
   mat4 cameraMatrix;
   mat4 projectionMatrix;
   Camera(vec3 pos, GLfloat vel, GLfloat sens, std::vector<std::vector<TerrainPatch*>> *terrain, int sizePatch, int overlap, int sizeGrid);

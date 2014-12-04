@@ -1,11 +1,17 @@
 #include "ValuePatchGenerator.h"
 
 //Constructor
-ValuePatchGenerator::ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize){
+ValuePatchGenerator::ValuePatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize,int x,int y){
     biotope = inputBiotope;
     NoF = inputNoF;
     amplitudeScale = inputAmplitude;
     gridSize = inputSize;
+
+    //Position based seed
+    int n=x+y*57;
+    n=(n<<13)^n;
+    seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
+    rng.seed(seed);
 }
 
 //Prints any matrix in matrix form, not as a vector
@@ -42,10 +48,13 @@ float ValuePatchGenerator::interpolateValues(float a, float b, float x){
 vector<float> ValuePatchGenerator::createGradients(int gradientPoints) {
 	vector<float> gradients;
     float value;
-    
-	for(int row = 0; row < gradientPoints; row++) {
+ 
+    boost::uniform_int<> one_to_six( 0, INT_MAX );
+    boost::variate_generator<RNGType, boost::uniform_int<>> dice(rng, one_to_six);
+	
+  for(int row = 0; row < gradientPoints; row++) {
 		for(int col = 0; col < gradientPoints; col++) {
-            value = (rand() / (float)INT_MAX)*(rand() / (float)INT_MAX);
+            value = (dice() / (float)INT_MAX)*(dice()/(float)INT_MAX);
             gradients.push_back(value);
        	} 
 	}
@@ -86,7 +95,7 @@ vector<float> ValuePatchGenerator::createPatch(int frequency, int gradientPoints
 
 		} 
 	}
-
+  gradients.clear();
 	return finalGrid;	
 }
 
@@ -101,11 +110,7 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y)
     
 	heightMapPatch.assign(gridSize*gridSize,0);
     
-    //Position based seed
-    int n=x+y*57;
-    n=(n<<13)^n;
-    int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
-    srand(seed);
+  //srand(seed);
 
 	//Creates a height map for each frequency, and adds them together 
 	for(int n = 1; n <= NoF; n = n+2){ 
@@ -127,6 +132,7 @@ vector<float> ValuePatchGenerator::generatePatch(int x, int y)
 		heightMapPatch = addMatrices(heightMapPatch, tempPatch);
  
 	}
+	tempPatch.clear();
 	return heightMapPatch;
 }
 

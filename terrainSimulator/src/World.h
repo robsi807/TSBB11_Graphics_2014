@@ -15,9 +15,6 @@
 #endif
 
 #include "Camera.h"
-#include "PatchGenerator.h"
-#include "PerlinPatchGenerator.h"
-#include "ValuePatchGenerator.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
 #include "LinearBlender.h"
@@ -36,15 +33,17 @@
 
 // Patch specific defines
 
-#define PATCH_OVERLAP 64
-#define PATCH_SIZE 256
-#define GRID_BEGIN_SIZE 5
+#define PATCH_OVERLAP 128
+#define PATCH_SIZE 512
+#define GRID_BEGIN_SIZE 9
 
 // Direction specific defines
 #define NORTH 8
 #define SOUTH 2
 #define EAST 6
 #define WEST 4
+
+using namespace std;
 
 class World
 {
@@ -53,8 +52,6 @@ class World
     GLfloat time;
     int patchOverlap,patchSize;
     void init();
-    void drawTerrainVector(TerrainPatch* t);
-    
 
   public:
     GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader;
@@ -65,21 +62,12 @@ class World
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
-    PatchGenerator* patchGenerator;
+    //PatchGenerator* patchGenerator;
     Blender* blender;
     Model* plantModel; // TODO: Add to destructor
 
-    std::vector<vector<TerrainPatch*>> terrainVector;
-    std::mutex terrainMutex;
-    std::mutex terrainGenerationMutex; // so generation threads can block each other
-    std::mutex terrainWriteMutex; // so that generation can synch with drawing.
-    
-    
-    std::vector<TerrainPatch*> terrainRow;
-    std::mutex terrainRowMutex;
-    
-    
-    std::vector<TerrainPatch*> generatedTerrain;
+    vector<vector<TerrainPatch*>> terrainVector;
+    mutex terrainMutex;
     
     bool updatingWorld;
 
@@ -103,5 +91,12 @@ class World
     void update();
     void updateTerrain();
 };
+
+// Threading functions
+void threadGeneratePatch(World *w, int x, int y, vector<TerrainPatch*> *terrainRow, std::mutex * lock, int index);
+void threadAddPatchNorth(World *w);
+void threadAddPatchSouth(World *w);
+void threadAddPatchEast(World *w);
+void threadAddPatchWest(World *w);
 
 #endif

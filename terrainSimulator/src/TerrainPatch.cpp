@@ -1,8 +1,9 @@
 #include "TerrainPatch.h"
 
+
 //Constructor
-TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade,Model* plantModel) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
-  
+TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade) : xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
+
   //blendedSize is +1 to have one more vertex than size
   blendedSize = patchSize-overlap+1;
  
@@ -16,8 +17,16 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   //generateGeometry();
   geometry = NULL;
   geometryBoolean = false;
-  
+
   heightScale = 400;
+  
+  int biotope = 1; // 1 = mountains, 2 = desert
+  int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
+  int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.  
+  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,x,y);
+  rawHeightMap = patchGenerator->generatePatch(x,y);
+  blendedHeightMap = rawHeightMap;
+
 }
 //Calculates the normal of
 vec3 TerrainPatch::calcNormal(vec3 v0, vec3 v1, vec3 v2)
@@ -281,18 +290,29 @@ float TerrainPatch::calcHeight(float xPos,float zPos)
 
 
 TerrainPatch::~TerrainPatch(){
-  std::cout << "TerrainPatch destructor is used, geometry is deleted\n";
-  delete geometry;
   
-  // Delete all objects in the object vector
+  cout << "Deleting patch x= " << xGrid << " y= " << yGrid << endl;
+  
+  if(hasGeometry()) {
+  
+		free(geometry->vertexArray);   
+	  free(geometry->texCoordArray); 
+	  free(geometry->normalArray);   
+	  free(geometry->indexArray);     
+  }
+  
   objects.clear();
+  rawHeightMap.clear();
+  blendedHeightMap.clear();
+  delete geometry;
+  delete patchGenerator;
   
 }
 
 
 void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float time){
 
-  if(hasGeometry()){
+  if(hasGeometry() && geometry != NULL){
     mat4 cameraMatrix = cam->cameraMatrix;
     mat4 modelView = T(xPos-patchOverlap/2,0, yPos-patchOverlap/2);
     // Draw terrain normally
