@@ -21,14 +21,14 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
   heightScale = 400;
   
   int biotope = 1; // 1 = mountains, 2 = desert
-  int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
+  int NoF = 9; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
   int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.  
   
   int n=x+y*57;
   n=(n<<13)^n;
   seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
   rng.seed(seed);
-  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
+  patchGenerator = new PerlinPatchGenerator(biotope, NoF, amplitude, patchSize,seed);
   rawHeightMap = patchGenerator->generatePatch(x,y);
   blendedHeightMap = rawHeightMap;
 

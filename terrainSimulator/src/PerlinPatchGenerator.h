@@ -19,13 +19,20 @@
 #include <vector>
 #include <climits>
 #include <iostream>
+#include <random>
+
+// Random things
+#include "boost/random.hpp"
+#include "boost/generator_iterator.hpp"
 
 using namespace std;
+
+typedef boost::mt19937 RNGType;
 
 class PerlinPatchGenerator : public PatchGenerator{
 
   private:
-
+    int seed;
     int biotope;
     int NoF;
     int amplitudeScale;
@@ -38,7 +45,10 @@ class PerlinPatchGenerator : public PatchGenerator{
     float dotProduct(vector<float> a,float b[2]);
 
   public:
-    PerlinPatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize);
+
+    RNGType rng;
+
+    PerlinPatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize, int seed);
     void printMatrix(vector<float> matrix);
     vector<float> generatePatch(int xPatch, int yPatch);
 

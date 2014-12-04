@@ -1,11 +1,13 @@
 #include "PerlinPatchGenerator.h"
 
 //Constructor
-PerlinPatchGenerator::PerlinPatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize){
+PerlinPatchGenerator::PerlinPatchGenerator(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize, int seed){
     biotope = inputBiotope;
     NoF = inputNoF;
     amplitudeScale = inputAmplitude;
     gridSize = inputSize;
+
+    rng.seed(seed);
 }
 
 //Prints any matrix in matrix form, not as a vector
@@ -46,11 +48,13 @@ vector<vector<float>> PerlinPatchGenerator::createGradients(int gradientPoints) 
 	vector<vector<float>> gradients;
     float value,value2,norm;
     
-    
+    boost::uniform_int<> one_to_six( 0, INT_MAX );
+    boost::variate_generator<RNGType, boost::uniform_int<>> dice(rng, one_to_six);
+   
 	for(int row = 0; row < gradientPoints; row++) {
 		for(int col = 0; col < gradientPoints; col++) {
-            value = rand() / (float)INT_MAX;
-            value2 = rand() / (float)INT_MAX;
+            value = dice() / (float)INT_MAX;
+            value2 = dice() / (float)INT_MAX;
             norm = (float)sqrt(value * value + value2 * value2);
             value = value/norm;
             value2 = value2/norm;
