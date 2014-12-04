@@ -76,11 +76,6 @@ class Camera
   // Frustum checks
   bool isInFrustum(TerrainPatch* patch);
   bool isInFrustum(Plant* plant);
-
-  // DEBUGGING PURPOSE CODE START
-  int addTerrain;
-  int terrainTimer; // Causes wierd bugs without this
-  // DEBUGGING PURPOSE CODE END
 };
 
 #endif

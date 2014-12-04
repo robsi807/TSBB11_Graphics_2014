@@ -112,16 +112,6 @@ World::World(){
   generateStartingPatches(GRID_BEGIN_SIZE);
 }
 
-void threadGeneratePatch(World *w, int x, int y, vector<TerrainPatch*> *terrainRow, std::mutex * lock, int index)
-{
-  //cout << "Index is: " << index << endl;
-  TerrainPatch* newPatch = w->generatePatch(x,y);
-  lock->lock();
-  //  terrainRow->insert(terrainRow->begin()+index, newPatch);
-  terrainRow->at(index) = newPatch;
-  lock->unlock();
-}
-
 void World::generateStartingPatches(int startSize){
 
   vector<thread> threadVector;
@@ -154,7 +144,7 @@ void World::generateStartingPatches(int startSize){
   for(int y = 1; y < startSize-1; y++){
     for(int x = 1; x < startSize-1; x++){
       terrainVector.at(y).at(x)->generateAndUploadGeometry();
-      printf("Generating geometry @ %i, %i\n", terrainVector.at(y).at(x)->xGrid, terrainVector.at(y).at(x)->yGrid);
+      //printf("Generating geometry @ %i, %i\n", terrainVector.at(y).at(x)->xGrid, terrainVector.at(y).at(x)->yGrid);
     }
   }
 }
@@ -194,7 +184,7 @@ void World::addTerrainSouth() {
   for(int x = 1; x < xSize-1; x++){
     terrainVector.at(1).at(x)->generateAndUploadGeometry();
   }
-  printf("Terrain added south at yGrid = %i.\n",yGrid);
+  //printf("Terrain added south at yGrid = %i.\n",yGrid);
 
 }
 
@@ -232,9 +222,9 @@ void World::addTerrainNorth() {
 
   for(int x = 1; x < xSize-1; x++){
     terrainVector.at(ySize-1).at(x)->generateAndUploadGeometry();
-    printf("Generating geometry @ %i, %i\n", terrainVector.at(ySize-1).at(x)->xGrid, terrainVector.at(ySize-1).at(x)->yGrid);
+    //printf("Generating geometry @ %i, %i\n", terrainVector.at(ySize-1).at(x)->xGrid, terrainVector.at(ySize-1).at(x)->yGrid);
   }
-  printf("Terrain added north at yGrid = %i.\n",yGrid);  
+  //printf("Terrain added north at yGrid = %i.\n",yGrid);  
 }
 
 void World::addTerrainEast(){
@@ -317,7 +307,7 @@ void World::addTerrainWest(){
   for(int y = 1; y < ySize-1; y++){
     terrainVector.at(y).at(xSize-1)->generateAndUploadGeometry();
   }
-  printf("Terrain added east at xGrid = %i\n",xGrid);
+  //printf("Terrain added west at xGrid = %i\n",xGrid);
 
 }
 
@@ -358,94 +348,11 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 
 }
 
-void threadAddPatchNorth(World *w){
-	printf("Adding north\n");
-  makeWorkerCurrent();
-    
-  w->addTerrainNorth();
-  w->terrainMutex.lock();
-  w->removeTerrainSouth();
-  w->terrainMutex.unlock();
-  
-  makeMainContextCurrent();
-  printf("Adding north done\n");
-  w->updatingWorld = false;
-}
-
-void threadAddPatchSouth(World *w){
-	printf("Adding south\n");
-  makeWorkerCurrent();
-  
-  w->addTerrainSouth();
-  w->terrainMutex.lock();
-  w->removeTerrainNorth();
-  w->terrainMutex.unlock();
-  
-  makeMainContextCurrent();
-  printf("Adding south done\n");
-  w->updatingWorld = false; 
-}
-
-void threadAddPatchWest(World *w){
-	printf("Adding west\n");
-  makeWorkerCurrent();
-  
-  w->addTerrainWest();
-  w->terrainMutex.lock();
-  w->removeTerrainEast();
-  w->terrainMutex.unlock();
-  
-  makeMainContextCurrent();
-  printf("Adding west done\n");
-  w->updatingWorld = false;
-}
-
-void threadAddPatchEast(World *w){
-printf("Adding east\n");	
-  makeWorkerCurrent();
-    
-  w->addTerrainEast();
-  w->terrainMutex.lock();
-  w->removeTerrainWest();
-  w->terrainMutex.unlock();
-  
-  makeMainContextCurrent();
-	printf("Adding east done\n");
-  w->updatingWorld = false;
-}
-
 void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
 
   updateTerrain();
   camera->update();
-
-   if(camera->addTerrain != 0){
-
-    if(camera->addTerrain == NORTH){
-      camera->addTerrain = 0;
-      thread threadNorth(threadAddPatchNorth, this);
-      threadNorth.detach();
-
-    }
-    else if(camera->addTerrain == SOUTH){
-      camera->addTerrain = 0;
-      thread threadSouth(threadAddPatchSouth, this);
-      threadSouth.detach();
-
-    }
-    else if(camera->addTerrain == EAST){
-      camera->addTerrain = 0;
-      thread threadEast(threadAddPatchEast, this);
-      threadEast.detach();
-
-    }
-    else if(camera->addTerrain == WEST){
-      camera->addTerrain = 0;
-      thread threadWest(threadAddPatchWest, this);
-      threadWest.detach();
-    }
-  }
 }
 
 void World::draw(){
@@ -521,7 +428,7 @@ void World::updateTerrain(){
         threadWest.detach(); 
     }
     
-    if(yCam < yPatch) { // move SOUTH.
+    else if(yCam < yPatch) { // move SOUTH.
         updatingWorld = true;
         thread threadSouth(threadAddPatchSouth, this);
         threadSouth.detach();
@@ -540,4 +447,63 @@ World::~World(){
   delete skybox;
   delete blender;
   terrainVector.clear();
+}
+
+// Threading functions
+void threadGeneratePatch(World *w, int x, int y, vector<TerrainPatch*> *terrainRow, std::mutex * lock, int index)
+{
+  //cout << "Index is: " << index << endl;
+  TerrainPatch* newPatch = w->generatePatch(x,y);
+  lock->lock();
+  //  terrainRow->insert(terrainRow->begin()+index, newPatch);
+  terrainRow->at(index) = newPatch;
+  lock->unlock();
+}
+
+void threadAddPatchNorth(World *w){
+  makeWorkerCurrent();
+    
+  w->addTerrainNorth();
+  w->terrainMutex.lock();
+  w->removeTerrainSouth();
+  w->terrainMutex.unlock();
+  
+  makeMainContextCurrent();
+  w->updatingWorld = false;
+}
+
+void threadAddPatchSouth(World *w){
+  makeWorkerCurrent();
+  
+  w->addTerrainSouth();
+  w->terrainMutex.lock();
+  w->removeTerrainNorth();
+  w->terrainMutex.unlock();
+  
+  makeMainContextCurrent();
+  w->updatingWorld = false; 
+}
+
+void threadAddPatchWest(World *w){
+  makeWorkerCurrent();
+  
+  w->addTerrainWest();
+  w->terrainMutex.lock();
+  w->removeTerrainEast();
+  w->terrainMutex.unlock();
+  
+  makeMainContextCurrent();
+  w->updatingWorld = false;
+}
+
+void threadAddPatchEast(World *w){
+  makeWorkerCurrent();
+    
+  w->addTerrainEast();
+  w->terrainMutex.lock();
+  w->removeTerrainWest();
+  w->terrainMutex.unlock();
+  
+  makeMainContextCurrent();
+  w->updatingWorld = false;
 }

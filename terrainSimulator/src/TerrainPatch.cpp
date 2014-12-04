@@ -335,7 +335,7 @@ float TerrainPatch::calcHeight(float xPos,float zPos)
 
 TerrainPatch::~TerrainPatch(){
   
-  cout << "Deleting patch x= " << xGrid << " y= " << yGrid << endl;
+  //cout << "Deleting patch x= " << xGrid << " y= " << yGrid << endl;
   
   if(hasGeometry()) {
   

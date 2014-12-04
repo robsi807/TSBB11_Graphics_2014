@@ -43,10 +43,6 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
 
   frustumPlanes = new Frustum(this);
 
-  // DEBUGGING PURPOSE CODE START
-  addTerrain = 0;
-  terrainTimer = 0; 
-  // DEBUGGING PURPOSE CODE END
 }
 // Constructor for initializing frustum
 /*Camera::Camera(float left, float right, float bottom, float top, float near, float far)
@@ -190,31 +186,6 @@ void Camera::handleKeyPress()
 
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
-  // DEBUGGING PURPOSE CODE START
-  if(terrainTimer > 100){
-    if(keyIsDown('8'))
-      {
-	addTerrain = 8;
-	terrainTimer = 0; 
-      }
-    if(keyIsDown('6'))
-      {
-	addTerrain = 6;
-	terrainTimer = 0; 
-      }
-    if(keyIsDown('2'))
-      {
-	addTerrain = 2;
-	terrainTimer = 0; 
-      }
-    if(keyIsDown('4'))
-      {
-	addTerrain = 4;
-	terrainTimer = 0; 
-      }
-  }
-  terrainTimer++; 
-  // DEBUGGING PURPOSE CODE END
 }
 
 void Camera::handleMouse(int x, int y)
@@ -251,15 +222,6 @@ void Camera::handleMouse(int x, int y)
 
 void Camera::update()
 {
-  //vec3 r = Normalize(VectorSub(lookAtPoint, position)); // Forward Direction
-  //vec3 temp = CrossProduct(upVector, r);
-  // std::cout << "temp.x = " << std::abs(temp.x) << std::endl;
-  // std::cout << "temp.y = " << std::abs(temp.y) << std::endl;
-  // std::cout << "temp.z = " << std::abs(temp.z) << std::endl;
-
-  //if(std::abs(temp.x)  > 0.09 || std::abs(temp.y) > 0.09 || std::abs(temp.z) > 0.09)
-
-
 
   // calc patch coordinate to adjust our height.
 
