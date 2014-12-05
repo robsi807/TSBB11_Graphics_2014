@@ -92,7 +92,8 @@ World::World(){
 #endif
 
   // Loading of plant model, and shader uploads and initialization of plants
-  //Plant::initPlants(&phongShader,&plantShader,&plantShader);
+#if PLANTS==1  
+  Plant::initPlants(&phongShader,&plantShader,&plantShader);
  
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
@@ -103,7 +104,8 @@ World::World(){
   glUniform1i(glGetUniformLocation(plantShader,"grassTex"),4);
   glActiveTexture(GL_TEXTURE0+5);
   glUniform1i(glGetUniformLocation(plantShader,"noiseTex"),5);
-  
+#endif  
+
   glUseProgram(phongShader);
   // Upload textures to phong shader
   glActiveTexture(GL_TEXTURE0+2);
