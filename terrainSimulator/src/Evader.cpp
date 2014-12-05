@@ -58,20 +58,12 @@ void Evader::draw(mat4 cameraMatrix)
 
 // void Evader::animate(GLfloat time)
 // {
-//   float xSpeed = cos(time);
-//   float ySpeed = 2*sin(time);
-//   float zSpeed = sin(time);
-
-//   //speed = vec3(xSpeed,ySpeed,zSpeed);
-
-//   //Create bone class to perform skinning. Insert bone to model here and animate.
-
-//   position += speed;
+ 
 // }
 
 void Evader::updateLeader(GLfloat time)
 {
-  // To make the flock not change direction so often, update offsetVec every 0.3 sec.
+  // To make the flock not change direction so often, update offsetVec every 2.0 sec.
   if((time - prevTime) > 2.0)
     {
       prevTime = time;
@@ -82,8 +74,6 @@ void Evader::updateLeader(GLfloat time)
       //boost::random::random_device rd;
       //boost::random::mt19937 generator(rd());
       boost::random::mt19937 generator(rand());
-      //std::uniform_real_distribution<> dis(-1, 1);
-      //std::default_random_engine generator;
       boost::random::uniform_real_distribution<float> distribution(lowInterval, highInterval); //(-1.0, 1.0)
       //boost::variate_generator<boost::random::mt19937, boost::random::uniform_real_distribution<float>> dice(generator, distribution);
 

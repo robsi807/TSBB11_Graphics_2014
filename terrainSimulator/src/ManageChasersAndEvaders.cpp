@@ -260,12 +260,12 @@ void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
       // 	camSpeed /= 2.0;
       // cam->position = camSpeed*0.7;
 
-      // // Follow chaser 0
-      // vec3 speedChaserXZ = chasers->chaserVector.at(0).speed;
-      // speedChaserXZ.y = 0.0;
-      // cam->lookAtPoint = chasers->chaserVector.at(0).position;
-      // cam->position = chasers->chaserVector.at(0).position - Normalize(speedChaserXZ)*3.0;
-      // cam->position.y += 2.0;
+      // Follow chaser 0
+      vec3 speedChaserXZ = chasers->chaserVector.at(0).speed;
+      speedChaserXZ.y = 0.0;
+      cam->lookAtPoint = chasers->chaserVector.at(0).position;
+      cam->position = chasers->chaserVector.at(0).position - Normalize(speedChaserXZ)*3.0;
+      cam->position.y += 2.0;
     }
 
   // // Test

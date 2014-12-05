@@ -29,6 +29,8 @@ Chaser::Chaser(GLuint *phongShader, Model *chaserModel, GLuint chaserTexture, ve
   zMax = cameraPosition.z + 256.0;
   
   makeIndividuals(numOfBoids, pos);
+
+  prevTime = 0.0;
 }
 
 /*Chaser::~Chaser()
@@ -60,40 +62,25 @@ void Chaser::draw(mat4 cameraMatrix)
 
 void Chaser::setRandomSpeed(Boid *boidI, GLfloat time)
 {
-  // boost::random::random_device rd;
-  // //boost::mt19937 generator(rd());
-  // boost::random::mt19937 generator(rd());
-  // //std::uniform_real_distribution<> dis(-1, 1);
-  // //std::default_random_engine generator;
-  // boost::random::uniform_real_distribution<float> distribution(lowInterval, highInterval); //(-1.0, 1.0)
+  // To make the flock not change direction so often, update offsetVec every 2.0 sec.
+  if((time - prevTime) > 1.0)
+    {
+      prevTime = time;
+      boost::random::mt19937 generator(rand());
+      boost::random::uniform_real_distribution<float> distribution(lowInterval, highInterval);
 
-  // float xOffset = distribution(generator);
-  // float yOffset = distribution(generator);
-  // float zOffset = distribution(generator);
+      float xOffset = distribution(generator);
+      float yOffset = distribution(generator);
+      float zOffset = distribution(generator);
 
-  //boost::random::random_device rd;
-  //boost::mt19937 generator(rd());
-  boost::random::mt19937 generator(time);
-  //std::uniform_real_distribution<> dis(-1, 1);
-  //std::default_random_engine generator;
-  boost::random::uniform_real_distribution<float> distribution(lowInterval, highInterval); //(-1.0, 1.0)
-  boost::variate_generator<boost::random::mt19937, boost::random::uniform_real_distribution<float>> dice(generator, distribution);
+      // cout << "xOffset = " << xOffset << " zOffset = " << zOffset << endl;
+      // cout << "lowInterval = " << lowInterval << endl;
+      // cout << "highInterval = " << highInterval << endl;
 
-  float xOffset = dice();//distribution(generator);
-  float yOffset = dice();//distribution(generator);
-  float zOffset = dice();//distribution(generator);
-
-  // cout << "xOffset = " << xOffset << " zOffset = " << zOffset << endl;
-  // cout << "lowInterval = " << lowInterval << endl;
-  // cout << "highInterval = " << highInterval << endl;
-
-  vec3 offsetVec = vec3(xOffset, yOffset/2.0, zOffset); // for testing: vec3(0,0,0);
-  boidI->speed += offsetVec/2.0;
-
-  //if(Norm(boidI->speed) > maxSpeed)
-  //boidI->speed /= 2.0;
-
-  //boidI->position += boidI->speed;
+      vec3 offsetVec = vec3(xOffset, yOffset/2.0, zOffset); // for testing: vec3(0,0,0);
+      tempSpeed = offsetVec/2.0;
+    }
+  boidI->speed += tempSpeed;
 }
 
 void Chaser::checkMaxSpeed(Boid *boid)

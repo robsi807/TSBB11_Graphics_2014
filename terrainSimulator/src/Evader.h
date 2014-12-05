@@ -5,16 +5,9 @@
 #include "../common/loadobj.h"
 
 #include "Boid.h"
-//#include "Camera.h"
-
-//#include <boost/random.hpp>
-#include <boost/random/random_device.hpp>
-
 
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random.hpp>
-//#include <boost/random/random_device.hpp>
 
 #include <cmath>
 #include <iostream>
