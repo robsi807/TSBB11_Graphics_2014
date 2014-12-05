@@ -1,0 +1,24 @@
+% This File makes it pocible to only compile one chapter
+% without the Frontpages, makes it easier to focus...
+
+% just write the chapter you want in the input-statement,
+% change the root-document to compile under settings,
+% If you need the Bibliography; simply comment out the begin/end comment!
+
+\documentclass[a4paper, 11pt, oneside, draft]{Thesis}
+\input{Settings/Packages.tex}
+\begin{document}
+
+%% ----------------------------------------------------------------
+\input{Chapters/Chapter1}
+%% ----------------------------------------------------------------
+
+\begin{comment}
+    \label{Bibliography}
+    \lhead{\emph{Bibliography}}
+    \bibliographystyle{unsrtnat}
+    \bibliography{Bibliography}
+\end{comment}
+
+
+\end{document}
