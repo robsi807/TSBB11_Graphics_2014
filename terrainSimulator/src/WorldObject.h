@@ -11,7 +11,7 @@ class WorldObject{
 
   public:
     vec3 position;
-    virtual void draw(mat4 cameraMatrix, float time) = 0;
+    virtual void draw(mat4 cameraMatrix,vec3 camPos, float time) = 0;
 };
 
 

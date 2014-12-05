@@ -48,7 +48,7 @@ class Plant : public WorldObject {
   vec3 globalPosition;
 
   Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos,PlantType plantType);
-  void draw(mat4 cameraMatrix,float time);
+  void draw(mat4 cameraMatrix,vec3 camPos,float time);
   
 };
 
