@@ -28,21 +28,6 @@
 
 #include <mutex>
 
-//#include "../common/VectorUtils3.h"
-//#include "../common/GL_utilities.h"
-
-// Patch specific defines
-
-#define PATCH_OVERLAP 128
-#define PATCH_SIZE 512
-#define GRID_BEGIN_SIZE 9
-
-// Direction specific defines
-#define NORTH 8
-#define SOUTH 2
-#define EAST 6
-#define WEST 4
-
 using namespace std;
 
 class World
