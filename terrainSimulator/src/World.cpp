@@ -14,7 +14,7 @@ World::World(){
   terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
   //terrainShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
   phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
-  birdShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
+  birdShader = loadShaders("shaders/phongBird.vert", "shaders/phongBird.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
   plantShader = loadShadersG("shaders/plant.vert","shaders/plant.frag","shaders/plant.gs");
 #if GRASS == 1

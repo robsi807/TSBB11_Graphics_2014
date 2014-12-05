@@ -16,22 +16,20 @@ ManageChasersAndEvaders::ManageChasersAndEvaders(GLuint* phongShader, char *mode
   glUseProgram(*shader);
 
   //________________Evader________________
-  glActiveTexture(GL_TEXTURE7);
-  //glActiveTexture(GL_TEXTURE0+7);
-  //glGenTextures(1, &evaderTexture);
-  //glBindTexture(GL_TEXTURE_2D, evaderTexture);
+  glActiveTexture(GL_TEXTURE8);
+  glGenTextures(1, &evaderTexture);
+  glBindTexture(GL_TEXTURE_2D, evaderTexture);
   LoadTGATextureSimple(imagePathEvader, &evaderTexture);
   
-  glUniform1i(glGetUniformLocation(*shader, "tex"), 7); // Texture unit 7
+  glUniform1i(glGetUniformLocation(*shader, "evaderTexture"), 8); // Texture unit 8
 
   //________________Chaser________________
-  glActiveTexture(GL_TEXTURE8);
-  //glActiveTexture(GL_TEXTURE0+8);
-  //glGenTextures(1, &chaserTexture);
-  //glBindTexture(GL_TEXTURE_2D, chaserTexture);
+  glActiveTexture(GL_TEXTURE9);
+  glGenTextures(1, &chaserTexture);
+  glBindTexture(GL_TEXTURE_2D, chaserTexture);
   LoadTGATextureSimple(imagePathChaser, &chaserTexture);
  
-  glUniform1i(glGetUniformLocation(*shader, "tex"), 8); // Texture unit 8
+  glUniform1i(glGetUniformLocation(*shader, "chaserTexture"), 9); // Texture unit 9
 
   //evaderModel = LoadModelPlus(modelPathEvader);
 
@@ -57,7 +55,6 @@ ManageChasersAndEvaders::ManageChasersAndEvaders(GLuint* phongShader, char *mode
   // fp=fopen("country_sounds.wav", "rb");
 }
 
-// "../textures/skybox/skybox2/sky%d.tga"
 void ManageChasersAndEvaders::loadEvaderModels()
 {
   char *modelPath = "../objects/evader/crow/crow%d.obj";
@@ -221,6 +218,7 @@ for(int i = 0; i < numberOfFlocks; i++)
     }
 
   int numberOfChasers = chasers->chaserVector.size();
+  //TODO: Fix so that chasers are updated even if they are far from evaders.
   for(int i = 0; i < numberOfChasers; i++)
     {
       int indexNearest = nearestFlock(chasers->chaserVector.at(i));
@@ -249,7 +247,7 @@ for(int i = 0; i < numberOfFlocks; i++)
       if(birdView)
 	{
 	  cam->position = flocks.at(cam->flockIndex)->evaderVector.at(0).averagePosition - Normalize(speedXZ)*3.0;
-	  cam->position.y += 2.0;
+	  cam->position.y += 1.0;
 	}
       else
 	{
@@ -337,10 +335,10 @@ void ManageChasersAndEvaders::draw(GLfloat time, mat4 cameraMatrix)
   //   {
   //     flocks.at(i)->draw(cameraMatrix);
   //   }
-  //glActiveTexture(GL_TEXTURE0+7);
-  //glBindTexture(GL_TEXTURE_2D, evaderTexture);
+ 
+  glUseProgram(*shader);
+  glUniform1i(glGetUniformLocation(*shader, "evader"), 1);
   animateAndDraw(time,cameraMatrix);
-  //glActiveTexture(GL_TEXTURE0+8);
-  //glBindTexture(GL_TEXTURE_2D, chaserTexture);
+  glUniform1i(glGetUniformLocation(*shader, "evader"), 0);
   chasers->draw(cameraMatrix);
 }

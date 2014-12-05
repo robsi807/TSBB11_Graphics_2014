@@ -12,9 +12,6 @@ Evader::Evader(GLuint *phongShader, Model *evaderModel, GLuint evaderTexture, ve
   minDistance = 5.0;
   awarenessRadius = 40;
 
-  //maxSpeed = vec3(1,1,1);
-  maxSpeed = Norm(vec3(1.3,1.3,1.3)); // Not used now, change to this in checkMaxSpeed
-
   cohesionWeight = 0.002; //0.01
   avoidanceWeight = 0.04; //0.02, 0.2
   alignmentWeight = 0.001; //0.0001;
@@ -75,7 +72,7 @@ void Evader::draw(mat4 cameraMatrix)
 void Evader::updateLeader(GLfloat time)
 {
   // To make the flock not change direction so often, update offsetVec every 0.3 sec.
-  if((time - prevTime) > 0.3)
+  if((time - prevTime) > 2.0)
     {
       prevTime = time;
 
@@ -83,16 +80,16 @@ void Evader::updateLeader(GLfloat time)
       float highInterval = 1.0;
 
       //boost::random::random_device rd;
-      //boost::mt19937 generator(rd());
-      boost::random::mt19937 generator(time);
+      //boost::random::mt19937 generator(rd());
+      boost::random::mt19937 generator(rand());
       //std::uniform_real_distribution<> dis(-1, 1);
       //std::default_random_engine generator;
       boost::random::uniform_real_distribution<float> distribution(lowInterval, highInterval); //(-1.0, 1.0)
-      boost::variate_generator<boost::random::mt19937, boost::random::uniform_real_distribution<float>> dice(generator, distribution);
+      //boost::variate_generator<boost::random::mt19937, boost::random::uniform_real_distribution<float>> dice(generator, distribution);
 
-      float xOffset = dice();//distribution(generator);
-      float yOffset = dice();//distribution(generator);
-      float zOffset = dice();//distribution(generator);
+      float xOffset = distribution(generator); //dice();
+      float yOffset = distribution(generator);
+      float zOffset = distribution(generator);
 
       // cout << "xOffset = " << xOffset << " zOffset = " << zOffset << endl;
       // cout << "lowInterval = " << lowInterval << endl;
