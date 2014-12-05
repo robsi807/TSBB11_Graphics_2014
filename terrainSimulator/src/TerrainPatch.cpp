@@ -121,7 +121,7 @@ void TerrainPatch::generateGeometry(){
 	    normalArray[(x + z * blendedWidth)*3 + 2] = n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
 
 	    texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x1 - offset); // (float)x / size;
-	    texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)x1 - offset); // (float)z / patchHeight;
+	    texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z1 - offset); // (float)z / patchHeight;
 	  }
     for (x = 0; x < blendedWidth-1; x++)
       for (z = 0; z < blendedHeight-1; z++)
