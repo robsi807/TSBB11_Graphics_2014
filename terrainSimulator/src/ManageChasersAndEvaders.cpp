@@ -204,11 +204,11 @@ void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
   int numberOfFlocks = flocks.size();
   //cout << "Number of flocks: " << numberOfFlocks << endl;
 
-  //Test
-for(int i = 0; i < numberOfFlocks; i++)
-    {
-      cout << "Flock at index " << i << " has flockIndex: " << flocks.at(i)->flockIndex << endl;
-    }
+//   //Test
+// for(int i = 0; i < numberOfFlocks; i++)
+//     {
+//       cout << "Flock at index " << i << " has flockIndex: " << flocks.at(i)->flockIndex << endl;
+//     }
   
   for(int i = 0; i < numberOfFlocks; i++)
     {
@@ -293,8 +293,9 @@ void ManageChasersAndEvaders::animate(GLfloat time)
     }
 }
 
-void ManageChasersAndEvaders::animateAndDraw(GLfloat time, mat4 cameraMatrix)
+void ManageChasersAndEvaders::animateAndDraw(GLfloat time, Camera cam)
 {
+  uint outside = 0;
   if((time - prevTime) > 0.010) // 0.010
   {
       for(uint i = 0; i < flocks.size(); i++)
@@ -306,7 +307,10 @@ void ManageChasersAndEvaders::animateAndDraw(GLfloat time, mat4 cameraMatrix)
 	      if(currentAnimationIndex > 40)
 		flocks.at(i)->evaderVector.at(j).animationIndex = 0;
 	      
-	      flocks.at(i)->evaderVector.at(j).draw(cameraMatrix,shader,evaderModels.at(flocks.at(i)->evaderVector.at(j).animationIndex),&evaderTexture);
+	      if(cam.isInFrustum(&flocks.at(i)->evaderVector.at(j)))
+		flocks.at(i)->evaderVector.at(j).draw(cam.cameraMatrix,shader,evaderModels.at(flocks.at(i)->evaderVector.at(j).animationIndex),&evaderTexture);
+	      else
+		outside++;
 	      flocks.at(i)->evaderVector.at(j).animationIndex++;
 	      //cout << "Animation index = " << flocks.at(i)->evaderVector.at(j).animationIndex << endl;
 	    }
@@ -322,13 +326,30 @@ void ManageChasersAndEvaders::animateAndDraw(GLfloat time, mat4 cameraMatrix)
   	    uint currentAnimationIndex = flocks.at(i)->evaderVector.at(j).animationIndex;
   	    if(currentAnimationIndex > 40)
   	      flocks.at(i)->evaderVector.at(j).animationIndex = 0;
-  	    flocks.at(i)->evaderVector.at(j).draw(cameraMatrix,shader,evaderModels.at(flocks.at(i)->evaderVector.at(j).animationIndex),&evaderTexture);
+
+	    if(cam.isInFrustum(&flocks.at(i)->evaderVector.at(j)))
+	      flocks.at(i)->evaderVector.at(j).draw(cam.cameraMatrix,shader,evaderModels.at(flocks.at(i)->evaderVector.at(j).animationIndex),&evaderTexture);
   	  }
   	//prevTime = time;
       }
+
+  cout << "Number of evaders outside frustum: " << outside << endl;
 }
 
-void ManageChasersAndEvaders::draw(GLfloat time, mat4 cameraMatrix)
+void ManageChasersAndEvaders::drawChasers(Camera cam)
+{
+  uint outside = 0;
+  for(uint i = 0; i < chasers->chaserVector.size(); i++)
+    {
+      if(cam.isInFrustum(&chasers->chaserVector.at(i)))
+	chasers->chaserVector.at(i).draw(cam.cameraMatrix,shader,chaserModel,&chaserTexture);
+      else
+	outside++;
+    }
+  cout << "Number of chasers outside frustum: " << outside << endl;
+}
+
+void ManageChasersAndEvaders::draw(GLfloat time, Camera cam)
 {
   // int N = flocks.size();
   // for(int i = 0; i < N; i++)
@@ -338,7 +359,8 @@ void ManageChasersAndEvaders::draw(GLfloat time, mat4 cameraMatrix)
  
   glUseProgram(*shader);
   glUniform1i(glGetUniformLocation(*shader, "evader"), 1);
-  animateAndDraw(time,cameraMatrix);
+  animateAndDraw(time,cam);
   glUniform1i(glGetUniformLocation(*shader, "evader"), 0);
-  chasers->draw(cameraMatrix);
+  drawChasers(cam);
+  //chasers->draw(cam);
 }

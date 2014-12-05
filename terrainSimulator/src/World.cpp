@@ -381,7 +381,7 @@ void World::draw(){
 
   terrainMutex.unlock();
 
-  birds->draw(time,camera->cameraMatrix);
+  birds->draw(time,*camera);
   /*
     if(terrainMutex.try_lock()){
 

@@ -29,7 +29,8 @@ class ManageChasersAndEvaders
   int nearestFlock(Boid chaser);
   void loadEvaderModels();
   void animate(GLfloat time);
-  void animateAndDraw(GLfloat time, mat4 cameraMatrix);
+  void animateAndDraw(GLfloat time, Camera cam);
+  void drawChasers(Camera cam);
   void sortFlockIndex(Camera *cam);
   
   GLuint* shader;
@@ -54,7 +55,7 @@ class ManageChasersAndEvaders
 
   ManageChasersAndEvaders(GLuint* phongShader, char *modelPathEvader, char *imagePathEvader, char *modelPathChaser, char *imagePathChaser, Camera cam);
   void update(GLfloat time, Camera *cam);  
-  void draw(GLfloat time, mat4 cameraMatrix);
+  void draw(GLfloat time, Camera cam);
 };
 
 #endif

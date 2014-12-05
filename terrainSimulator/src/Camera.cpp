@@ -154,7 +154,7 @@ void Camera::handleKeyPress()
     {
       flying = true;
     }
-  if(keyIsDown('n'))
+  if(keyIsDown('M') && !followFlock)
     {
       flying = false;
     }
@@ -174,7 +174,7 @@ void Camera::handleKeyPress()
     {
       lockFrustum = true;
     }
-  if(keyIsDown('3'))
+  if(keyIsDown('!'))
     {
       lockFrustum = false;
     }
@@ -186,7 +186,7 @@ void Camera::handleKeyPress()
       printf("Pos: (%3.1f,%3.1f,%3.1f)\n",position.x,position.y,position.z);
       printf("Dir: ((%1.2f,%1.2f,%1.2f))\n",dir.x,dir.y,dir.z);
     }
-  if(keyIsDown('o') && timer > 30)
+  if(keyIsDown('o') && timer > 20 && flying)
     {
       timer = 0;
       followFlock = true;
@@ -300,12 +300,17 @@ vec3 Camera::getPosition(){
   return position;
 }
 
-//Check if a patch in inside the frustum
+//Check if a patch is inside the frustum
 bool Camera::isInFrustum(TerrainPatch* patch){
   return frustumPlanes->containsPatch(patch);
 }
 
-//Check if a plant in inside the frustum
+//Check if a plant is inside the frustum
 bool Camera::isInFrustum(Plant* plant){
   return frustumPlanes->containsPlant(plant);
+}
+
+//Check if a boid is inside the frustum
+bool Camera::isInFrustum(Boid* boid){
+  return frustumPlanes->containsBoid(boid);
 }

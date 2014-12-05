@@ -16,6 +16,7 @@
 
 #include "VectorUtils3.h"
 #include "Camera.h"
+#include "Boid.h"
 
 #include <cmath>
 
@@ -40,6 +41,7 @@ class Frustum{
   bool containsPatch(class TerrainPatch* patch);
   bool checkPatch(class TerrainPatch* patch);
   bool containsPlant(class Plant* plant);
+  bool containsBoid(Boid* boid);
 };
 
 float planeDistanceToPoint(Plane plane, vec3 pos);

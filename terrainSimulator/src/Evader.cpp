@@ -13,7 +13,7 @@ Evader::Evader(GLuint *phongShader, Model *evaderModel, GLuint evaderTexture, ve
   awarenessRadius = 40;
 
   cohesionWeight = 0.002; //0.01
-  avoidanceWeight = 0.04; //0.02, 0.2
+  avoidanceWeight = 0.06; //0.02, 0.2
   alignmentWeight = 0.001; //0.0001;
   followWeight = 0.002; //0.004;
   avoidChaserWeight = 0.4;

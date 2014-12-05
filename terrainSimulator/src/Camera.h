@@ -19,6 +19,7 @@
 #include "TerrainPatch.h"
 #include "Frustum.h"
 #include "Plant.h"
+#include "Boid.h"
 
 #include <cmath>
 #include <iostream>
@@ -81,6 +82,7 @@ class Camera
   // Frustum checks
   bool isInFrustum(TerrainPatch* patch);
   bool isInFrustum(Plant* plant);
+  bool isInFrustum(Boid* boid);
 };
 
 #endif
