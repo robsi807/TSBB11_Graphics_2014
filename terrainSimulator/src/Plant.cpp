@@ -19,9 +19,9 @@ void Plant::initPlants(GLuint *shade,GLuint *geoBushShade,GLuint *geoTreeShade){
   treeModel = LoadModelPlus("../objects/tree2.obj");
   treeTrunkModel = LoadModelPlus("../objects/tree2trunk.obj");
 
-  bushModel = LoadModelPlus("../objects/tree1.obj");
+  bushModel = LoadModelPlus("../objects/BushLow.obj");
   bushTrunkModel = NULL;
-
+	glUseProgram(*shader);
   glActiveTexture(GL_TEXTURE0+7);
   LoadTGATextureSimple("../textures/tree1_1024.tga",&woodTexture);
   glUniform1i(glGetUniformLocation(*shader,"tex"),7);
@@ -41,7 +41,7 @@ Plant::Plant(vec3 pos,float yRot,float scaling,vec3 terrainPos,PlantType plantTy
 }
 
 //Draws the plant
-void Plant::draw(mat4 cameraMatrix,float time){
+void Plant::draw(mat4 cameraMatrix,vec3 camPos,float time){
   
   GLuint* geomShader;
   Model *model,*trunkModel;
@@ -66,13 +66,15 @@ void Plant::draw(mat4 cameraMatrix,float time){
     DrawModel(trunkModel,*shader,"inPosition", "inNormal","inTexCoord");
   }
 
-/*
-  glEnable (GL_POLYGON_SMOOTH);
-  glUseProgram(*geomShader);
-  glUniformMatrix4fv(glGetUniformLocation(*geomShader, "mdl2World"), 1, GL_TRUE, mdl2World.m);
-  glUniformMatrix4fv(glGetUniformLocation(*geomShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
-  glUniform1f(glGetUniformLocation(*geomShader,"time"), time); 
-  DrawModel(model, *geomShader, "inPosition", "inNormal","inTexCoord");
-  glDisable (GL_POLYGON_SMOOTH);
-  */
+	// Check if distance too large
+	float maxDist = 500.0;
+	if(Norm(camPos-globalPosition) < maxDist){
+		glEnable (GL_POLYGON_SMOOTH);
+		glUseProgram(*geomShader);
+		glUniformMatrix4fv(glGetUniformLocation(*geomShader, "mdl2World"), 1, GL_TRUE, mdl2World.m);
+		glUniformMatrix4fv(glGetUniformLocation(*geomShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
+		glUniform1f(glGetUniformLocation(*geomShader,"time"), time); 
+		DrawModel(model, *geomShader, "inPosition", "inNormal","inTexCoord");
+		glDisable (GL_POLYGON_SMOOTH);
+  }
 }
