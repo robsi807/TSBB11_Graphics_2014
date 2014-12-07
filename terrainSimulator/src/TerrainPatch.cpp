@@ -1,6 +1,6 @@
 #include "TerrainPatch.h"
 
-TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
+TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int overlap, GLuint* terrainShade, GLuint *grassShade, GLuint *waterShader) : rawHeightMap(tex), blendedHeightMap(tex), xGrid(x), yGrid(y), size(patchSize), patchOverlap(overlap){ 
   
   blendedSize = patchSize-overlap+1;
 
@@ -14,7 +14,8 @@ TerrainPatch::TerrainPatch(vector<float> tex, int patchSize, int x, int y, int o
   //generateGeometry();
   geometry = NULL;
   
-  water = Water(tex, patchSize);
+  //water = Water(tex, patchSize);
+  water = Water(xPos, yPos, waterShader);
   
   geometryBoolean = false;
 
@@ -149,6 +150,8 @@ void TerrainPatch::generateGeometry(){
 	geometry->numVertices = vertexCount;
 	geometry->numIndices = triangleCount*3;
 	
+	water.generateWater(blendedHeightMap, blendedSize, heightScale);
+	
 	// move away when threading...
 	//uploadGeometry();   
 	
@@ -159,6 +162,8 @@ void TerrainPatch::generateGeometry(){
 
 void TerrainPatch::uploadGeometry() {
   cout << "TerrainPatch::uploadGeometry: uploading geometry!\n";
+  
+  water.uploadGeometry();
   
 	BuildModelVAO2(geometry);
 	
@@ -230,6 +235,11 @@ void TerrainPatch::draw(mat4 cameraMatrix,float time){
     glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
     glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
     DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
+#endif
+#if WATER == 1
+
+    water.draw(cameraMatrix, time);
+
 #endif
   }
   else {

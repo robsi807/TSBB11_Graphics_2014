@@ -21,11 +21,14 @@
 //#include <cmath>
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 
 #define WATER_LEVEL 0.1
-#define MOUNTAIN_LEVEL 0.3
-#define NUMBER_OF_WATER_SOURCES = 1;
+#define MOUNTAIN_LEVEL 0.2
+#define NUMBER_OF_WATER_SOURCES 1
+
+#define CUBE_SIZE 1
 
 
 using namespace std;
@@ -35,18 +38,39 @@ class Water
  private:
   //TextureData texture[6];
  
-  GLuint* shader;
+  struct WaterCube
+  {
+    float xPos;
+    float yPos;
+    float zPos;
+    int height;
+    int side;
+  };
+  
+  GLuint* waterShader;
   vector<float> waterMap;
   vector<int> highPointIndexVector; 
   vector<int> waterSources;
+  vector<WaterCube> riverModel;
   int mapSize;
+  
+  float heightScale;
+  int waterHeight;
+  
+  int xPos, yPos;
 
  public:
-  Model* model;
+  Model* surface;
   
   void generateWaterMap(vector<float> initHeightMap, int mapSize);
-  Water(vector<float> initHeightMap, int mapSize);
   void draw(mat4 cameraMatrix,float time);
+  void generateWater(vector<float> blendedHeightMap, int mapSize, float heightScale);
+  void generateWaterModel(float heightScale);
+  void uploadGeometry();
+  
+  
+  Water(vector<float> initHeightMap, int mapSize); // not used
+  Water(int xPos, int yPos,  GLuint *waterShader);
   Water();
   ~Water();
 

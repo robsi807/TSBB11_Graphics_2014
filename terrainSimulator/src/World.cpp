@@ -19,6 +19,9 @@ World::World(){
 #if GRASS == 1
   grassShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/grass.gs");
 #endif
+#if WATER == 1
+  waterShader = loadShaders("shaders/water.vert", "shaders/water.frag");
+#endif
   
   // Init objects
   int biotope = 1; // 1 = mountains, 2 = desert
@@ -48,6 +51,12 @@ World::World(){
   glUniform3fv(glGetUniformLocation(grassShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(grassShader, "specularExponent"), 1, &specularExponent);
   glUniformMatrix4fv(glGetUniformLocation(grassShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
+#endif
+#if WATER == 1
+  glUseProgram(waterShader);
+  glUniform3fv(glGetUniformLocation(phongShader, "lightDirection"), 1, &lightDir.x);
+  glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
+  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
 #endif
 
   glUseProgram(phongShader);
@@ -128,8 +137,8 @@ World::World(){
   
   glUseProgram(phongShader);
   // Upload textures to phong shader
-  glActiveTexture(GL_TEXTURE0+2);
-  glUniform1i(glGetUniformLocation(phongShader, "tex"), 2);
+  glActiveTexture(GL_TEXTURE0+10);
+  glUniform1i(glGetUniformLocation(phongShader, "tex"), 10);
 
   
   glUniform1i(glGetUniformLocation(terrainShader, "water"), 10); 
@@ -293,7 +302,8 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 
   vector<float> heightMapPatch = patchGenerator->generatePatch(patchX, patchY);
 
-  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &grassShader);
+  //return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &terrainShader, &grassShader);
+  return new TerrainPatch(heightMapPatch,patchSize, patchX, patchY,patchOverlap, &phongShader, &grassShader, &waterShader);
 }
 
 
@@ -619,11 +629,14 @@ void World::draw(){
   }
 
   //plant -> draw(camera,time);
+  
+  /*
+  
   mat4 modelView = T(0,35,0);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "world2View"), 1, GL_TRUE, camera->cameraMatrix.m);
   DrawModel(sphere, terrainShader, "inPosition", "inNormal","inTexCoord"); 
-
+  */
 }
 
 void World::updateTerrain(){

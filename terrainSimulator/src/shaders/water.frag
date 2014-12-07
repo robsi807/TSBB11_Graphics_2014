@@ -3,6 +3,7 @@
 in vec2 texCoord;
 in vec3 exNormal;
 in vec3 surf;
+//in vec4 exPosition;
 
 out vec4 outColor;
 
@@ -14,6 +15,7 @@ uniform mat4 mdl2World;
 
 void main(void)
 {
+
 
 	
 	float shade,diffuseShade;
