@@ -5,7 +5,7 @@ body{
 .big-image{
   height: 500px;
   width: 100%;
-  background-image: url("http://crispme.com/wp-content/uploads/33110.jpg");
+  background-image: url("../images/FrontPagePic1.png");
   background-position: center;
 }
 
@@ -32,5 +32,29 @@ body{
 }
 
 .text-muted{
-  font-size: 24px;
+  font-size: 22px;
+  color: #71C6FF; 
 }
+
+.navbar-inverse .navbar-header a{
+  color: #0099FF;
+}
+
+
+.navbar-inverse .navbar-header a:hover, .navbar-inverse .navbar-header a:focus{
+  color: #71C6FF; 
+}
+
+.btn-default{
+  background-color:#0099FF;
+  color: #FFF;
+}
+.btn-default:hover{
+  background-color: #71C6FF; 
+  color: #FFF;
+}
+
+.featurette{
+  position: relative;
+}
+
