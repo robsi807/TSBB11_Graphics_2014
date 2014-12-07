@@ -238,51 +238,49 @@ void Camera::handleMouse(int x, int y)
 
 void Camera::update()
 {
-
-  // calc patch coordinate to adjust our height.
+  // Calc. patch coordinate to adjust our height.
 
   float xPosition,zPosition;    
-  if(position.x < 0) {
-      xPosition = blendedSize-1*(fmod(-1*position.x,(float)(blendedSize)));
-  }  
+  if(position.x < 0.0) {
+    xPosition = blendedSize-1*(fmod(-1*position.x,(float)(blendedSize)));
+  }
   else {
-      xPosition = fmod(position.x,(float)(blendedSize));  
-  }   
-  if(position.z < 0) {
-      zPosition = blendedSize-1*(fmod(-1*position.z,(float)(blendedSize)));
-  } 
+    xPosition = fmod(position.x,(float)(blendedSize));  
+  }
+  if(position.z < 0.0) {
+    zPosition = blendedSize-1*(fmod(-1*position.z,(float)(blendedSize)));
+  }
   else {
-      zPosition = fmod(position.z,(float)(blendedSize));  
-  }   
+    zPosition = fmod(position.z,(float)(blendedSize));  
+  }
 
   int tempPatchXIndex = floor((position.x - xPosition)/(float)(blendedSize));
   int tempPatchZIndex = floor((position.z - zPosition)/(float)(blendedSize));
 
-  int i,j;    
-  if( tempPatchXIndex != actualPatchXIndex || tempPatchZIndex != actualPatchZIndex){     
+  if(tempPatchXIndex != actualPatchXIndex || tempPatchZIndex != actualPatchZIndex){     
     actualPatchXIndex = tempPatchXIndex;        
     actualPatchZIndex = tempPatchZIndex;        
-    for(i = 0; i < gridSize; i++){
-        if(terrainVector->at(i).at(0)->yGrid == actualPatchZIndex){
-            actualPatchRow = terrainVector->at(i);
-        }
+    for(int i = 0; i < gridSize; i++){
+      if(terrainVector->at(i).at(0)->yGrid == actualPatchZIndex){
+	actualPatchRow = terrainVector->at(i);
+      }
     }
-    for(i = 0; i < gridSize; i++){
-        if(actualPatchRow.at(i)->xGrid == actualPatchXIndex){
-            actualPatch = actualPatchRow.at(i);
-        }
+    for(int i = 0; i < gridSize; i++){
+      if(actualPatchRow.at(i)->xGrid == actualPatchXIndex){
+	actualPatch = actualPatchRow.at(i);
+      }
     }
   }
   float actualY = actualPatch->calcHeight(xPosition,zPosition);
   float yDiff = position.y - (actualY + groundOffset);
   if(!flying){
-    position.y += -yDiff/2;
-    lookAtPoint.y += -yDiff/2;
+    position.y += -yDiff/2.0;
+    lookAtPoint.y += -yDiff/2.0;
   }
   else{
-    if(yDiff < 0){
-    position.y += -yDiff/2;
-    lookAtPoint.y += -yDiff/2;
+    if(yDiff < 0.0){
+      position.y += -yDiff/2.0;
+      lookAtPoint.y += -yDiff/2.0;
     }
   }
       
@@ -291,6 +289,83 @@ void Camera::update()
     frustumPlanes->update(this);
 }
 
+// // Not ready yet!
+// float Camera::getActualHight(vec3 objectPos, int objectActualPatchXIndex, int objectActualPatchZIndex)
+// {
+//   float xPosition,zPosition;    
+//   if(objectPos.x < 0.0) {
+//     xPosition = blendedSize-1*(fmod(-1*objectPos.x,(float)(blendedSize)));
+//   }
+//   else {
+//     xPosition = fmod(objectPos.x,(float)(blendedSize));  
+//   }
+//   if(objectPos.z < 0.0) {
+//     zPosition = blendedSize-1*(fmod(-1*objectPos.z,(float)(blendedSize)));
+//   }
+//   else {
+//     zPosition = fmod(objectPos.z,(float)(blendedSize));  
+//   }
+
+//   int tempPatchXIndex = floor((objectPos.x - xPosition)/(float)(blendedSize));
+//   int tempPatchZIndex = floor((objectPos.z - zPosition)/(float)(blendedSize));
+
+//   if(tempPatchXIndex != objectActualPatchXIndex || tempPatchZIndex != objectActualPatchZIndex){
+//     std::vector<TerrainPatch*> objectActualPatchRow;
+//     objectActualPatchXIndex = tempPatchXIndex;        
+//     objectActualPatchZIndex = tempPatchZIndex;        
+//     for(int i = 0; i < gridSize; i++){
+//       if(terrainVector->at(i).at(0)->yGrid == objectActualPatchZIndex){
+// 	objectActualPatchRow = terrainVector->at(i);
+//       }
+//     }
+//     for(int i = 0; i < gridSize; i++){
+//       if(objectActualPatchRow.at(i)->xGrid == objectActualPatchXIndex){
+// 	objectActualPatch = objectActualPatchRow.at(i);
+//       }
+//     }
+//   }
+//   float actualY = objectActualPatch->calcHeight(xPosition,zPosition);
+//   return actualY;
+// }
+
+float Camera::getActualHeight(vec3 objectPos)
+{
+  float xPosition,zPosition;    
+  if(objectPos.x < 0.0) {
+    xPosition = blendedSize-1*(fmod(-1*objectPos.x,(float)(blendedSize)));
+  }
+  else {
+    xPosition = fmod(objectPos.x,(float)(blendedSize));  
+  }
+  if(objectPos.z < 0.0) {
+    zPosition = blendedSize-1*(fmod(-1*objectPos.z,(float)(blendedSize)));
+  }
+  else {
+    zPosition = fmod(objectPos.z,(float)(blendedSize));  
+  }
+
+    std::vector<TerrainPatch*> objectActualPatchRow;
+    TerrainPatch *objectActualPatch;
+
+    int patchXIndex = floor((objectPos.x - xPosition)/(float)(blendedSize));
+    int patchZIndex = floor((objectPos.z - zPosition)/(float)(blendedSize));
+        
+    for(int i = 0; i < gridSize; i++){
+      if(terrainVector->at(i).at(0)->yGrid == patchZIndex){
+	objectActualPatchRow = terrainVector->at(i);
+      }
+    }
+    // Can trig out of range in objectActualPatchRow and probably
+    // earlier in terrainVector also.
+    for(int i = 0; i < gridSize; i++){
+      if(objectActualPatchRow.at(i)->xGrid == patchXIndex){
+	objectActualPatch = objectActualPatchRow.at(i);
+      }
+    }
+
+  float actualY = objectActualPatch->calcHeight(xPosition,zPosition);
+  return actualY;
+}
 
 vec3 Camera::getDirection(){
   return VectorSub(lookAtPoint, position);

@@ -5,6 +5,7 @@
 #include "../common/loadobj.h"
 
 #include "Boid.h"
+#include "Camera.h"
 
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -47,9 +48,10 @@ class Evader
   void updateLeader(GLfloat time);
   void makeFlockOf(int inhabitants, vec3 position);
   bool insideView(Boid boidI, Boid boidJ, float radius);
-  void updateBoundingPositions(vec3 cameraPosition);
+  void updateBoundingPositions(Camera cam);
 
  public:
+  vec3 position, speed;
   Model* model;
   Boid leader;
   int flockIndex;
@@ -58,7 +60,7 @@ class Evader
   Evader(GLuint *phongShader, Model *evaderModel, GLuint evaderTexture, vec3 pos, int numOfBoids, int index, vec3 cameraPosition);
   void draw(mat4 cameraMatrix);
   //void animate(GLfloat time);
-  void update(GLfloat time, vector<Boid> chaserVector, vec3 cameraPosition);
+  void update(GLfloat time, vector<Boid> chaserVector, Camera cam);
   
 };
 

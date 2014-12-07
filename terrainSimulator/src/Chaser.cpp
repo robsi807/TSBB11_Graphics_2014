@@ -11,7 +11,7 @@ Chaser::Chaser(GLuint *phongShader, Model *chaserModel, GLuint chaserTexture, ve
   awarenessRadius = 80.0;
   minDistance = 40.0;
 
-  maxSpeed = Norm(vec3(1.6,1.6,1.6)); // Not used now, change to this in checkMaxSpeed
+  //maxSpeed = Norm(vec3(1.6,1.6,1.6)); // Not used now, change to this in checkMaxSpeed
 
   avoidanceWeight = 0.04;//0.04; //0.02, 0.2
   attackWeight = 0.005; //0.004;
@@ -23,8 +23,8 @@ Chaser::Chaser(GLuint *phongShader, Model *chaserModel, GLuint chaserTexture, ve
   // Bounding the positions inside this cube. Should maybe center around camera position instead.
   xMin = cameraPosition.x - 256.0;
   xMax = cameraPosition.x + 256.0;
-  yMin = 80.0; // should be taken from calcHeight
-  yMax = 300.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
+  //yMin = 80.0; // should be taken from calcHeight
+  yMax = 370.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
   zMin = cameraPosition.z - 256.0;
   zMax = cameraPosition.z + 256.0;
   
@@ -108,30 +108,31 @@ if(Norm(boid->speed) > Norm(mSpeed))
     }
 }
 
-void Chaser::updateBoundingPositions(vec3 cameraPosition)
+void Chaser::updateBoundingPositions(Camera cam)
 {
   // Bounding the positions inside this cube.
-  xMin = cameraPosition.x - 256.0;
-  xMax = cameraPosition.x + 256.0;
-  //yMin = 30.0; // should be taken from calcHeight
+  xMin = cam.position.x - 256.0;
+  xMax = cam.position.x + 256.0;
+  //yMin = cam.getActualHeight(position) + 10.0; //30.0; // should be taken from calcHeight
   //yMax = 300.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
-  zMin = cameraPosition.z - 256.0;
-  zMax = cameraPosition.z + 256.0;
+  zMin = cam.position.z - 256.0;
+  zMax = cam.position.z + 256.0;
 }
 
-void Chaser::update(GLfloat time, int chaserIndex, vector<Boid> evaderVector, vec3 cameraPosition)
+void Chaser::update(GLfloat time, int chaserIndex, vector<Boid> evaderVector, Camera cam)
 {
   /*cout << "Position for chaser: ("
        << chaserVector.at(0).position.x << ","
        << chaserVector.at(0).position.y << ","
        << chaserVector.at(0).position.z << ")" << endl;*/
-  updateBoundingPositions(cameraPosition);
+  updateBoundingPositions(cam);
 
-  searchPrey(chaserIndex, evaderVector, time);
+  searchPrey(chaserIndex, evaderVector, time, cam);
 }
 
-void Chaser::boundPositionBoid(Boid *boid)
+void Chaser::boundPositionBoid(Boid *boid, Camera cam)
 {
+  float yMinBoid = cam.getActualHeight(boid->position) + 30.0;
   if(boid->position.x < xMin)
     {
       boid->speed.x += 0.2;
@@ -145,7 +146,7 @@ void Chaser::boundPositionBoid(Boid *boid)
       highInterval = 0.0;
     }
 
-  else if(boid->position.y < yMin)
+  else if(boid->position.y < yMinBoid)
       boid->speed.y += 0.2;
   else if(boid->position.y > yMax)
       boid->speed.y -= 0.2;
@@ -164,7 +165,7 @@ void Chaser::boundPositionBoid(Boid *boid)
     }
 }
 
-void Chaser::searchPrey(int chaserIndex, vector<Boid> evaderVector, GLfloat time)
+void Chaser::searchPrey(int chaserIndex, vector<Boid> evaderVector, GLfloat time, Camera cam)
 {
   int N = chaserVector.size();
 
@@ -184,7 +185,7 @@ void Chaser::searchPrey(int chaserIndex, vector<Boid> evaderVector, GLfloat time
   checkMaxSpeed(&chaserVector.at(chaserIndex));
 
   chaserVector.at(chaserIndex).position += chaserVector.at(chaserIndex).speed;
-  boundPositionBoid(&chaserVector.at(chaserIndex));
+  boundPositionBoid(&chaserVector.at(chaserIndex),cam);
    
   //cout << "Speed for chaser at chaserIndex: (" << chaserVector.at(chaserIndex).speed.x << "," << chaserVector.at(chaserIndex).speed.y << "," << chaserVector.at(chaserIndex).speed.z << ")" << endl;
 }

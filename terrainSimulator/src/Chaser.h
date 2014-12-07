@@ -5,6 +5,7 @@
 #include "../common/loadobj.h"
 
 #include "Boid.h"
+#include "Camera.h"
 
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -12,22 +13,22 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-//#include <random>
+#include <random>
 
 using namespace std;
 
 class Chaser
 {
  private:
-  void searchPrey(int chaserIndex, vector<Boid> evaderVector, GLfloat time);
+  void searchPrey(int chaserIndex, vector<Boid> evaderVector, GLfloat time, Camera cam);
   
   void avoidance(Boid* boidI, int index);
   void attack(Boid* boidI, vector<Boid> evaders);
-  void boundPositionBoid(Boid *boid);
+  void boundPositionBoid(Boid *boid, Camera cam);
   void checkMaxSpeed(Boid *boid);
   void setRandomSpeed(Boid *boidI, GLfloat time);
   bool insideView(Boid chaser, Boid evader);
-  void updateBoundingPositions(vec3 cameraPosition);
+  void updateBoundingPositions(Camera cam);
 
   vec3 attackVector, nearest;
 
@@ -38,7 +39,7 @@ class Chaser
   Model* model;
   GLuint texture;
   
-  float awarenessRadius, minDistance, maxSpeed;
+  float awarenessRadius, minDistance; // maxSpeed;
   float avoidanceWeight, attackWeight, nearestWeight;
 
   float lowInterval, highInterval;
@@ -54,7 +55,7 @@ class Chaser
   Chaser(GLuint *phongShader, Model *chaserModel, GLuint chaserTexture, vec3 pos, int numOfBoids, vec3 cameraPosition);
   void draw(mat4 cameraMatrix);
   //void animate(GLfloat time);
-  void update(GLfloat time, int chaserIndex, vector<Boid> evaderVector, vec3 cameraPosition);
+  void update(GLfloat time, int chaserIndex, vector<Boid> evaderVector, Camera cam);
   void makeIndividuals(int inhabitants, vec3 position);
   
 };

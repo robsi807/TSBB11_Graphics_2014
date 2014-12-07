@@ -13,7 +13,7 @@ Evader::Evader(GLuint *phongShader, Model *evaderModel, GLuint evaderTexture, ve
   awarenessRadius = 40;
 
   cohesionWeight = 0.002; //0.01
-  avoidanceWeight = 0.06; //0.02, 0.2
+  avoidanceWeight = 0.1; //0.02, 0.2
   alignmentWeight = 0.001; //0.0001;
   followWeight = 0.002; //0.004;
   avoidChaserWeight = 0.4;
@@ -22,8 +22,8 @@ Evader::Evader(GLuint *phongShader, Model *evaderModel, GLuint evaderTexture, ve
   // Bounding the positions inside this cube. Should maybe center around camera position instead.
   xMin = cameraPosition.x - 256.0;
   xMax = cameraPosition.x + 256.0;
-  yMin = 80.0; // should be taken from calcHeight
-  yMax = 300.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
+  //yMin = 80.0; // should be taken from calcHeight
+  yMax = 370.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
   zMin = cameraPosition.z - 256.0;
   zMax = cameraPosition.z + 256.0;
   
@@ -126,20 +126,20 @@ if(Norm(boid->speed) > Norm(mSpeed))
     }
 }
 
-void Evader::updateBoundingPositions(vec3 cameraPosition)
+void Evader::updateBoundingPositions(Camera cam)
 {
   // Bounding the positions inside this cube.
-  xMin = cameraPosition.x - 256.0;
-  xMax = cameraPosition.x + 256.0;
-  //yMin = 30.0; // should be taken from calcHeight
+  xMin = cam.position.x - 256.0;
+  xMax = cam.position.x + 256.0;
+  yMin = cam.getActualHeight(position) + 20.0; //30.0; // should be taken from calcHeight
   //yMax = 300.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
-  zMin = cameraPosition.z - 256.0;
-  zMax = cameraPosition.z + 256.0;
+  zMin = cam.position.z - 256.0;
+  zMax = cam.position.z + 256.0;
 }
 
-void Evader::update(GLfloat time, vector<Boid> chaserVector, vec3 cameraPosition)
+void Evader::update(GLfloat time, vector<Boid> chaserVector, Camera cam)
 {
-  updateBoundingPositions(cameraPosition);
+  updateBoundingPositions(cam);
   updateLeader(time);
   /*cout << "Position for leader: ("
        << leader.position.x << ","
@@ -154,12 +154,10 @@ void Evader::boundPositionBoid(Boid *boid)
       boid->speed.x += 0.2;
   else if(boid->position.x > xMax)
       boid->speed.x -= 0.2;
-
   else if(boid->position.y < yMin)
       boid->speed.y += 0.2;
   else if(boid->position.y > yMax)
       boid->speed.y -= 0.2;
-
   else if(boid->position.z < zMin)
       boid->speed.z += 0.2;
   else if(boid->position.z > zMax)
@@ -169,7 +167,8 @@ void Evader::boundPositionBoid(Boid *boid)
 void Evader::flocking(vector<Boid> chaserVector)
 {
   int N = evaderVector.size();
-
+  position = vec3(0.0,0.0,0.0);
+  speed = vec3(0.0,0.0,0.0);
   for(int i = 0; i < N; i++)
     {
       //evaderVector.at(i).speed = vec3(0,0,0);
@@ -195,10 +194,18 @@ void Evader::flocking(vector<Boid> chaserVector)
 
       evaderVector.at(i).position += evaderVector.at(i).speed;
       boundPositionBoid(&evaderVector.at(i));
+
+      // Flock position
+      position +=  evaderVector.at(i).position;
+      speed +=  evaderVector.at(i).speed;
    
       //cout << "Position for boid i: (" << evaderVector.at(i).position.x << "," << evaderVector.at(i).position.y << "," << evaderVector.at(i).position.z << ")" << endl;
     }
-  
+  if(N != 0)
+    {
+      position /= (float)N;
+      speed /= (float)N;
+    }
 }
 
 // Inside chasers view angle, xz-plane

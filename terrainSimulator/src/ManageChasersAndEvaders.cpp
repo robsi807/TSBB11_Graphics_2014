@@ -212,7 +212,7 @@ void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
   
   for(int i = 0; i < numberOfFlocks; i++)
     {
-      flocks.at(i)->update(time,chasers->chaserVector,cam->position);
+      flocks.at(i)->update(time,chasers->chaserVector,*cam);
       splitFlock(flocks.at(i), *cam);
       //cout << "Size of flock i: " << flocks.at(i)->evaderVector.size() << "\n";
     }
@@ -223,7 +223,7 @@ void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
     {
       int indexNearest = nearestFlock(chasers->chaserVector.at(i));
       if(indexNearest != -1)
-	chasers->update(time,i,flocks.at(indexNearest)->evaderVector,cam->position);
+	chasers->update(time,i,flocks.at(indexNearest)->evaderVector,*cam);
       else
 	cout << "No flock is near chaser " << i << endl;
     }
@@ -241,17 +241,19 @@ void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
       if(cam->flockIndex >= (int)flocks.size())
 	cam->flockIndex = 0;
       
-      cam->lookAtPoint = flocks.at(cam->flockIndex)->evaderVector.at(0).averagePosition;
-      vec3 speedXZ = flocks.at(cam->flockIndex)->evaderVector.at(0).speed;
+      cam->lookAtPoint = flocks.at(cam->flockIndex)->position; //evaderVector.at(0).averagePosition;
+      vec3 speedXZ = flocks.at(cam->flockIndex)->speed; //evaderVector.at(0).speed;
       speedXZ.y = 0.0;
       if(birdView)
 	{
-	  cam->position = flocks.at(cam->flockIndex)->evaderVector.at(0).averagePosition - Normalize(speedXZ)*3.0;
+	  //cam->position = flocks.at(cam->flockIndex)->evaderVector.at(0).averagePosition - Normalize(speedXZ)*3.0;
+	  cam->position = flocks.at(cam->flockIndex)->position - Normalize(speedXZ)*3.0;
 	  cam->position.y += 1.0;
 	}
       else
 	{
-	  cam->position = flocks.at(cam->flockIndex)->evaderVector.at(0).averagePosition - Normalize(speedXZ)*35.0;
+	  //cam->position = flocks.at(cam->flockIndex)->evaderVector.at(0).averagePosition - Normalize(speedXZ)*35.0;
+	  cam->position = flocks.at(cam->flockIndex)->position - Normalize(speedXZ)*35.0;
 	  cam->position.y += 10.0; // So we se the birds from above.
 	}
 
@@ -260,12 +262,13 @@ void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
       // 	camSpeed /= 2.0;
       // cam->position = camSpeed*0.7;
 
-      // Follow chaser 0
-      vec3 speedChaserXZ = chasers->chaserVector.at(0).speed;
-      speedChaserXZ.y = 0.0;
-      cam->lookAtPoint = chasers->chaserVector.at(0).position;
-      cam->position = chasers->chaserVector.at(0).position - Normalize(speedChaserXZ)*3.0;
-      cam->position.y += 2.0;
+      // // Follow chaser 0. Warning: Will cause seg. fault when the eagle is far from the
+      //                     flocks because getActualHeight (calcHeight) will be outside the terrain.
+      // vec3 speedChaserXZ = chasers->chaserVector.at(0).speed;
+      // speedChaserXZ.y = 0.0;
+      // cam->lookAtPoint = chasers->chaserVector.at(0).position;
+      // cam->position = chasers->chaserVector.at(0).position - Normalize(speedChaserXZ)*3.0;
+      // cam->position.y += 0.5;
     }
 
   // // Test

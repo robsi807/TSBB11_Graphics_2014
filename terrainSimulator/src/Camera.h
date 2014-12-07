@@ -40,7 +40,7 @@ class Camera
   int actualPatchXIndex; 
   int actualPatchZIndex;
   float groundOffset;
-  TerrainPatch * actualPatch;
+  TerrainPatch *actualPatch;
   std::vector<TerrainPatch*> actualPatchRow;
 
   GLfloat velocity;
@@ -76,6 +76,7 @@ class Camera
   void handleKeyPress();
   void handleMouse(int x, int y);
   void update();
+  float getActualHeight(vec3 objectPos);
   vec3 getDirection();
   vec3 getPosition();
 
