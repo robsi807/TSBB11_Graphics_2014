@@ -141,6 +141,9 @@ void World::generateStartingPatches(int startSize){
   }
 
   blender->blendAll(&terrainVector);
+	
+	// Output height maps to file
+	//printTerrainToFile(startSize);
 
   // Generate geometry for all but the edge patches
   for(int y = 1; y < startSize-1; y++){
@@ -149,6 +152,38 @@ void World::generateStartingPatches(int startSize){
       //printf("Generating geometry @ %i, %i\n", terrainVector.at(y).at(x)->xGrid, terrainVector.at(y).at(x)->yGrid);
     }
   }
+}
+
+void World::printTerrainToFile(int startSize){
+	cout << "Printing to file ...\n";
+	fstream myfile;
+	stringstream sstream;
+	string fileName;
+	int size = terrainVector.at(0).at(0)->size;
+	sstream << "../../Evaluation/raw_" << size << "_heightmap.m";
+	fileName = sstream.str();
+	myfile.open(fileName, fstream::out);
+	
+	for(int y = 0; y < startSize; y++){
+    for(int x = 0; x < startSize; x++){
+			TerrainPatch* patch = terrainVector.at(y).at(x);
+			vector<float> rawHeightMap = patch->rawHeightMap;
+  
+			myfile << "patch_"<< x << "_" << y << " = [";
+
+			for(int row = 0; row < size; row++) {
+				for(int col = 0; col < size; col++) {
+					myfile << rawHeightMap.at(row*size + col) << ",";
+				} 
+				myfile << ";\n";
+			} 
+    	myfile << "];\n\n";
+    } 
+  }
+ 
+	myfile.close();
+	cout << "Printing to file done.\n";
+
 }
 
 void World::addTerrainSouth() {
