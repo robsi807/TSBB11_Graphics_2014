@@ -29,7 +29,7 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
   seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
   rng.seed(seed);
 #if PERLIN==1
-  patchGenerator = new PerlinPatchGenerator(biotope, NoF, amplitude, patchSize,seed);
+  patchGenerator = new PerlinPatchGeneratorFast(biotope, NoF, amplitude, patchSize,seed);
 #else
     patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
 #endif

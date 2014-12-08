@@ -5,8 +5,8 @@ BOOSTDIR = ../../../boost_1_57_0/
 # Determine system and compiler
 UNAME := $(shell uname)
 
-GRASS=1
-PLANTS=1
+GRASS=0
+PLANTS=0
 PERLIN=0
 
 ifeq ($(UNAME), Darwin) # Mac
@@ -27,9 +27,9 @@ GLUT	= $(COMMONDIR)MicroGlut.c
 endif
 
 
-CCFILES = Main.cpp Skybox.cpp Camera.cpp Frustum.cpp TerrainPatch.cpp World.cpp PerlinPatchGenerator.cpp ValuePatchGenerator.cpp DebugPatchGenerator.cpp LinearBlender.cpp Plant.cpp
+CCFILES = Main.cpp Skybox.cpp Camera.cpp Frustum.cpp TerrainPatch.cpp World.cpp PerlinPatchGenerator.cpp PerlinPatchGeneratorFast.cpp ValuePatchGenerator.cpp DebugPatchGenerator.cpp LinearBlender.cpp Plant.cpp
 UTILS = $(COMMONDIR)GL_utilities.c $(COMMONDIR)VectorUtils3.c $(COMMONDIR)loadobj.c $(COMMONDIR)zpr.c $(COMMONDIR)LoadTGA.c $(GLUT)
-OFILES = Main.o Skybox.o Camera.o Frustum.o TerrainPatch.o World.o PerlinPatchGenerator.o ValuePatchGenerator.o DebugPatchGenerator.o LinearBlender.o Plant.o $(COMMONDIR)GL_utilities.o $(COMMONDIR)loadobj.o $(COMMONDIR)LoadTGA.o $(COMMONDIR)VectorUtils3.o $(COMMONDIR)zpr.o $(GLUTPATH)/MicroGlut.o
+OFILES = Main.o Skybox.o Camera.o Frustum.o TerrainPatch.o World.o PerlinPatchGenerator.o PerlinPatchGeneratorFast.o ValuePatchGenerator.o DebugPatchGenerator.o LinearBlender.o Plant.o $(COMMONDIR)GL_utilities.o $(COMMONDIR)loadobj.o $(COMMONDIR)LoadTGA.o $(COMMONDIR)VectorUtils3.o $(COMMONDIR)zpr.o $(GLUTPATH)/MicroGlut.o
 
 
 main: $(OFILES)

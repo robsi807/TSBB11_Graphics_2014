@@ -120,6 +120,8 @@ void World::generateStartingPatches(int startSize){
   mutex rowLock; 
   int index;  
 
+  clock_t t;
+  t = clock();
   // Initiate height maps
   for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
     vector<TerrainPatch*> terrainRow;
@@ -139,7 +141,9 @@ void World::generateStartingPatches(int startSize){
     terrainVector.push_back(terrainRow);
     threadVector.clear();
   }
-
+  t = clock()-t;
+  printf("%d\n",t);
+  
   blender->blendAll(&terrainVector);
 
   // Generate geometry for all but the edge patches

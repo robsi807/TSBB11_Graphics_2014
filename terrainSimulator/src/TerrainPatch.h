@@ -24,6 +24,7 @@
 
 #include "PatchGenerator.h"
 #include "PerlinPatchGenerator.h"
+#include "PerlinPatchGeneratorFast.h"
 #include "ValuePatchGenerator.h"
 
 #include<vector>
