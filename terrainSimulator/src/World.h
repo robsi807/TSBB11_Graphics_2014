@@ -28,6 +28,11 @@
 
 #include <mutex>
 
+// Debugging includes
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -39,6 +44,7 @@ class World
     int patchOverlap,patchSize;
     void init();
 
+		void printTerrainToFile(int startSize);
   public:
     GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader;
     Model* sphere;
