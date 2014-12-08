@@ -7,10 +7,14 @@ body{
   width: 100%;
   background-image: url("../images/FrontPagePic1.png");
   background-position: center;
+  background-size: 100% auto;
 }
 
-.home-content{
+.youtube{
+  
   margin-top: 600px;
+}
+.home-content{
   text-align: center;
   padding-bottom: 80px;
 }
