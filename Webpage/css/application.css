@@ -1,0 +1,69 @@
+body{
+  padding-top: 50px;
+}
+
+.big-image{
+  height: 500px;
+  width: 100%;
+  background-image: url("../images/FrontPagePic1.png");
+  background-position: center;
+  background-size: 100% auto;
+}
+
+.youtube{
+  
+  margin-top: 600px;
+}
+.home-content{
+  text-align: center;
+  padding-bottom: 80px;
+}
+
+.featurette{
+  padding: 80px 0;
+}
+.featurette-image{
+  width: 500px;
+  height: 500px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.section-header{
+  text-align: center;
+  font-size: 38px;
+  padding: 80px 0 40px 0;
+}
+
+.text-muted{
+  font-size: 22px;
+  color: #71C6FF; 
+}
+
+.navbar-inverse .navbar-header a{
+  color: #0099FF;
+}
+
+
+.navbar-inverse .navbar-header a:hover, .navbar-inverse .navbar-header a:focus{
+  color: #71C6FF; 
+}
+
+.btn-default, .btn-default:focus{
+  background-color:#0099FF;
+  color: #FFF;
+}
+.btn-default:hover{
+  background-color: #71C6FF; 
+  color: #FFF;
+}
+
+.featurette{
+  position: relative;
+}
+
+.btn-col, .btn-col p{
+  padding: 0;
+  margin: 0;
+
+}

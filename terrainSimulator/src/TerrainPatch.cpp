@@ -18,7 +18,7 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
   geometry = NULL;
   geometryBoolean = false;
 
-  heightScale = 400;
+  heightScale = PATCH_SIZE;
   
   int biotope = 1; // 1 = mountains, 2 = desert
   int NoF = 9; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size

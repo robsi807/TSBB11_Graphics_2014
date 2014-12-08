@@ -123,7 +123,7 @@ void main(){
             createLeaf(grPos0,grNorm0,grTang0,tex0,height+heightScale*rgbNoise1.x,width,normalMatrix); 
         }
         else if(cameraCoord.z <= zLod1 && cameraCoord.x > -xLod1 && cameraCoord.x < xLod1 ){
-        // zLod 0
+        // zLod 1
             vec3 rgbNoise1 = vec3(texture(noiseTex,pos0.xy/scaleNoise));
             float temp = (rgbNoise1.x + rgbNoise1.y + rgbNoise1.z ) / 3.0;
            	if(temp > 0.5){
