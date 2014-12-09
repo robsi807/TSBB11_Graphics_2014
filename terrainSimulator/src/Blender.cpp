@@ -1,13 +1,13 @@
-#include "LinearBlender.h"
+#include "Blender.h"
 
 // Constructor
-LinearBlender::LinearBlender(int initOverlap){
+Blender::Blender(int initOverlap){
   overlap = initOverlap;
   initCornerWeight();
 }
 
 // Private functions
-void LinearBlender::initCornerWeight(){
+void Blender::initCornerWeight(){
   
   // Fill cornerWeight with zeros
   // There are four corners, hence i < 4
@@ -40,7 +40,7 @@ void LinearBlender::initCornerWeight(){
 }
 
 // A function simple help function for interpolating between a and b
-float LinearBlender::interpolateValues(float a, float b,float x){
+float Blender::interpolateValues(float a, float b,float x){
 
   float ft = x*3.1415927;
   float f = (1.0-cos(ft))*0.5;
@@ -49,7 +49,7 @@ float LinearBlender::interpolateValues(float a, float b,float x){
   //return a*(1-x) + b*x;
 }
 
-void LinearBlender::blendCorners(TerrainPatch* patch00,
+void Blender::blendCorners(TerrainPatch* patch00,
 				 TerrainPatch* patch01,
 				 TerrainPatch* patch10,
 				 TerrainPatch* patch11){
@@ -90,7 +90,7 @@ void LinearBlender::blendCorners(TerrainPatch* patch00,
   }
 }
 
-void LinearBlender::blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast){
+void Blender::blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast){
   int patchSize = patchWest->size;
   int jWest; // jEast is always = j
   for(int i=overlap; i<patchSize-overlap; i++){
@@ -108,7 +108,7 @@ void LinearBlender::blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast){
   } 
 }
 
-void LinearBlender::blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth){
+void Blender::blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth){
   int patchSize = patchNorth->size;
   int iNorth; // iSouth is always = i
   for(int i=0; i<overlap; i++){
@@ -127,7 +127,7 @@ void LinearBlender::blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth)
   }
 }
 
-void LinearBlender::blendNorth(vector<vector<TerrainPatch*>> *terrainVector) {
+void Blender::blendNorth(vector<vector<TerrainPatch*>> *terrainVector) {
   // Blend in the new terrain
   
   int xSize = terrainVector->at(0).size();
@@ -150,7 +150,7 @@ void LinearBlender::blendNorth(vector<vector<TerrainPatch*>> *terrainVector) {
   }
 }
 
-void LinearBlender::blendSouth(vector<vector<TerrainPatch*>> *terrainVector) {
+void Blender::blendSouth(vector<vector<TerrainPatch*>> *terrainVector) {
 
   int xSize = terrainVector->at(0).size();
   int ySize = terrainVector->size(); // 
@@ -173,7 +173,7 @@ void LinearBlender::blendSouth(vector<vector<TerrainPatch*>> *terrainVector) {
   }
 }
 
-void LinearBlender::blendEast(vector<vector<TerrainPatch*>> *terrainVector) {
+void Blender::blendEast(vector<vector<TerrainPatch*>> *terrainVector) {
 
   int xSize = terrainVector->at(0).size();
   int ySize = terrainVector->size(); // 
@@ -198,7 +198,7 @@ void LinearBlender::blendEast(vector<vector<TerrainPatch*>> *terrainVector) {
 
 }
 
-void LinearBlender::blendWest(vector<vector<TerrainPatch*>> *terrainVector) { 
+void Blender::blendWest(vector<vector<TerrainPatch*>> *terrainVector) { 
   int xSize = terrainVector->at(0).size();
   int ySize = terrainVector->size(); // 
   
@@ -221,7 +221,7 @@ void LinearBlender::blendWest(vector<vector<TerrainPatch*>> *terrainVector) {
 }
 
 
-void LinearBlender::blendAll(vector<vector<TerrainPatch*>> *terrainVector) {
+void Blender::blendAll(vector<vector<TerrainPatch*>> *terrainVector) {
 
     // Blend!
   cout << "Blending patches... " << endl;

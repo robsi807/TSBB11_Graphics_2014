@@ -17,7 +17,7 @@
 #include "Camera.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
-#include "LinearBlender.h"
+#include "Blender.h"
 #include "Plant.h"
 
 #include <vector>
@@ -54,7 +54,6 @@ class World
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
-    //PatchGenerator* patchGenerator;
     Blender* blender;
 
     vector<vector<TerrainPatch*>> terrainVector;

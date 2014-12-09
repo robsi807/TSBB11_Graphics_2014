@@ -24,7 +24,7 @@ World::World(){
   camera = new Camera(vec3(0.0,60,0.0), 1, 7,&terrainVector, patchSize, patchOverlap,gridSize);
 
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
-  blender = new LinearBlender(patchOverlap);
+  blender = new Blender(patchOverlap);
 
   sphere = LoadModelPlus("../objects/groundsphere.obj");
 
