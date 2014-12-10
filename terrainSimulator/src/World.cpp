@@ -11,12 +11,15 @@ World::World(){
   gridSize = GRID_BEGIN_SIZE;
 
   // Load shaders
-  terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
-  //terrainShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
-  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
-  birdShader = loadShaders("shaders/phongBird.vert", "shaders/phongBird.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
+  terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
+  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
+#if BIRDS == 1
+  birdShader = loadShaders("shaders/phongBird.vert", "shaders/phongBird.frag");
+#endif
+#if PLANTS == 1
   plantShader = loadShadersG("shaders/plant.vert","shaders/plant.frag","shaders/plant.gs");
+#endif
 #if GRASS == 1
   grassShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/grass.gs");
 #endif
@@ -25,7 +28,9 @@ World::World(){
   camera = new Camera(vec3(0.0,60,0.0), 1, 7,&terrainVector, patchSize, patchOverlap,gridSize);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new LinearBlender(patchOverlap);
+#if BIRDS == 1
   birds = new ManageChasersAndEvaders(&birdShader, "../objects/crowMedium.obj", "../textures/crow.tga", "../objects/eagle.obj", "../textures/eagleBrown.tga", *camera);
+#endif
 
   sphere = LoadModelPlus("../objects/groundsphere.obj");
 
@@ -50,11 +55,13 @@ World::World(){
   glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
   glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
 
+#if BIRDS == 1
   glUseProgram(birdShader);
   glUniform3fv(glGetUniformLocation(birdShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(birdShader, "specularExponent"), 1, &specularExponent);
   glUniformMatrix4fv(glGetUniformLocation(birdShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
-  
+#endif
+
   // Upload textures to terrain shader
   glUseProgram(terrainShader);
   GLuint grassTex1;
@@ -358,7 +365,9 @@ void World::update(){
   time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
 
   updateTerrain();
+#if BIRDS == 1
   birds->update(time,camera);
+#endif
   camera->update();
 }
 
@@ -381,7 +390,10 @@ void World::draw(){
 
   terrainMutex.unlock();
 
+#if BIRDS == 1
   birds->draw(time,*camera);
+#endif
+  
   /*
     if(terrainMutex.try_lock()){
 
@@ -454,7 +466,9 @@ World::~World(){
   delete camera;
   delete skybox;
   delete blender;
+#if BIRDS == 1
   delete birds;
+#endif
   terrainVector.clear();
 }
 

@@ -63,7 +63,11 @@ class World
     GLuint terrainTexture;
     Camera* camera;
     Skybox* skybox;
+
+#if BIRDS == 1
     ManageChasersAndEvaders* birds;
+#endif
+
     //PatchGenerator* patchGenerator;
     Blender* blender;
 

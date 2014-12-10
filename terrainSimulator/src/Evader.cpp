@@ -1,64 +1,57 @@
+//____________________________Evader.cpp____________________________
+// Description: Class functions for evaders
+// Author: Carl Stejmar, carst056@student.liu.se
+// Date: 2014-12-10
+//__________________________________________________________________
 
 #include "Evader.h"
 
-Evader::Evader(GLuint *phongShader, Model *evaderModel, GLuint evaderTexture, vec3 pos, int numOfBoids, int index, vec3 cameraPosition)
+Evader::Evader(vec3 pos, int numOfBoids, int index, vec3 cameraPosition)
 {
-  shader = phongShader;
-
-  model = evaderModel;
-  texture = evaderTexture;
-
   maxDistance = 20.0;
   minDistance = 5.0;
   awarenessRadius = 40;
 
-  cohesionWeight = 0.002; //0.01
-  avoidanceWeight = 0.1; //0.02, 0.2
-  alignmentWeight = 0.001; //0.0001;
-  followWeight = 0.002; //0.004;
+  cohesionWeight = 0.002;
+  avoidanceWeight = 0.1;
+  alignmentWeight = 0.001;
+  followWeight = 0.002;
   avoidChaserWeight = 0.4;
-  avoidChaserWeightLeader = 0.008; //0.0002
+  avoidChaserWeightLeader = 0.008;
 
-  // Bounding the positions inside this cube. Should maybe center around camera position instead.
+  // Bounding the positions inside this cube.
   xMin = cameraPosition.x - 256.0;
   xMax = cameraPosition.x + 256.0;
-  //yMin = 80.0; // should be taken from calcHeight
-  yMax = 370.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
+  // yMin is calculated by calcHeight.
+  // yMax should be a fixed value because otherwise the followCam
+  // will make it possible to fly up for infinity.
+  yMax = 370.0;
   zMin = cameraPosition.z - 256.0;
   zMax = cameraPosition.z + 256.0;
   
   makeFlockOf(numOfBoids, pos);
-  leader.position = pos + vec3(50,0,50); //vec3(75,0,75); //Makes the leader start ahead of the flock (for following and rotation).
-  //leader.speed = vec3(1,0,1);
+  leader.position = pos + vec3(50,0,50);
 
   prevTime = 0.0;
-  //tempSpeed = vec3(0.3,0.0,0.3);
   flockIndex = index;
 }
 
-/*Evader::~Evader()
+Evader::~Evader()
 {
-
-}*/
-
-// bool Evader::findFlock(int index)
-// {
-//   return flockIndex == index;
-// }
-
-void Evader::draw(mat4 cameraMatrix)
-{
-  int numberOfEvaders = evaderVector.size();
-  for(int i = 0; i < numberOfEvaders; i++)
-    {
-      evaderVector.at(i).draw(cameraMatrix, shader, model, &texture);
-    }
-  //leader.draw(cameraMatrix, shader, model, &texture);
+  // The vector capacity is not guaranteed to change due
+  // to calling this function.
+  evaderVector.clear();
+  //evaderVector.erase(chaserVector.begin(), chaserVector.end()); 
 }
 
-// void Evader::animate(GLfloat time)
+// void Evader::draw(mat4 cameraMatrix)
 // {
- 
+//   int numberOfEvaders = evaderVector.size();
+//   for(int i = 0; i < numberOfEvaders; i++)
+//     {
+//       evaderVector.at(i).draw(cameraMatrix, shader, model, &texture);
+//     }
+//   //leader.draw(cameraMatrix, shader, model, &texture);
 // }
 
 void Evader::updateLeader(GLfloat time)
@@ -71,25 +64,17 @@ void Evader::updateLeader(GLfloat time)
       float lowInterval = -1.0;
       float highInterval = 1.0;
 
-      //boost::random::random_device rd;
-      //boost::random::mt19937 generator(rd());
       boost::random::mt19937 generator(rand());
-      boost::random::uniform_real_distribution<float> distribution(lowInterval, highInterval); //(-1.0, 1.0)
-      //boost::variate_generator<boost::random::mt19937, boost::random::uniform_real_distribution<float>> dice(generator, distribution);
+      boost::random::uniform_real_distribution<float> distribution(lowInterval, highInterval);
 
-      float xOffset = distribution(generator); //dice();
+      float xOffset = distribution(generator);
       float yOffset = distribution(generator);
       float zOffset = distribution(generator);
-
-      // cout << "xOffset = " << xOffset << " zOffset = " << zOffset << endl;
-      // cout << "lowInterval = " << lowInterval << endl;
-      // cout << "highInterval = " << highInterval << endl;
 
       vec3 offsetVec = vec3(xOffset/2.0, yOffset/4.0, zOffset/2.0); // for testing: vec3(0,0,0);
       tempSpeed = offsetVec;
     }
 
-  // DONE: To make the flock not change direction so often, do not update offsetVec every frame.
   leader.speed += tempSpeed;
 
   checkMaxSpeed(&leader);
@@ -104,25 +89,9 @@ void Evader::updateLeader(GLfloat time)
 void Evader::checkMaxSpeed(Boid *boid)
 {
   vec3 mSpeed = vec3(0.7,0.7,0.7);
-if(Norm(boid->speed) > Norm(mSpeed))
+  if(Norm(boid->speed) > Norm(mSpeed))
     {
       boid->speed = (boid->speed/Norm(boid->speed))*Norm(mSpeed);
-
-      // if(boid->speed.x < 0)
-      // 	boid->speed.x = -1*mSpeed.x;
-      // if(boid->speed.x > 0)
-      // 	boid->speed.x = mSpeed.x;
-
-      // if(boid->speed.y < 0)
-      // 	boid->speed.y = -1*mSpeed.y;
-      // if(boid->speed.y > 0)
-      // 	boid->speed.y = mSpeed.y;
-
-      // if(boid->speed.z < 0)
-      // 	boid->speed.z = -1*mSpeed.z;
-      // if(boid->speed.z > 0)
-      // 	boid->speed.z = mSpeed.z;
-      
     }
 }
 
@@ -131,8 +100,8 @@ void Evader::updateBoundingPositions(Camera cam)
   // Bounding the positions inside this cube.
   xMin = cam.position.x - 256.0;
   xMax = cam.position.x + 256.0;
-  yMin = cam.getActualHeight(position) + 20.0; //30.0; // should be taken from calcHeight
-  //yMax = 300.0; // Should be a fixed value because otherwise the followCam will make it possible to fly up for infinity.
+  yMin = cam.getActualHeight(position) + 25.0;
+  // yMax is fixed. Set in constructor
   zMin = cam.position.z - 256.0;
   zMax = cam.position.z + 256.0;
 }
@@ -141,27 +110,23 @@ void Evader::update(GLfloat time, vector<Boid> chaserVector, Camera cam)
 {
   updateBoundingPositions(cam);
   updateLeader(time);
-  /*cout << "Position for leader: ("
-       << leader.position.x << ","
-       << leader.position.y << ","
-       << leader.position.z << ")" << endl;*/
   flocking(chaserVector);
 }
 
 void Evader::boundPositionBoid(Boid *boid)
 {
   if(boid->position.x < xMin)
-      boid->speed.x += 0.2;
+    boid->speed.x += 0.2;
   else if(boid->position.x > xMax)
-      boid->speed.x -= 0.2;
+    boid->speed.x -= 0.2;
   else if(boid->position.y < yMin)
-      boid->speed.y += 0.2;
+    boid->speed.y += 0.2;
   else if(boid->position.y > yMax)
-      boid->speed.y -= 0.2;
+    boid->speed.y -= 0.2;
   else if(boid->position.z < zMin)
-      boid->speed.z += 0.2;
+    boid->speed.z += 0.2;
   else if(boid->position.z > zMax)
-      boid->speed.z -= 0.2;
+    boid->speed.z -= 0.2;
 }
 
 void Evader::flocking(vector<Boid> chaserVector)
@@ -171,7 +136,6 @@ void Evader::flocking(vector<Boid> chaserVector)
   speed = vec3(0.0,0.0,0.0);
   for(int i = 0; i < N; i++)
     {
-      //evaderVector.at(i).speed = vec3(0,0,0);
       cohesion(&evaderVector.at(i), i);
       avoidance(&evaderVector.at(i), i);
       alignment(&evaderVector.at(i), i);
@@ -184,7 +148,8 @@ void Evader::flocking(vector<Boid> chaserVector)
       	evaderVector.at(i).alignmentVector*alignmentWeight +
 	follow*followWeight + avoidChaserVector*avoidChaserWeight;
 
-      evaderVector.at(i).direction = evaderVector.at(i).speed; // Should make the boids rotate in right direction when attacked
+      // Should make the boids rotate in right direction when attacked
+      evaderVector.at(i).direction = evaderVector.at(i).speed;
 
       checkMaxSpeed(&evaderVector.at(i));
       // if(Norm(evaderVector.at(i).speed) > maxSpeed)
@@ -259,7 +224,7 @@ void Evader::cohesion(Boid *boidI, int index)
 
 void Evader::avoidChaser(Boid* boidI, vector<Boid> chaserVector)
 {
-  avoidChaserVector = vec3(0,0,0); // boidI->avoidChaserVector = vec3(0,0,0) instead?
+  avoidChaserVector = vec3(0,0,0);
   int N = chaserVector.size();
   uint count = 0;
 
@@ -267,22 +232,21 @@ void Evader::avoidChaser(Boid* boidI, vector<Boid> chaserVector)
     {
       Boid chaserJ = chaserVector.at(j);
       
-	  vec3 distanceVector = chaserJ.position - boidI->position;
-	  float distance = Norm(distanceVector);
-	  if(distance < awarenessRadius)
-	    {
-	      if(distance != 0.0)
-		avoidChaserVector -= distanceVector/distance; // boidI->avoidChaserVector instead?
-	      else
-		avoidChaserVector -= distanceVector;
-	      count++;
-	    }
+      vec3 distanceVector = chaserJ.position - boidI->position;
+      float distance = Norm(distanceVector);
+      if(distance < awarenessRadius)
+	{
+	  if(distance != 0.0)
+	    avoidChaserVector -= distanceVector/distance;
+	  else
+	    avoidChaserVector -= distanceVector;
+	  count++;
+	}
     }
   if(count > 0)
     {
       avoidChaserVector /= (float)count;
       leader.speed += avoidChaserVector*avoidChaserWeightLeader;
-      //boidI->avoidanceVector = Normalize(boidI->avoidanceVector);
     }
 }
 
@@ -301,7 +265,6 @@ void Evader::avoidance(Boid* boidI, int index)
 	  float distance = Norm(distanceVector);
 	  if(distance < minDistance)
 	    {
-	      //float fx = exp(1.0/distance) - 1.0;
 	      boidI->avoidanceVector -= distanceVector/distance;
 	      count++;
 	    }
@@ -343,9 +306,7 @@ void Evader::alignment(Boid* boidI, int index)
 
 void Evader::followLeader(Boid* boidI)
 {
-  
-  //cout << "lookAtPoint: (" << lookAtPoint.x << "," << lookAtPoint.y << "," << lookAtPoint.z << ")" << endl;
-  boidI->direction = leader.position - boidI->position; //Normalize(lookAtPoint - boidI->position);
+  boidI->direction = leader.position - boidI->position;
 
   if(Norm(boidI->averagePosition - boidI->position) < maxDistance)
     follow = boidI->direction;

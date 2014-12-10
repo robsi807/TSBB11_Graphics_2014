@@ -1,3 +1,9 @@
+//____________________________Chaser.h____________________________
+// Description: Header file for chasers
+// Author: Carl Stejmar, carst056@student.liu.se
+// Date: 2014-12-10
+//__________________________________________________________________
+
 #ifndef _CHASER_
 #define _CHASER_
 
@@ -20,8 +26,8 @@ using namespace std;
 class Chaser
 {
  private:
+  void makeIndividuals(int inhabitants, vec3 position);
   void searchPrey(int chaserIndex, vector<Boid> evaderVector, GLfloat time, Camera cam);
-  
   void avoidance(Boid* boidI, int index);
   void attack(Boid* boidI, vector<Boid> evaders);
   void boundPositionBoid(Boid *boid, Camera cam);
@@ -34,12 +40,8 @@ class Chaser
 
   GLfloat prevTime;
   vec3 tempSpeed;
-
-  GLuint* shader;
-  Model* model;
-  GLuint texture;
   
-  float awarenessRadius, minDistance; // maxSpeed;
+  float awarenessRadius, minDistance;
   float avoidanceWeight, attackWeight, nearestWeight;
 
   float lowInterval, highInterval;
@@ -52,12 +54,10 @@ class Chaser
  public:
   std::vector<Boid> chaserVector; // Change to pointers?
 
-  Chaser(GLuint *phongShader, Model *chaserModel, GLuint chaserTexture, vec3 pos, int numOfBoids, vec3 cameraPosition);
-  void draw(mat4 cameraMatrix);
-  //void animate(GLfloat time);
+  Chaser(vec3 pos, int numOfBoids, vec3 cameraPosition);
+  ~Chaser();
+  //void draw(mat4 cameraMatrix);
   void update(GLfloat time, int chaserIndex, vector<Boid> evaderVector, Camera cam);
-  void makeIndividuals(int inhabitants, vec3 position);
-  
 };
 
 #endif

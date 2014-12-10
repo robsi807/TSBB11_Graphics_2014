@@ -1,3 +1,9 @@
+//____________________________Evader.h____________________________
+// Description: Header file for evaders
+// Author: Carl Stejmar, carst056@student.liu.se
+// Date: 2014-12-10
+//__________________________________________________________________
+
 #ifndef _EVADER_
 #define _EVADER_
 
@@ -20,16 +26,11 @@ using namespace std;
 class Evader
 {
  private:
-  
-  GLuint* shader;
-  GLuint texture;
-
   vec3 follow, avoidChaserVector;
 
   GLfloat prevTime;
   vec3 tempSpeed;
   
-  //vec3 maxSpeed;
   float maxDistance, minDistance, maxSpeed, awarenessRadius;
   float cohesionWeight, avoidanceWeight, alignmentWeight, followWeight, avoidChaserWeight, avoidChaserWeightLeader;
 
@@ -52,17 +53,14 @@ class Evader
 
  public:
   vec3 position, speed;
-  Model* model;
   Boid leader;
   int flockIndex;
   std::vector<Boid> evaderVector; // Change to pointers?
 
-  Evader(GLuint *phongShader, Model *evaderModel, GLuint evaderTexture, vec3 pos, int numOfBoids, int index, vec3 cameraPosition);
-  void draw(mat4 cameraMatrix);
-  //void animate(GLfloat time);
-  void update(GLfloat time, vector<Boid> chaserVector, Camera cam);
-  
+  Evader(vec3 pos, int numOfBoids, int index, vec3 cameraPosition);
+  ~Evader();
+  //void draw(mat4 cameraMatrix);
+  void update(GLfloat time, vector<Boid> chaserVector, Camera cam); 
 };
 
 #endif
-

@@ -1,3 +1,9 @@
+//____________________________Boid.h____________________________
+// Description: Header file for boids
+// Author: Carl Stejmar, carst056@student.liu.se
+// Date: 2014-12-10
+//______________________________________________________________
+
 #ifndef _BOID_
 #define _BOID_
 
@@ -10,18 +16,13 @@
 class Boid
 {
  private:
-  
-  //~Boid();
 
  public:
 
   vec3 position, averagePosition;
   vec3 speed, speedDifference;
-  vec3 avoidanceVector;
-  vec3 cohesionVector;
-  vec3 alignmentVector;
-  vec3 forward;
-  vec3 up;
+  vec3 avoidanceVector, cohesionVector, alignmentVector;
+  vec3 forward, up;
   vec3 direction;
 
   uint animationIndex;
@@ -30,11 +31,9 @@ class Boid
 
   Boid();
   Boid(vec3 pos);
-  void draw(mat4 cameraMatrix, GLuint* shader, Model* model, GLuint* texture);
-  void animate(GLfloat time);
-  //void setDirection();
+   ~Boid();
   void setRotation();
-  
+  void draw(mat4 cameraMatrix, GLuint* shader, Model* model, GLuint* texture);
 };
 
 #endif

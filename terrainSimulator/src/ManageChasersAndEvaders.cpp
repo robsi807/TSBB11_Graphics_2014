@@ -31,16 +31,50 @@ ManageChasersAndEvaders::ManageChasersAndEvaders(GLuint* phongShader, char *mode
   loadEvaderModels();
   chaserModel = LoadModelPlus(modelPathChaser);
 
-  Evader* evaders = new Evader(shader, evaderModels.at(0), evaderTexture, cam.position + vec3(25,25,25), 180, 0, cam.position);
-  Evader* evaders2 = new Evader(shader, evaderModels.at(0), evaderTexture, cam.position + vec3(30,30,50), 20, 1, cam.position);
+  Evader* evaders = new Evader(cam.position + vec3(25,25,25), 180, 0, cam.position);
+  Evader* evaders2 = new Evader(cam.position + vec3(30,30,50), 20, 1, cam.position);
 
   flocks.push_back(evaders);
   flocks.push_back(evaders2);
 
-  chasers = new Chaser(shader, chaserModel, chaserTexture, cam.position + vec3(300,100,300), 3, cam.position);
+  chasers = new Chaser(cam.position + vec3(300,100,300), 3, cam.position);
 
   prevTime = 0.0;
   modelIndex = 0;
+}
+
+ManageChasersAndEvaders::~ManageChasersAndEvaders()
+{
+  delete chasers;
+
+  for(uint i = 0; i < flocks.size(); i++)
+    {
+      delete flocks.at(i);
+    }
+  flocks.clear();
+
+  delete shader;
+
+  // Free/delete chaserModel memory
+  glDeleteBuffers(1, &chaserModel->vb);
+  glDeleteBuffers(1, &chaserModel->ib);
+  glDeleteBuffers(1, &chaserModel->nb);
+  glDeleteBuffers(1, &chaserModel->tb);
+  glDeleteVertexArrays(1, &chaserModel->vao);
+  delete chaserModel;
+
+  // Free/delete evaderModels memory
+   for(uint i = 0; i < evaderModels.size(); i++)
+    {
+      glDeleteBuffers(1, &evaderModels.at(i)->vb);
+      glDeleteBuffers(1, &evaderModels.at(i)->ib);
+      glDeleteBuffers(1, &evaderModels.at(i)->nb);
+      glDeleteBuffers(1, &evaderModels.at(i)->tb);
+      glDeleteVertexArrays(1, &evaderModels.at(i)->vao);
+      delete evaderModels.at(i);
+    }
+   evaderModels.clear();
+
 }
 
 void ManageChasersAndEvaders::loadEvaderModels()
@@ -56,11 +90,6 @@ void ManageChasersAndEvaders::loadEvaderModels()
     }
 
 }
-
-/*ManageChasersAndEvaders::~ManageChasersAndEvaders()
-  {
-
-  }*/
 
 void vectorAppend(vector<Boid> *v1, vector<Boid> *v2)
 { 
@@ -123,7 +152,7 @@ void ManageChasersAndEvaders::splitFlock(Evader *flock, Camera cam)
     {
       vec3 clusterPos1 = flock->evaderVector.at(minIndex).position;
       vec3 clusterPos2 = flock->evaderVector.at(maxIndex).position;
-      Evader* evader = new Evader(shader, evaderModels.at(0), evaderTexture, clusterPos2, 0, (int)flocks.size(), cam.position);
+      Evader* evader = new Evader(clusterPos2, 0, (int)flocks.size(), cam.position);
       
       for(uint i = 0; i < flock->evaderVector.size(); i++)
 	{
@@ -251,20 +280,20 @@ void ManageChasersAndEvaders::followCam(Camera *cam)
     }
 }
 
-void ManageChasersAndEvaders::animate(GLfloat time)
-{
-  if((time - prevTime) > 0.010) // 0.010
-    {
-      if(modelIndex > 40)
-	modelIndex = 0;
-      for(uint i = 0; i < flocks.size(); i++)
-	{
-	  flocks.at(i)->model = evaderModels.at(modelIndex);
-	}
-      prevTime = time;
-      modelIndex++;
-    }
-}
+// void ManageChasersAndEvaders::animate(GLfloat time)
+// {
+//   if((time - prevTime) > 0.010) // 0.010
+//     {
+//       if(modelIndex > 40)
+// 	modelIndex = 0;
+//       for(uint i = 0; i < flocks.size(); i++)
+// 	{
+// 	  flocks.at(i)->model = evaderModels.at(modelIndex);
+// 	}
+//       prevTime = time;
+//       modelIndex++;
+//     }
+// }
 
 void ManageChasersAndEvaders::animateAndDraw(GLfloat time, Camera cam)
 {

@@ -1,19 +1,26 @@
+//____________________________Boid.cpp____________________________
+// Description: Class functions for boids
+// Author: Carl Stejmar, carst056@student.liu.se
+// Date: 2014-12-10
+//________________________________________________________________
 
 #include "Boid.h"
+
 Boid::Boid()
 {
   //Construtor for leader. Maybe make a class of it because it does not need all that a boid needs
   position = vec3(0,0,0);
   averagePosition = vec3(0.0, 0.0, 0.0);
   
-  speed = vec3(0,0,0); //vec3(1.0, 0.2, 0.8);
+  speed = vec3(0,0,0);
   speedDifference = vec3(0.0, 0.0, 0.0);
   
   avoidanceVector = vec3(0.0, 0.0, 0.0);
   cohesionVector = vec3(0.0, 0.0, 0.0);
   alignmentVector = vec3(0.0, 0.0, 0.0);
 
-  forward = vec3(0,0,-1); //Or vec3(0,0,1)?; According to blender: -1 in z
+  // According to blender: -1 in z
+  forward = vec3(0,0,-1);
   up = vec3(0,1,0);
   //side = vec3(1,0,0);, needed?
 
@@ -25,14 +32,15 @@ Boid::Boid(vec3 pos)
   position = pos;
   averagePosition = vec3(0.0, 0.0, 0.0);
   
-  speed = vec3(0,0,0); //vec3(1.0, 0.2, 0.8);
+  speed = vec3(0,0,0);
   speedDifference = vec3(0.0, 0.0, 0.0);
   
   avoidanceVector = vec3(0.0, 0.0, 0.0);
   cohesionVector = vec3(0.0, 0.0, 0.0);
   alignmentVector = vec3(0.0, 0.0, 0.0);
 
-  forward = vec3(0,0,-1); //Or vec3(0,0,1)?;
+  // According to blender: -1 in z
+  forward = vec3(0,0,-1);
   up = vec3(0,1,0);
   //side = vec3(1,0,0);, needed?
 
@@ -43,40 +51,22 @@ Boid::Boid(vec3 pos)
   animationIndex = rand()%(max-min + 1) + min;
 }
 
-// void Boid::setDirection()
-// {
-
-//   //vec3 p = vec3(averagePosition.x*50, averagePosition.y, averagePosition.z*50);
-//   //direction = position - averagePosition;
-
-// }
-
-// If the birds are flying side by side it looks weird if all of them looks att the same point
-void Boid::setRotation()
+Boid::~Boid()
 {
-  // vec3 vn,vp;
-  //splitVector(direction,up,&vn,&vp);
-
-  vec3 v = forward;
-  vec3 v2 = Normalize(direction); //Normalize(vec3(direction.x, 0.0, direction.z));
-
-  //std::cout << "Direction for boid i: (" << direction.x << "," << direction.y << "," << direction.z << ")" << std::endl;
   
-  //float theta = acos(DotProduct(v2,v)/(Norm(v2)*Norm(v)));
-  float theta = 3.14 - atan2((v2.x-v.x),(v2.z-v.z));
-  //std::cout << "Theta = " << theta << std::endl;
-
-  rotationMatrix = Ry(theta);
-
-  forward = direction;
-  //rotationMatrix = ArbRotate(direction, theta); //Mult(yRot,xRot);
-
 }
 
-/*Boid::~Boid()
+void Boid::setRotation()
 {
+  vec3 v = forward;
+  vec3 v2 = Normalize(direction);
 
-}*/
+  //float theta = acos(DotProduct(v2,v)/(Norm(v2)*Norm(v)));
+  float theta = 3.14 - atan2((v2.x-v.x),(v2.z-v.z));
+
+  rotationMatrix = Ry(theta);
+  forward = direction;
+}
 
 void Boid::draw(mat4 cameraMatrix, GLuint* shader, Model* model, GLuint* texture)
 {
@@ -87,16 +77,4 @@ void Boid::draw(mat4 cameraMatrix, GLuint* shader, Model* model, GLuint* texture
   glUniformMatrix4fv(glGetUniformLocation(*shader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
   //glBindTexture(GL_TEXTURE_2D, *texture);	
   DrawModel(model, *shader, "inPosition", "inNormal", "inTexCoord");
-}
-
-//Not used!
-void Boid::animate(GLfloat time)
-{
-  float xSpeed = cos(time);
-  float ySpeed = 2*sin(time);
-  float zSpeed = sin(time);
-
-  //speed = vec3(xSpeed,ySpeed,zSpeed);
-
-  //position += speed;
 }
