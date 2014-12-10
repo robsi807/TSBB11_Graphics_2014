@@ -18,17 +18,21 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
   geometry = NULL;
   geometryBoolean = false;
 
-  heightScale = 400;
+  heightScale = patchSize;
   
   int biotope = 1; // 1 = mountains, 2 = desert
-  int NoF = 7; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
+  int NoF = 9; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
   int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.  
   
   int n=x+y*57;
   n=(n<<13)^n;
   seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
   rng.seed(seed);
-  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
+#if PERLIN==1
+  patchGenerator = new PerlinPatchGeneratorFast(biotope, NoF, amplitude, patchSize,seed);
+#else
+    patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
+#endif
   rawHeightMap = patchGenerator->generatePatch(x,y);
   blendedHeightMap = rawHeightMap;
 
@@ -108,16 +112,16 @@ void TerrainPatch::generateGeometry(){
 	    n = VectorAdd(n,n5);
 	    n = Normalize(n);
 
-	    vertexArray[(x + z * blendedWidth)*3 + 0] = x1 / 1.0;
+	    vertexArray[(x + z * blendedWidth)*3 + 0] = x1 - offset;
 	    vertexArray[(x + z * blendedWidth)*3 + 1] = blendedHeightMap.at((x1 + z1 * size)) * heightScale;
-	    vertexArray[(x + z * blendedWidth)*3 + 2] = z1 / 1.0;
+	    vertexArray[(x + z * blendedWidth)*3 + 2] = z1 - offset;
 
 	    normalArray[(x + z * blendedWidth)*3 + 0] = n.x; //(y1-y0)*(z2-z0)-(y2-y0)*(z1-z0); //0.0;
 	    normalArray[(x + z * blendedWidth)*3 + 1] = n.y; //(z1-z0)*(x2-x0)-(z2-z0)*(x1-x0); //1.0;
 	    normalArray[(x + z * blendedWidth)*3 + 2] = n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
 
-	    texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x1); // (float)x / size;
-	    texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z1); // (float)z / patchHeight;
+	    texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x1 - offset); // (float)x / size;
+	    texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z1 - offset); // (float)z / patchHeight;
 	  }
     for (x = 0; x < blendedWidth-1; x++)
       for (z = 0; z < blendedHeight-1; z++)
@@ -168,22 +172,21 @@ void TerrainPatch::generateGeometry(){
 }
 
 // Checks so the plants postion is OK
-bool TerrainPatch::checkPlantPosition(vec3 pos){
-  // Make sure the plant is not on a steep hill
-  bool okPos = true;
-  vec3 normal0 = calcNormalSimple(pos.x,pos.z);
-  float slope = 1.2-normal0.y;
-  if(slope > 0.5){
-    okPos = false;
+bool TerrainPatch::checkPlantPosition(float xPos,float zPos){
+  // Make sure the plant is inside the patch
+  if(xPos < patchOverlap/2 || xPos > blendedSize - patchOverlap/2 
+    || zPos < patchOverlap/2 || zPos > blendedSize - patchOverlap/2){
+    return false;
   }
   
-  // Make sure the plant is inside the patch
-  if(pos.x < patchOverlap/2 || pos.x > blendedSize - patchOverlap/2 
-    || pos.z < patchOverlap/2 || pos.z > blendedSize - patchOverlap/2){
-    okPos = false;
-  }    
-       
-  return okPos;
+  // Make sure the plant is not on a steep hill
+  vec3 normal0 = calcNormalSimple(xPos,zPos);
+  float slope = 1.2-normal0.y;
+  if(slope > 0.5){
+    return false;
+  }
+      
+  return true;
 }
 
 void TerrainPatch::addPlants(){  
@@ -195,29 +198,33 @@ void TerrainPatch::addPlants(){
   for(int i=0;i<bushPatches;i++){
     // Add bushes
     // Randomize a start position
-    int xMid = dice() % ((int)((float)blendedSize - patchOverlap));  
-    int zMid = dice() % ((int)((float)blendedSize - patchOverlap));  
+    int xMid = patchOverlap/2 + dice() % (blendedSize-patchOverlap/2);  
+    int zMid = patchOverlap/2 + dice() % (blendedSize-patchOverlap/2);  
     
     // Randomize a grid size between 3 and 5
-    int xGridSize = 3 + dice() % 3;
-    int zGridSize = 3 + dice() % 3;
+    int xGridSize = 25 + dice() % 10;
+    int zGridSize = 25 + dice() % 10;
     float gridOffset = 10.0 + ((float)((dice()%300) - 150))/100.0;
    // printf("xGridSize=%i, zGridSize=%i, gridOffset=%i\n",xGridSize,zGridSize,gridOffset);
     
     for(int x = 0; x < xGridSize; x++){
       for(int z = 0; z < zGridSize; z++){
         // Randomize offset from middle position
-        float newXPos = ((float)xMid) + x*gridOffset + (dice()%8 - 4);
-        float newZPos = ((float)zMid) + z*gridOffset + (dice()%8 - 4);
-        float newYPos = calcHeight(newXPos,newZPos);
-        vec3 newPos = vec3(newXPos,newYPos,newZPos);
+        float newXPos = ((float)xMid) + x*gridOffset + (dice()%(2*(int)gridOffset-1) - gridOffset/2);
+        float newZPos = ((float)zMid) + z*gridOffset + (dice()%(2*(int)gridOffset-1) - gridOffset/2);
+	        // Place plant if position is OK
+        if(checkPlantPosition(newXPos,newZPos)){
+	        float newYPos = calcHeight(newXPos,newZPos);
+	        vec3 newPos = vec3(newXPos,newYPos,newZPos);
       
-        // Place plant if position is OK
-        if(checkPlantPosition(newPos)){
-          float scale = 1.5 + ((float)(dice() % 150)) /100.0;
-          float angle = 3.1415*((float)(dice() % 200))/100.0;
-          WorldObject* plant = new Plant(newPos,angle,scale,vec3(xPos,0.0,yPos),Bush);
-          objects.push_back(plant);
+      		// Randomly select if plant is to be placed
+      		bool placePlant = (dice() % 10000) < 10000*0.2;
+      		if(placePlant){
+          	float scale = 1.5 + ((float)(dice() % 150)) /100.0;
+          	float angle = 3.1415*((float)(dice() % 200))/100.0;
+          	WorldObject* plant = new Plant(newPos,angle,scale,vec3(xPos,0.0,yPos),Bush);
+          	objects.push_back(plant);
+        	}
         }
         else{
           //printf("Position not allowed: %f, %f !\n",newXPos,newYPos);
@@ -230,29 +237,29 @@ void TerrainPatch::addPlants(){
   int treePatches = 1;  
   for(int i=0;i<treePatches;i++){  
     // Randomize a start position
-    int xMid = dice() % ((int)((float)blendedSize - patchOverlap));  
-    int zMid = dice() % ((int)((float)blendedSize - patchOverlap));  
+    int xMid = patchOverlap/2 + dice() % (blendedSize-patchOverlap/2);  
+    int zMid = patchOverlap/2 + dice() % (blendedSize-patchOverlap/2);  
     
     // Randomize a grid size between 3 and 5
-    int xGridSize = 3 + dice() % 3;
-    int zGridSize = 3 + dice() % 3;
+    int xGridSize = 20 + dice() % 3;
+    int zGridSize = 20 + dice() % 3;
     float gridOffset = 22.0 + ((float)((dice()%800) - 400))/100.0;
    // printf("xGridSize=%i, zGridSize=%i, gridOffset=%i\n",xGridSize,zGridSize,gridOffset);
     
     for(int x = 0; x < xGridSize; x++){
       for(int z = 0; z < zGridSize; z++){
         // Randomize offset from middle position
-        float newXPos = ((float)xMid) + x*gridOffset + ((dice()%16) - 8);
-        float newZPos = ((float)zMid) + z*gridOffset + ((dice()%16) - 8);
-        float newYPos = calcHeight(newXPos,newZPos);
-        vec3 newPos = vec3(newXPos,newYPos,newZPos);
+        float newXPos = ((float)xMid) + x*gridOffset + (dice()%8 - 4);
+        float newZPos = ((float)zMid) + z*gridOffset + (dice()%8 - 4);
+	        // Place plant if position is OK
+        if(checkPlantPosition(newXPos,newZPos)){
+	        float newYPos = calcHeight(newXPos,newZPos);
+	        vec3 newPos = vec3(newXPos,newYPos,newZPos);
       
-        // Place plant if position is OK
-        if(checkPlantPosition(newPos)){
           float scale = 10.5 + ((float)(dice() % 250)) /100.0;
           float angle = 3.1415*((float)(dice() % 200))/100.0;
-          WorldObject* plant = new Plant(newPos,angle,scale,vec3(xPos,0.0,yPos),Tree);
-          objects.push_back(plant);
+          //WorldObject* plant = new Plant(newPos,angle,scale,vec3(xPos,0.0,yPos),Tree);
+          //objects.push_back(plant);
         }
         else{
           //printf("Position not allowed: %f, %f !\n",newXPos,newYPos);
@@ -339,17 +346,21 @@ TerrainPatch::~TerrainPatch(){
   
   if(hasGeometry()) {
   
-    free(geometry->vertexArray);   
-    free(geometry->texCoordArray); 
-    free(geometry->normalArray);   
-    free(geometry->indexArray);
-
-    glDeleteBuffers(1,&geometry->vb);
-    glDeleteBuffers(1,&geometry->ib);
-    glDeleteBuffers(1,&geometry->nb);
-    glDeleteBuffers(1,&geometry->tb);
-
-    glDeleteVertexArrays(1,&geometry->vao);
+	  free(geometry->vertexArray);   
+	  free(geometry->texCoordArray); 
+	  free(geometry->normalArray);   
+	  free(geometry->indexArray);
+	  
+	  glDeleteBuffers(1, &geometry->vb);
+	  glDeleteBuffers(1, &geometry->ib);
+	  glDeleteBuffers(1, &geometry->nb);
+	  if (geometry->texCoordArray != NULL)
+		  glDeleteBuffers(1, &geometry->tb);
+		  
+		
+	  glDeleteVertexArrays(1, &geometry->vao);
+	  
+	       
   }
 
   
@@ -366,16 +377,16 @@ void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float 
 
   if(hasGeometry() && cam->isInFrustum(this)){
     mat4 cameraMatrix = cam->cameraMatrix;
-    mat4 modelView = T(xPos-patchOverlap/2,0, yPos-patchOverlap/2);
+    mat4 modelView = T(xPos,0, yPos);
     // Draw terrain normally
     glUseProgram(*terrainShader);
     glUniformMatrix4fv(glGetUniformLocation(*terrainShader, "mdl2World"), 1, GL_TRUE, modelView.m);
     glUniformMatrix4fv(glGetUniformLocation(*terrainShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
     DrawModel(geometry, *terrainShader, "inPosition", "inNormal","inTexCoord"); 
 
+		vec3 camPos = cam -> getPosition();
 #if GRASS == 1
 		// Check if the patch is close, else don't draw grass		
-		vec3 camPos = cam -> getPosition();
 		camPos.y = 0.0;
 		vec3 terrainPos = vec3(xPos+blendedSize/2,0.0,yPos+blendedSize/2);
 		float maxDist = 500.0 + sqrt(2.0)*((float)(blendedSize/2));
@@ -393,7 +404,7 @@ void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float 
     for(int i = 0;i < objects.size();i++){
       Plant* plant = (Plant*)objects.at(i);
       if(cam->isInFrustum(plant)){
-        plant->draw(cameraMatrix,time);
+        plant->draw(cameraMatrix,camPos,time);
       }
     }
   }

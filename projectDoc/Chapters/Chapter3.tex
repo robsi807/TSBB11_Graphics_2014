@@ -1,0 +1,39 @@
+%*******10********20********30********40********50********60********70********80
+
+% For all chapters, use the newdefined chap{} instead of chapter{}
+% This will make the text at the top-left of the page be the same as the chapter
+
+\chap{Development Method}
+
+Tables are good \cite{ATraveler} which is shown in \ref{table: you} and 
+\ref{table: whether}!
+\begin{table}[ht] 
+    \centering 
+    \begin{tabular}{|r|l|}
+        \hline
+        7C0 & hexadecimal \\
+        3700 & octal \\ \cline{2-2}
+        11111000000 & binary \\
+        \hline \hline
+        1984 & decimal \\
+        \hline
+    \end{tabular}
+    \caption[You-table]{Table for you}
+    \label{table: you} % is used to refer this table in the text 
+\end{table} 
+
+\begin{table}[ht] 
+    \centering 
+    \begin{tabular}{ | l | l | l | p{5cm} |}
+        \hline
+        Day & Min Temp & Max Temp & Summary \\ \hline
+        Monday & 11C & 22C & A clear day with lots of sunshine. \\ \hline
+        Tuesday & 9C & 19C & Cloudy with rain, \\ \hline
+        Wednesday & 10C & 21C & Rain will still linger for the morning.\\
+        \hline
+    \end{tabular}
+    \caption[Weather table]{Whether table for tomorrow}
+    \label{table: whether} 
+\end{table} 
+
+

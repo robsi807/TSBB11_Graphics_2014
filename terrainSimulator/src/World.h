@@ -17,7 +17,7 @@
 #include "Camera.h"
 #include "Skybox.h"
 #include "TerrainPatch.h"
-#include "LinearBlender.h"
+#include "Blender.h"
 #include "Plant.h"
 #include "ManageChasersAndEvaders.h"
 
@@ -29,20 +29,11 @@
 
 #include <mutex>
 
-//#include "../common/VectorUtils3.h"
-//#include "../common/GL_utilities.h"
-
-// Patch specific defines
-
-#define PATCH_OVERLAP 96
-#define PATCH_SIZE 512
-#define GRID_BEGIN_SIZE 9
-
-// Direction specific defines
-#define NORTH 8
-#define SOUTH 2
-#define EAST 6
-#define WEST 4
+// Debugging includes
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -54,6 +45,7 @@ class World
     int patchOverlap,patchSize;
     void init();
 
+		void printTerrainToFile(int startSize);
   public:
     GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader, birdShader;
     Model* sphere;
@@ -68,7 +60,6 @@ class World
     ManageChasersAndEvaders* birds;
 #endif
 
-    //PatchGenerator* patchGenerator;
     Blender* blender;
 
     vector<vector<TerrainPatch*>> terrainVector;

@@ -27,7 +27,7 @@ World::World(){
   // Init objects
   camera = new Camera(vec3(0.0,60,0.0), 1, 7,&terrainVector, patchSize, patchOverlap,gridSize);
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
-  blender = new LinearBlender(patchOverlap);
+  blender = new Blender(patchOverlap);
 #if BIRDS == 1
   birds = new ManageChasersAndEvaders(&birdShader, "../objects/crowMedium.obj", "../textures/crow.tga", "../objects/eagle.obj", "../textures/eagleBrown.tga", *camera);
 #endif
@@ -105,7 +105,8 @@ World::World(){
 #endif
 
   // Loading of plant model, and shader uploads and initialization of plants
-  //Plant::initPlants(&phongShader,&plantShader,&plantShader);
+#if PLANTS==1  
+  Plant::initPlants(&phongShader,&plantShader,&plantShader);
  
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
@@ -116,7 +117,8 @@ World::World(){
   glUniform1i(glGetUniformLocation(plantShader,"grassTex"),4);
   glActiveTexture(GL_TEXTURE0+5);
   glUniform1i(glGetUniformLocation(plantShader,"noiseTex"),5);
-  
+#endif  
+
   glUseProgram(phongShader);
   // Upload textures to phong shader
   glActiveTexture(GL_TEXTURE0+2);
@@ -131,6 +133,8 @@ void World::generateStartingPatches(int startSize){
   mutex rowLock; 
   int index;  
 
+  clock_t t;
+  t = clock();
   // Initiate height maps
   for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
     vector<TerrainPatch*> terrainRow;
@@ -150,8 +154,13 @@ void World::generateStartingPatches(int startSize){
     terrainVector.push_back(terrainRow);
     threadVector.clear();
   }
-
+  t = clock()-t;
+  printf("%d\n",t);
+  
   blender->blendAll(&terrainVector);
+	
+	// Output height maps to file
+	//printTerrainToFile(startSize);
 
   // Generate geometry for all but the edge patches
   for(int y = 1; y < startSize-1; y++){
@@ -160,6 +169,38 @@ void World::generateStartingPatches(int startSize){
       //printf("Generating geometry @ %i, %i\n", terrainVector.at(y).at(x)->xGrid, terrainVector.at(y).at(x)->yGrid);
     }
   }
+}
+
+void World::printTerrainToFile(int startSize){
+	cout << "Printing to file ...\n";
+	fstream myfile;
+	stringstream sstream;
+	string fileName;
+	int size = terrainVector.at(0).at(0)->size;
+	sstream << "../../Evaluation/raw_" << size << "_heightmap.m";
+	fileName = sstream.str();
+	myfile.open(fileName, fstream::out);
+	
+	for(int y = 0; y < startSize; y++){
+    for(int x = 0; x < startSize; x++){
+			TerrainPatch* patch = terrainVector.at(y).at(x);
+			vector<float> rawHeightMap = patch->rawHeightMap;
+  
+			myfile << "patch_"<< x << "_" << y << " = [";
+
+			for(int row = 0; row < size; row++) {
+				for(int col = 0; col < size; col++) {
+					myfile << rawHeightMap.at(row*size + col) << ",";
+				} 
+				myfile << ";\n";
+			} 
+    	myfile << "];\n\n";
+    } 
+  }
+ 
+	myfile.close();
+	cout << "Printing to file done.\n";
+
 }
 
 void World::addTerrainSouth() {

@@ -24,6 +24,7 @@
 
 #include "PatchGenerator.h"
 #include "PerlinPatchGenerator.h"
+#include "PerlinPatchGeneratorFast.h"
 #include "ValuePatchGenerator.h"
 
 #include<vector>
@@ -42,7 +43,7 @@ class TerrainPatch
   bool geometryBoolean;
   
   void addPlants();
-  bool checkPlantPosition(vec3 pos);
+  bool checkPlantPosition(float xPos,float zPos);
   
  public:
   int size,blendedSize,patchOverlap; 

@@ -1,29 +1,41 @@
 #ifndef _BLENDER_
 #define _BLENDER_
 
+#include "LoadTGA.h"
 #include "TerrainPatch.h"
 #include <vector>
+#include <iostream>
 
 class Blender{
+ private:
+  vector<vector<float>> cornerWeight;
 
+  void initCornerWeight();
+  float interpolateValues(float a,float b,float x);
+  
  public:
+ 
   int overlap;
-  virtual void blendCorners(TerrainPatch* patch00,
+ 
+  Blender(int initOverlap);
+
+  void blendCorners(TerrainPatch* patch00,
 		    TerrainPatch* patch01,
 		    TerrainPatch* patch10,
-		    TerrainPatch* patch11) = 0;
+		    TerrainPatch* patch11);
 
-  virtual void blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast) = 0;
-  virtual void blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth) = 0;
+  void blendHors(TerrainPatch* patchWest,TerrainPatch* patchEast);
+  void blendVert(TerrainPatch* patchNorth,TerrainPatch* patchSouth);
   
-  virtual void blendNorth(vector<vector<TerrainPatch*>> *terrainVector) = 0;
-  virtual void blendSouth(vector<vector<TerrainPatch*>> *terrainVector) = 0;
-  virtual void blendEast(vector<vector<TerrainPatch*>> *terrainVector) = 0;
-  virtual void blendWest(vector<vector<TerrainPatch*>> *terrainVector) = 0;
+  void blendNorth(vector<vector<TerrainPatch*>> *terrainVector);
+  void blendSouth(vector<vector<TerrainPatch*>> *terrainVector);
+  void blendEast(vector<vector<TerrainPatch*>> *terrainVector);
+  void blendWest(vector<vector<TerrainPatch*>> *terrainVector);
   
-  
-  virtual void blendAll(vector<vector<TerrainPatch*>> *terrainVector) = 0;
+  void blendAll(vector<vector<TerrainPatch*>> *terrainVector);
   
 };
+
+
 
 #endif
