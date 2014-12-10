@@ -65,6 +65,7 @@ class Camera
 
   int timer;
   bool followFlock;
+  bool birdView;
   int flockIndex;
 
   static const int SCREEN_WIDTH = 1280;

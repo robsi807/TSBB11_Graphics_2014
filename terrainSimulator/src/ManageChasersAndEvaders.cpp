@@ -1,13 +1,10 @@
+//____________________________ManageChasersAndEvaders.cpp____________________________
+// Description: Class functions to handle chasers (predators) and evaders (flocks).
+// Author: Carl Stejmar, carst056@student.liu.se
+// Date: 2014-12-10
+//___________________________________________________________________________________
 
 #include "ManageChasersAndEvaders.h"
-
-// int endWithError(char* msg, int error=0)
-// {
-//   cout << "Error message: " << msg << endl;
-//   //system("PAUSE");
-//   return error;
-
-// }
 
 ManageChasersAndEvaders::ManageChasersAndEvaders(GLuint* phongShader, char *modelPathEvader, char *imagePathEvader, char *modelPathChaser, char *imagePathChaser, Camera cam)
 {
@@ -31,28 +28,19 @@ ManageChasersAndEvaders::ManageChasersAndEvaders(GLuint* phongShader, char *mode
  
   glUniform1i(glGetUniformLocation(*shader, "chaserTexture"), 9); // Texture unit 9
 
-  //evaderModel = LoadModelPlus(modelPathEvader);
-
   loadEvaderModels();
   chaserModel = LoadModelPlus(modelPathChaser);
 
   Evader* evaders = new Evader(shader, evaderModels.at(0), evaderTexture, cam.position + vec3(25,25,25), 180, 0, cam.position);
   Evader* evaders2 = new Evader(shader, evaderModels.at(0), evaderTexture, cam.position + vec3(30,30,50), 20, 1, cam.position);
-  //Evader* evaders = new Evader(shader, "../objects/crowMedium.obj", "../textures/crow.tga", vec3(25,25,25), 150);
-  //Evader* evaders2 = new Evader(shader, "../objects/crowMedium.obj", "../textures/crow.tga", vec3(25,25,25), 20);
+
   flocks.push_back(evaders);
   flocks.push_back(evaders2);
 
   chasers = new Chaser(shader, chaserModel, chaserTexture, cam.position + vec3(300,100,300), 3, cam.position);
-  //chasers = new Chaser(shader, "../objects/eagle.obj", "../textures/eagleBrown.tga", vec3(300,100,300), 3);
 
   prevTime = 0.0;
   modelIndex = 0;
-
-  birdView = true;
-
-  // fp = NULL;
-  // fp=fopen("country_sounds.wav", "rb");
 }
 
 void ManageChasersAndEvaders::loadEvaderModels()
@@ -70,9 +58,9 @@ void ManageChasersAndEvaders::loadEvaderModels()
 }
 
 /*ManageChasersAndEvaders::~ManageChasersAndEvaders()
-{
+  {
 
-}*/
+  }*/
 
 void vectorAppend(vector<Boid> *v1, vector<Boid> *v2)
 { 
@@ -86,7 +74,6 @@ void vectorAppend(vector<Boid> *v1, vector<Boid> *v2)
 // Also: might give vector out of range in some cases! Fix!
 void ManageChasersAndEvaders::mergeFlocks(Camera *cam)
 {
-  //int numberOfFlocks = flocks.size();
   float mergeThreshold = 35.0;
   
   for(uint i = 0; i < flocks.size(); i++)
@@ -98,16 +85,10 @@ void ManageChasersAndEvaders::mergeFlocks(Camera *cam)
 	      if(cam->flockIndex == flocks.at(j)->flockIndex)
 		cam->flockIndex = flocks.at(i)->flockIndex;
 	      vectorAppend(&flocks.at(i)->evaderVector,&flocks.at(j)->evaderVector);
-	      cout << "Append!" << endl;
 	      flocks.erase(flocks.begin()+j);
-		//delete flocks.at(j);
-	      cout << "FLOCKS = " << flocks.size() << endl;
-	      //return true;
-	    }
-	  
+	    }  
 	}
     }
-  //return false;
 }
 
 void ManageChasersAndEvaders::splitFlock(Evader *flock, Camera cam)
@@ -118,7 +99,6 @@ void ManageChasersAndEvaders::splitFlock(Evader *flock, Camera cam)
   float maxD = 0.0;
   int maxIndex = -1;
 
-  //int numberOfEvaders = flock->evaderVector.size();
   for(uint i = 0; i < flock->evaderVector.size(); i++)
     {
       Boid boidI = flock->evaderVector.at(i);
@@ -135,7 +115,7 @@ void ManageChasersAndEvaders::splitFlock(Evader *flock, Camera cam)
 	  minIndex = i;
 	}
 
-      //Change maxD to distance from current maxD to minD.
+      //Changing maxD to distance from current maxD to minD.
       maxD = maxD - minD;
     }
 
@@ -179,14 +159,11 @@ int ManageChasersAndEvaders::nearestFlock(Boid chaser)
 
 void ManageChasersAndEvaders::sortFlockIndex(Camera *cam)
 {
-  //int vectorIndex = -1;
   int numberOfFlocks = flocks.size();
   for(int i = 0; i < numberOfFlocks; i++)
     {
       if(flocks.at(i)->flockIndex != i)
 	{
-	  // if(cam->flockIndex < flocks.at(i)->flockIndex)
-	  //   flocks.at(i)->flockIndex = i;
 	  if(cam->flockIndex == flocks.at(i)->flockIndex)
 	    {
 	      cam->flockIndex = i;
@@ -196,27 +173,32 @@ void ManageChasersAndEvaders::sortFlockIndex(Camera *cam)
 	    flocks.at(i)->flockIndex = i;
 	}
     }
-  //return vectorIndex;
+}
+
+void ManageChasersAndEvaders::printInfo()
+{
+  int numberOfFlocks = flocks.size();
+  cout << "Number of flocks: " << numberOfFlocks << endl;
+  
+  for(int i = 0; i < numberOfFlocks; i++)
+    {
+      cout << "Size of flock i: " << flocks.at(i)->evaderVector.size() << "\n";
+      cout << "Flock at index " << i << " has flockIndex: " << flocks.at(i)->flockIndex << endl;
+    }
 }
 
 void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
-{
+{ 
+  // Update flocks (Evader)
   int numberOfFlocks = flocks.size();
-  //cout << "Number of flocks: " << numberOfFlocks << endl;
 
-//   //Test
-// for(int i = 0; i < numberOfFlocks; i++)
-//     {
-//       cout << "Flock at index " << i << " has flockIndex: " << flocks.at(i)->flockIndex << endl;
-//     }
-  
   for(int i = 0; i < numberOfFlocks; i++)
     {
       flocks.at(i)->update(time,chasers->chaserVector,*cam);
       splitFlock(flocks.at(i), *cam);
-      //cout << "Size of flock i: " << flocks.at(i)->evaderVector.size() << "\n";
     }
 
+  // Update chasers
   int numberOfChasers = chasers->chaserVector.size();
   //TODO: Fix so that chasers are updated even if they are far from evaders.
   for(int i = 0; i < numberOfChasers; i++)
@@ -235,32 +217,29 @@ void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
     }
 
   sortFlockIndex(cam);
-  //cout << "Cam: flockIndex = " << cam->flockIndex << endl;
+  followCam(cam); 
+}
+
+void ManageChasersAndEvaders::followCam(Camera *cam)
+{
   if(cam->followFlock)
     {
       if(cam->flockIndex >= (int)flocks.size())
 	cam->flockIndex = 0;
       
-      cam->lookAtPoint = flocks.at(cam->flockIndex)->position; //evaderVector.at(0).averagePosition;
-      vec3 speedXZ = flocks.at(cam->flockIndex)->speed; //evaderVector.at(0).speed;
+      cam->lookAtPoint = flocks.at(cam->flockIndex)->position;
+      vec3 speedXZ = flocks.at(cam->flockIndex)->speed;
       speedXZ.y = 0.0;
-      if(birdView)
+      if(cam->birdView)
 	{
-	  //cam->position = flocks.at(cam->flockIndex)->evaderVector.at(0).averagePosition - Normalize(speedXZ)*3.0;
 	  cam->position = flocks.at(cam->flockIndex)->position - Normalize(speedXZ)*3.0;
 	  cam->position.y += 1.0;
 	}
       else
 	{
-	  //cam->position = flocks.at(cam->flockIndex)->evaderVector.at(0).averagePosition - Normalize(speedXZ)*35.0;
 	  cam->position = flocks.at(cam->flockIndex)->position - Normalize(speedXZ)*35.0;
 	  cam->position.y += 10.0; // So we se the birds from above.
 	}
-
-      // camSpeed += flocks.at(cam->flockIndex)->evaderVector.at(0).averagePosition - Normalize(flocks.at(cam->flockIndex)->evaderVector.at(0).speed)*30;
-      // if(Norm(camSpeed) > Norm(vec3(1.5,1.5,1.5)))
-      // 	camSpeed /= 2.0;
-      // cam->position = camSpeed*0.7;
 
       // // Follow chaser 0. Warning: Will cause seg. fault when the eagle is far from the
       //                     flocks because getActualHeight (calcHeight) will be outside the terrain.
@@ -270,15 +249,6 @@ void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
       // cam->position = chasers->chaserVector.at(0).position - Normalize(speedChaserXZ)*3.0;
       // cam->position.y += 0.5;
     }
-
-  // // Test
-  // for(uint i = 0; i < flocks.size(); i++)
-  //   {
-  //     vec3 avPos = flocks.at(i)->evaderVector.at(0).averagePosition;
-  //     cout << "Average pos for flock " << i << " is (" << avPos.x << "," << avPos.y << "," << avPos.z << ")" << endl;
-  //   }
-
-  //animate(time);
 }
 
 void ManageChasersAndEvaders::animate(GLfloat time)
@@ -300,7 +270,7 @@ void ManageChasersAndEvaders::animateAndDraw(GLfloat time, Camera cam)
 {
   uint outside = 0;
   if((time - prevTime) > 0.010) // 0.010
-  {
+    {
       for(uint i = 0; i < flocks.size(); i++)
 	{
 	  uint numberOfFlockMembers = flocks.at(i)->evaderVector.size();
@@ -315,11 +285,10 @@ void ManageChasersAndEvaders::animateAndDraw(GLfloat time, Camera cam)
 	      else
 		outside++;
 	      flocks.at(i)->evaderVector.at(j).animationIndex++;
-	      //cout << "Animation index = " << flocks.at(i)->evaderVector.at(j).animationIndex << endl;
 	    }
 	}
       prevTime = time;
-  }
+    }
   else
     for(uint i = 0; i < flocks.size(); i++)
       {
@@ -354,16 +323,9 @@ void ManageChasersAndEvaders::drawChasers(Camera cam)
 
 void ManageChasersAndEvaders::draw(GLfloat time, Camera cam)
 {
-  // int N = flocks.size();
-  // for(int i = 0; i < N; i++)
-  //   {
-  //     flocks.at(i)->draw(cameraMatrix);
-  //   }
- 
   glUseProgram(*shader);
   glUniform1i(glGetUniformLocation(*shader, "evader"), 1);
   animateAndDraw(time,cam);
   glUniform1i(glGetUniformLocation(*shader, "evader"), 0);
   drawChasers(cam);
-  //chasers->draw(cam);
 }

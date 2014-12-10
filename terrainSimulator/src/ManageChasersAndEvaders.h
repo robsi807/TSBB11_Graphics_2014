@@ -13,9 +13,6 @@
 #include <algorithm>    // std::move (ranges)
 #include <utility>      // std::move (objects)
 
-//#include <OpenAL/al.h>
-//#include <OpenAL/alc.h>
-
 #include "Camera.h"
 #include "Evader.h"
 #include "Chaser.h"
@@ -32,9 +29,9 @@ class ManageChasersAndEvaders
   void animateAndDraw(GLfloat time, Camera cam);
   void drawChasers(Camera cam);
   void sortFlockIndex(Camera *cam);
+  void followCam(Camera *cam);
   
   GLuint* shader;
-  //Model *evaderModel;
   Model *chaserModel;
   vector<Model*> evaderModels;
   GLuint evaderTexture;
@@ -43,17 +40,13 @@ class ManageChasersAndEvaders
   GLfloat prevTime;
   uint modelIndex;
 
-  bool birdView;
-  vec3 camSpeed;
-
-  //FILE *fp;
-
  public:
   Chaser* chasers;
   vector<Evader*> flocks;
   //vector<Chaser*> predators;
 
   ManageChasersAndEvaders(GLuint* phongShader, char *modelPathEvader, char *imagePathEvader, char *modelPathChaser, char *imagePathChaser, Camera cam);
+  void printInfo();
   void update(GLfloat time, Camera *cam);  
   void draw(GLfloat time, Camera cam);
 };

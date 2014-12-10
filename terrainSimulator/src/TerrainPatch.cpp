@@ -339,11 +339,19 @@ TerrainPatch::~TerrainPatch(){
   
   if(hasGeometry()) {
   
-		free(geometry->vertexArray);   
-	  free(geometry->texCoordArray); 
-	  free(geometry->normalArray);   
-	  free(geometry->indexArray);     
+    free(geometry->vertexArray);   
+    free(geometry->texCoordArray); 
+    free(geometry->normalArray);   
+    free(geometry->indexArray);
+
+    glDeleteBuffers(1,&geometry->vb);
+    glDeleteBuffers(1,&geometry->ib);
+    glDeleteBuffers(1,&geometry->nb);
+    glDeleteBuffers(1,&geometry->tb);
+
+    glDeleteVertexArrays(1,&geometry->vao);
   }
+
   
   objects.clear();
   rawHeightMap.clear();

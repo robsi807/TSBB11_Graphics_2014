@@ -45,6 +45,7 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
 
   timer = 30;
   followFlock = false;
+  birdView = true;
   flockIndex = -1; // Is set to zero first time we choose to follow a flock.
 }
 // Constructor for initializing frustum
@@ -196,6 +197,14 @@ void Camera::handleKeyPress()
     {
       followFlock = false;
       flockIndex--; // Next time 'o' is pressed, we will follow the previous followed flock.
+    }
+   if(keyIsDown('0') && birdView && followFlock)
+    {
+      birdView = false;
+    }
+  if(keyIsDown('=') && !birdView && followFlock)
+    {
+      birdView = true;
     }
 
   timer++;
