@@ -32,10 +32,14 @@ ManageChasersAndEvaders::ManageChasersAndEvaders(GLuint* phongShader, char *mode
   chaserModel = LoadModelPlus(modelPathChaser);
 
   Evader* evaders = new Evader(cam.position + vec3(25,25,25), 180, 0, cam.position);
-  Evader* evaders2 = new Evader(cam.position + vec3(30,30,50), 20, 1, cam.position);
+  Evader* evaders2 = new Evader(cam.position + vec3(30,30,50), 70, 1, cam.position);
+  Evader* evaders3 = new Evader(cam.position + vec3(-30,30,-50), 50, 1, cam.position);
+  Evader* evaders4 = new Evader(cam.position + vec3(-70,30,70), 150, 1, cam.position);
 
   flocks.push_back(evaders);
   flocks.push_back(evaders2);
+  flocks.push_back(evaders3);
+  flocks.push_back(evaders4);
 
   chasers = new Chaser(cam.position + vec3(300,100,300), 3, cam.position);
 
@@ -77,10 +81,16 @@ ManageChasersAndEvaders::~ManageChasersAndEvaders()
 
 }
 
+void threadUpdateFlock(ManageChasersAndEvaders *mcae, int index, GLfloat time, Camera cam)
+{
+  mcae->flocks.at(index)->update(time,mcae->chasers->chaserVector,cam);
+  mcae->splitFlock(mcae->flocks.at(index),cam);
+}
+
 void ManageChasersAndEvaders::loadEvaderModels()
 {
   char *modelPath = "../objects/evader/crow/crow%d.obj";
-  for(int i = 1; i < 42; i++) 
+  for(int i = 1; i < 42; i++)
     {
       char file[80]; // Arbitrary length, the string just has to fit
       sprintf(file, modelPath, i);
@@ -220,12 +230,18 @@ void ManageChasersAndEvaders::update(GLfloat time, Camera *cam)
 { 
   // Update flocks (Evader)
   int numberOfFlocks = flocks.size();
+  vector<thread> threads;
 
   for(int i = 0; i < numberOfFlocks; i++)
     {
-      flocks.at(i)->update(time,chasers->chaserVector,*cam);
-      splitFlock(flocks.at(i), *cam);
+      threads.push_back(thread(threadUpdateFlock,this,i,time,*cam));
+      //flocks.at(i)->update(time,chasers->chaserVector,*cam);
+      //splitFlock(flocks.at(i), *cam);
     }
+
+  for(uint i = 0; i < threads.size(); i++)
+    threads.at(i).join();
+
 
   // Update chasers
   int numberOfChasers = chasers->chaserVector.size();
