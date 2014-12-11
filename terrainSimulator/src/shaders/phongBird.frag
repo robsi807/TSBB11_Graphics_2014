@@ -3,6 +3,7 @@
 in vec2 texCoord;
 in vec3 exNormal;
 in vec3 surf;
+in vec3 exPosition;
 
 out vec4 outColor;
 
