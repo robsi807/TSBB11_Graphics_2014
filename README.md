@@ -13,30 +13,26 @@ This is a user guide for our project in TSBB11 at Linköping University. It cove
 
 ##Installation
 
-1.Download the project from Github.
+1. Download the project from Github.
 *https://github.com/robsi807/TSBB11\_Graphics\_2014*
 
-2.Download the boost library.
+2. Download the boost library.
 *http://sourceforge.net/projects/boost/files/boost/1.57.0/*
 Extract the boost folder from the archieve and put it main folder. 
 
-3.Start terminal, go to *TSBB11\_Graphics\_2014/terrainSimulator/src/*
+3. Start terminal, go to *TSBB11\_Graphics\_2014/terrainSimulator/src/*
 
-4.Type make to compile and ./main to run.
+4. Type make to compile and ./main to run.
 
 
-\section{Input}
+##Input
 
-\begin{itemize}
+* W, S, A, D to move around.
 
-\item $W$,$A$,$S$,$D$ to move around.
+* Mouse cursor to look around and change moving direction.
 
-\item $Mouse$ $cursor$ to look around and change moving direction.
+* + to increase and - to decrease movement speed.
 
-\item $+$ to increase and $-$ to decrease movement speed.
+* M to enable and Shift + M to disable flight mode.
 
-\item $M$ to enable and $Shift + M$ to disable flight mode.
-
-\item When in flight mode, $Space$ to ascend and $C$ to descend.
-
-\end{itemize}
+* When in flight mode, Space to ascend and C to descend.
