@@ -27,12 +27,12 @@ Extract the boost folder from the archieve and put it main folder.
 
 ##Input
 
-* W, S, A, D to move around.
+* `W`, `S`, `A`, `D` to move around.
 
-* Mouse cursor to look around and change moving direction.
+* `Mouse cursor` to look around and change moving direction.
 
-* `+` to increase and - to decrease movement speed.
+* `+` to increase and `-` to decrease movement speed.
 
-* M to enable and Shift + M to disable flight mode.
+* `M` to enable and `Shift + M` to disable flight mode.
 
-* When in flight mode, Space to ascend and C to descend.
+* When in flight mode, `Space` to ascend and `C` to descend.
