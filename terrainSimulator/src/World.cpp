@@ -348,7 +348,8 @@ void World::addTerrainWest(){
 
 void World::removeTerrainSouth() {
   for (int x = 0; x < terrainVector.at(0).size();x++) {
-    delete terrainVector.at(0).at(x);
+    if(terrainVector.at(0).at(x) != NULL)
+      delete terrainVector.at(0).at(x);
   }
     terrainVector.erase(terrainVector.begin());
 };
@@ -356,14 +357,16 @@ void World::removeTerrainSouth() {
 void World::removeTerrainNorth() {
   int ySize = terrainVector.size();
   for (int x = 0; x < terrainVector.at(ySize-1).size();x++) {
-    delete terrainVector.at(ySize-1).at(x);
+    if(terrainVector.at(ySize-1).at(x) != NULL)
+      delete terrainVector.at(ySize-1).at(x);
   }
-  terrainVector.erase(terrainVector.end());
+  terrainVector.erase(terrainVector.end()-1);
 };
 
 void World::removeTerrainEast() {
   for (int y = 0; y < terrainVector.size();y++) {
-    delete terrainVector.at(y).at(0);
+    if(terrainVector.at(y).at(0) != NULL)
+      delete terrainVector.at(y).at(0);
     terrainVector.at(y).erase(terrainVector.at(y).begin());
   }
 
@@ -371,7 +374,8 @@ void World::removeTerrainEast() {
 
 void World::removeTerrainWest() {
   for (int y = 0; y < terrainVector.size();y++) {
-    delete terrainVector.at(y).at(terrainVector.at(y).size() - 1);
+    if(terrainVector.at(y).at(terrainVector.at(y).size() - 1) != NULL)
+      delete terrainVector.at(y).at(terrainVector.at(y).size() - 1);
     terrainVector.at(y).erase(terrainVector.at(y).begin() + terrainVector.at(y).size() - 1);
   }
 };
