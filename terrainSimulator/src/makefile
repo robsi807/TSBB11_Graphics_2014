@@ -9,17 +9,19 @@ UNAME := $(shell uname)
 GRASS=1
 PLANTS=0
 BIRDS=1
-PERLIN=1
+PERLIN=0
+LOWGRAPHICS=1
 
-PATCH_SIZE=512
+PATCH_SIZE=256
 PATCH_OVERLAP=PATCH_SIZE/4
-GRID_BEGIN_SIZE=11
+GRID_BEGIN_SIZE=9
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc
-CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra -I$(COMMONDIR) -I$(BOOSTDIR)
-CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -I$(COMMONDIR)
-LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa -I$(COMMONDIR) -I$(BOOSTDIR) #-lpthread
+DFLAGS = -DGRASS=$(GRASS) -DPLANTS=$(PLANTS) -DPERLIN=$(PERLIN) -DPATCH_OVERLAP=$(PATCH_OVERLAP) -DPATCH_SIZE=$(PATCH_SIZE) -DGRID_BEGIN_SIZE=$(GRID_BEGIN_SIZE) -DLOWGRAPHICS=$(LOWGRAPHICS)
+CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra -I$(COMMONDIR) -I$(BOOSTDIR) $(DFLAGS)
+CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -I$(COMMONDIR) -lpthread 
+LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa -lpthread -I$(COMMONDIR) -I$(BOOSTDIR)
 GLUTPATH = $(COMMONDIR)mac
 GLUT	= $(COMMONDIR)MicroGlut.m
 endif

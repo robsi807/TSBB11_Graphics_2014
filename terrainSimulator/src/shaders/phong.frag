@@ -9,6 +9,7 @@ out vec4 outColor;
 
 uniform vec3 lightDirection;
 uniform float specularExponent;
+uniform float distanceFogConstant;
 uniform sampler2D tex;
 uniform mat4 world2View;
 uniform mat4 mdl2World;
@@ -35,7 +36,7 @@ vec4 applyDistanceFog(vec4 rgb){
      // fogColor should ideally be calculate from the skybox
      const vec4 fogColor = vec4(.6,.87,0.99,1.0);
      float dist = length(exPosition);
-     float fogAmount = clamp(dist*0.0005,0.0,1.0);
+     float fogAmount = clamp(dist*distanceFogConstant,0.0,1.0);
      float fogWeight = cosInterpolate(fogAmount,0.7);
      return fogWeight*rgb + (1-fogWeight)*fogColor;
 }

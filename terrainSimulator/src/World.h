@@ -43,6 +43,19 @@ class World
     long worldSeed;
     GLfloat time;
     int patchOverlap,patchSize;
+    GLuint grassTex1;
+    GLuint grassBillboardTex;
+    GLuint grassTexLowPass;
+    GLuint noiseTex;
+    GLuint rockTex1;
+    GLuint rockTex2;
+    GLuint noiseTex2;
+    GLfloat specularExponent;
+#if LOWGRAPHICS == 1
+    const float distanceFogConstant = 0.004;
+#else
+    const float distanceFogConstant = 0.0005;
+#endif
     void init();
 
 		void printTerrainToFile(int startSize);

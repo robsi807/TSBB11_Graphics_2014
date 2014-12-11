@@ -21,7 +21,11 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
   heightScale = patchSize;
   
   int biotope = 1; // 1 = mountains, 2 = desert
+#if PATCH_SIZE == 256
+  int NoF = 8;
+#else
   int NoF = 9; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
+#endif
   int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.  
   
   int n=x+y*57;
@@ -391,13 +395,16 @@ void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float 
 		vec3 terrainPos = vec3(xPos+blendedSize/2,0.0,yPos+blendedSize/2);
 		float maxDist = 500.0 + sqrt(2.0)*((float)(blendedSize/2));
 		if(Norm(camPos-terrainPos) < maxDist){
-		  // Draw grass 
+		  // Draw grass
+
+      glEnable(GL_POLYGON_SMOOTH); 
 		  glUseProgram(*grassShader);
 		  glUniformMatrix4fv(glGetUniformLocation(*grassShader, "mdl2World"), 1, GL_TRUE, modelView.m);
 		  glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
 		  glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
 		  DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
-		}
+      glDisable(GL_POLYGON_SMOOTH);		
+}
 #endif
 
     // Draw all objects 

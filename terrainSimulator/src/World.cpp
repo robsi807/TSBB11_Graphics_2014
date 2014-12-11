@@ -3,7 +3,7 @@
 World::World(){
 	
   time = 0;
-  
+  specularExponent = 2.0;
   updatingWorld = false;
 
   patchOverlap = PATCH_OVERLAP;
@@ -38,21 +38,23 @@ World::World(){
   glUseProgram(terrainShader);
 
   vec3 lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
-  GLfloat specularExponent = 2.0;
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(terrainShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
 #if GRASS == 1
   glUseProgram(grassShader);
   glUniform3fv(glGetUniformLocation(grassShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(grassShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(grassShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(grassShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
 #endif
 
   glUseProgram(phongShader);
   glUniform3fv(glGetUniformLocation(phongShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(phongShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
 
 #if BIRDS == 1
@@ -64,41 +66,32 @@ World::World(){
 
   // Upload textures to terrain shader
   glUseProgram(terrainShader);
-  GLuint grassTex1;
   glActiveTexture(GL_TEXTURE0);
   LoadTGATextureSimple("../textures/grass4_1024_lp.tga", &grassTex1);
   glUniform1i(glGetUniformLocation(terrainShader, "grassTex"), 0); 
   
-  GLuint noiseTex;
   glActiveTexture(GL_TEXTURE0+1);
   LoadTGATextureSimple("../textures/fft-terrain.tga", &noiseTex);
   glUniform1i(glGetUniformLocation(terrainShader, "noiseTex"), 1); 
 
-  GLuint rockTex1;
   glActiveTexture(GL_TEXTURE0+2);
   LoadTGATextureSimple("../textures/rock2_1024.tga", &rockTex1);
   glUniform1i(glGetUniformLocation(terrainShader, "rockTex1"), 2);
-
-  GLuint rockTex2;
   glActiveTexture(GL_TEXTURE0+3);
   LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
   glUniform1i(glGetUniformLocation(terrainShader, "rockTex2"), 3); 
 
   // Upload textures to grass shader
 #if GRASS == 1
-  glEnable (GL_POLYGON_SMOOTH);
   glUseProgram(grassShader);
-  GLuint grassTexLowPass;
   glActiveTexture(GL_TEXTURE0+4);
   LoadTGATextureSimple("../textures/grass4_1024_lp2.tga",&grassTexLowPass);
   glUniform1i(glGetUniformLocation(grassShader,"grassTex"),4);
 
-  GLuint noiseTex2;
   glActiveTexture(GL_TEXTURE0+5);
   LoadTGATextureSimple("../textures/noise/uniformNoise1.tga",&noiseTex2);
   glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),5);
   
-  GLuint grassBillboardTex;
   glActiveTexture(GL_TEXTURE0+6);
   LoadTGATextureSimple("../textures/grass_billboard2.tga",&grassBillboardTex);
   glUniform1i(glGetUniformLocation(grassShader,"grassBillboard"),6);
@@ -111,6 +104,7 @@ World::World(){
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(plantShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(plantShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(plantShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
   glActiveTexture(GL_TEXTURE0+4);
