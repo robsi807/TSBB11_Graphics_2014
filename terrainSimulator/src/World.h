@@ -52,7 +52,7 @@ class World
     GLuint noiseTex2;
     GLfloat specularExponent;
 #if LOWGRAPHICS == 1
-    const float distanceFogConstant = 0.004;
+    const float distanceFogConstant = 0.002;
 #else
     const float distanceFogConstant = 0.0005;
 #endif

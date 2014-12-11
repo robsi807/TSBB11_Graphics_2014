@@ -1,7 +1,7 @@
 #Makefile by Carl Stejmar, 2014-09-11
 
 COMMONDIR = ../common/
-BOOSTDIR = ../../../boost_1_57_0/
+BOOSTDIR = ../../boost_1_57_0/
 
 # Determine system and compiler
 UNAME := $(shell uname)

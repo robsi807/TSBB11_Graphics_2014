@@ -350,30 +350,32 @@ TerrainPatch::~TerrainPatch(){
   
   if(hasGeometry()) {
   
-	  free(geometry->vertexArray);   
-	  free(geometry->texCoordArray); 
-	  free(geometry->normalArray);   
-	  free(geometry->indexArray);
-	  
-	  glDeleteBuffers(1, &geometry->vb);
-	  glDeleteBuffers(1, &geometry->ib);
-	  glDeleteBuffers(1, &geometry->nb);
-	  if (geometry->texCoordArray != NULL)
-		  glDeleteBuffers(1, &geometry->tb);
-		  
-		
-	  glDeleteVertexArrays(1, &geometry->vao);
-	  
-	       
+    if(geometry->vertexArray != NULL)
+      free(geometry->vertexArray);   
+
+    if(geometry->texCoordArray != NULL)
+      free(geometry->texCoordArray); 
+
+    if(geometry->normalArray != NULL)
+      free(geometry->normalArray);   
+
+    if(geometry->indexArray != NULL)
+      free(geometry->indexArray);
+
+    glDeleteBuffers(1, &geometry->vb);
+    glDeleteBuffers(1, &geometry->ib);
+    glDeleteBuffers(1, &geometry->nb);
+    if (geometry->texCoordArray != NULL)
+      glDeleteBuffers(1, &geometry->tb);
+		  	
+    glDeleteVertexArrays(1, &geometry->vao);
+    free(geometry);
   }
 
-  
   objects.clear();
   rawHeightMap.clear();
   blendedHeightMap.clear();
-  delete geometry;
-  delete patchGenerator;
-  
+  delete patchGenerator;  
 }
 
 
