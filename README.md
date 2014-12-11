@@ -1,13 +1,12 @@
-Infinite, procedural world
+#Infinite, procedural world
 
 Created by
 Lukas Berglin, Ikshu Dutta, Robin Silverhav, Carl Stejmar, Peter Thulin
 
-And now, LaTeX code (can't even be bothered..)
-\section{Introduction}
+##Introduction
 This is a user guide for our project in TSBB11 at Linköping University. It covers how to install and run the project on your computer, and what controllers to use.
 
-\section{Requirements}
+##Requirements
 \begin{itemize}
 \item Linux or OS X 
 \item GCC compiler
