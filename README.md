@@ -9,7 +9,7 @@ This is a user guide for our project in TSBB11 at Linköping University. It cove
 ##Requirements
 * Linux or OS X 
 * GCC compiler
-* OpenGL compiler
+* OpenGL
 
 ##Installation
 
