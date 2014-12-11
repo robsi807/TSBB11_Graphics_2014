@@ -7,9 +7,9 @@ Lukas Berglin, Ikshu Dutta, Robin Silverhav, Carl Stejmar, Peter Thulin
 This is a user guide for our project in TSBB11 at Linköping University. It covers how to install and run the project on your computer, and what controllers to use.
 
 ##Requirements
-*Linux or OS X 
-*GCC compiler
-*OpenGL compiler
+* Linux or OS X 
+* GCC compiler
+* OpenGL compiler
 
 ##Installation
 
