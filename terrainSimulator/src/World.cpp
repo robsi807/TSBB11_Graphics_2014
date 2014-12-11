@@ -61,6 +61,7 @@ World::World(){
   glUseProgram(birdShader);
   glUniform3fv(glGetUniformLocation(birdShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(birdShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(birdShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(birdShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
 #endif
 

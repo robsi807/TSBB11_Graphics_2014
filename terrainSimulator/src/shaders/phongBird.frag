@@ -9,6 +9,7 @@ out vec4 outColor;
 
 uniform vec3 lightDirection;
 uniform float specularExponent;
+uniform float distanceFogConstant;
 
 uniform int evader;
 uniform sampler2D evaderTexture;
