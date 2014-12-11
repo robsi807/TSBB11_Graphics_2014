@@ -5,9 +5,9 @@ BOOSTDIR = ../../../boost_1_57_0/
 # Determine system and compiler
 UNAME := $(shell uname)
 
-GRASS=0
-PLANTS=0
-PERLIN=1
+GRASS=1
+PLANTS=1
+PERLIN=0
 
 PATCH_SIZE=512
 PATCH_OVERLAP=PATCH_SIZE/4
@@ -15,9 +15,10 @@ GRID_BEGIN_SIZE=11
 
 ifeq ($(UNAME), Darwin) # Mac
 CXX     = gcc
-CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra -I$(COMMONDIR) -I$(BOOSTDIR)
+DFLAGS = -DGRASS=$(GRASS) -DPLANTS=$(PLANTS) -DPERLIN=$(PERLIN) -DPATCH_OVERLAP=$(PATCH_OVERLAP) -DPATCH_SIZE=$(PATCH_SIZE) -DGRID_BEGIN_SIZE=$(GRID_BEGIN_SIZE)
+CCFLAGS = -g -std=c++11 -stdlib=libc++ -pedantic -Wall -Wextra -I$(COMMONDIR) -I$(BOOSTDIR) $(DFLAGS)
 CFLAGS  = -g -std=c99 -pedantic -Wall -Wextra -I$(COMMONDIR)
-LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa -I$(COMMONDIR) -I$(BOOSTDIR)
+LINK    = -g -shared-libgcc -lstdc++ -framework OpenGL -framework Cocoa -lpthread -I$(COMMONDIR) -I$(BOOSTDIR)
 GLUTPATH = $(COMMONDIR)mac
 GLUT	= $(COMMONDIR)MicroGlut.m
 endif
