@@ -3,7 +3,7 @@
 World::World(){
 	
   time = 0;
-  
+  specularExponent = 2.0;
   updatingWorld = false;
 
   patchOverlap = PATCH_OVERLAP;
@@ -32,21 +32,23 @@ World::World(){
   glUseProgram(terrainShader);
 
   vec3 lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
-  GLfloat specularExponent = 2.0;
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(terrainShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
 #if GRASS == 1
   glUseProgram(grassShader);
   glUniform3fv(glGetUniformLocation(grassShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(grassShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(grassShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(grassShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
 #endif
 
   glUseProgram(phongShader);
   glUniform3fv(glGetUniformLocation(phongShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(phongShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
   
   // Upload textures to terrain shader
@@ -68,7 +70,6 @@ World::World(){
 
   // Upload textures to grass shader
 #if GRASS == 1
-  glEnable (GL_POLYGON_SMOOTH);
   glUseProgram(grassShader);
   glActiveTexture(GL_TEXTURE0+4);
   LoadTGATextureSimple("../textures/grass4_1024_lp2.tga",&grassTexLowPass);
@@ -90,6 +91,7 @@ World::World(){
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(plantShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(plantShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(plantShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
   glActiveTexture(GL_TEXTURE0+4);

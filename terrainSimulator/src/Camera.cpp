@@ -25,7 +25,11 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
   velocity = 1.5;
 
   projectionNear = 0.8;
+#if LOWGRAPHICS == 1
+  projectionFar = 800.0;  
+#else 
   projectionFar = 1700.0;
+#endif
   projectionRight = 0.5/0.75; // for wide screen
   projectionLeft = -0.5/0.75; // for wide screen
   projectionTop = 0.5;
@@ -214,9 +218,7 @@ void Camera::handleMouse(int x, int y)
   glutWarpPointer(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)-520); // On mac the pointer is shifted 520 pixels (why?)
   glutHideCursor();
 #else
-  if(warpPointer){
-    glutWarpPointer(SCREEN_WIDTH/2, SCREEN_HEIGHT/2); // Ger delay med linux!
-  }
+
 #endif
 }
 
