@@ -215,8 +215,6 @@ void Camera::handleMouse(int x, int y)
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
 #ifdef __APPLE__
-  glutWarpPointer(SCREEN_WIDTH/2, (SCREEN_HEIGHT/2)-520); // On mac the pointer is shifted 520 pixels (why?)
-  glutHideCursor();
 #else
 
 #endif
