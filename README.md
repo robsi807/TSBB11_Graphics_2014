@@ -13,8 +13,7 @@ This is a user guide for our project in TSBB11 at Linköping University. It cove
 
 ##Installation
 
-1. Download the project from Github.
-*https://github.com/robsi807/TSBB11\_Graphics\_2014*
+1. Clone the project by typing `git clone https://github.com/robsi807/TSBB11_Graphics_2014.git` in a terminal.
 
 2. Download the boost library.
 *http://sourceforge.net/projects/boost/files/boost/1.57.0/*
