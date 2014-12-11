@@ -31,7 +31,7 @@ Extract the boost folder from the archieve and put it main folder.
 
 * Mouse cursor to look around and change moving direction.
 
-* + to increase and - to decrease movement speed.
+* `+` to increase and - to decrease movement speed.
 
 * M to enable and Shift + M to disable flight mode.
 
