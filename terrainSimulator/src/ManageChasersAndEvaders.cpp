@@ -31,13 +31,13 @@ ManageChasersAndEvaders::ManageChasersAndEvaders(GLuint* phongShader, char *mode
   loadEvaderModels();
   chaserModel = LoadModelPlus(modelPathChaser);
 
-  Evader* evaders = new Evader(cam.position + vec3(25,25,25), 180, 0, cam.position);
-  //Evader* evaders2 = new Evader(cam.position + vec3(30,30,50), 70, 1, cam.position);
+  Evader* evaders = new Evader(cam.position + vec3(25,25,25), 100, 0, cam.position);
+  Evader* evaders2 = new Evader(cam.position + vec3(30,30,50), 40, 1, cam.position);
   //Evader* evaders3 = new Evader(cam.position + vec3(-30,30,-50), 50, 1, cam.position);
   //Evader* evaders4 = new Evader(cam.position + vec3(-70,30,70), 150, 1, cam.position);
 
   flocks.push_back(evaders);
-  //flocks.push_back(evaders2);
+  flocks.push_back(evaders2);
   //flocks.push_back(evaders3);
   //flocks.push_back(evaders4);
 
