@@ -42,6 +42,13 @@ class World
     long worldSeed;
     GLfloat time;
     int patchOverlap,patchSize;
+    GLuint grassTex1;
+    GLuint grassBillboardTex;
+    GLuint grassTexLowPass;
+    GLuint noiseTex;
+    GLuint rockTex1;
+    GLuint rockTex2;
+    GLuint noiseTex2;
     void init();
 
 		void printTerrainToFile(int startSize);

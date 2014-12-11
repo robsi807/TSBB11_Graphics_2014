@@ -51,22 +51,17 @@ World::World(){
   
   // Upload textures to terrain shader
   glUseProgram(terrainShader);
-  GLuint grassTex1;
   glActiveTexture(GL_TEXTURE0);
   LoadTGATextureSimple("../textures/grass4_1024_lp.tga", &grassTex1);
   glUniform1i(glGetUniformLocation(terrainShader, "grassTex"), 0); 
   
-  GLuint noiseTex;
   glActiveTexture(GL_TEXTURE0+1);
   LoadTGATextureSimple("../textures/fft-terrain.tga", &noiseTex);
   glUniform1i(glGetUniformLocation(terrainShader, "noiseTex"), 1); 
 
-  GLuint rockTex1;
   glActiveTexture(GL_TEXTURE0+2);
   LoadTGATextureSimple("../textures/rock2_1024.tga", &rockTex1);
   glUniform1i(glGetUniformLocation(terrainShader, "rockTex1"), 2);
-
-  GLuint rockTex2;
   glActiveTexture(GL_TEXTURE0+3);
   LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
   glUniform1i(glGetUniformLocation(terrainShader, "rockTex2"), 3); 
@@ -75,17 +70,14 @@ World::World(){
 #if GRASS == 1
   glEnable (GL_POLYGON_SMOOTH);
   glUseProgram(grassShader);
-  GLuint grassTexLowPass;
   glActiveTexture(GL_TEXTURE0+4);
   LoadTGATextureSimple("../textures/grass4_1024_lp2.tga",&grassTexLowPass);
   glUniform1i(glGetUniformLocation(grassShader,"grassTex"),4);
 
-  GLuint noiseTex2;
   glActiveTexture(GL_TEXTURE0+5);
   LoadTGATextureSimple("../textures/noise/uniformNoise1.tga",&noiseTex2);
   glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),5);
   
-  GLuint grassBillboardTex;
   glActiveTexture(GL_TEXTURE0+6);
   LoadTGATextureSimple("../textures/grass_billboard2.tga",&grassBillboardTex);
   glUniform1i(glGetUniformLocation(grassShader,"grassBillboard"),6);
