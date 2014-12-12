@@ -6,7 +6,7 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
   vec3 r = vec3(0.5,0,0);
   position = pos;
   lookAtPoint = VectorAdd(position,r);
-  upVector = vec3(0,1,0);
+  upVector = vec3(0.0,1.0,0.0);
   
   //Terrain information
   terrainVector = terrain;
@@ -126,6 +126,36 @@ void Camera::handleKeyPress()
       position = VectorAdd(position,ScalarMult(d,velocity));
     }
 
+  //8,4,5,6 to rotate camera up, left, down right
+  if(keyIsDown('y'))
+    {
+      vec3 w = VectorSub(lookAtPoint,position);
+      vec3 a = Normalize(VectorAdd(w,ScalarMult(upVector,1.0/10.0)));
+      lookAtPoint = VectorAdd(position,a);
+
+    }  
+  if(keyIsDown('h'))
+    {
+      vec3 w = VectorSub(lookAtPoint,position);
+      vec3 a = Normalize(VectorAdd(w,ScalarMult(upVector,-1.0/10.0)));
+      lookAtPoint = VectorAdd(position,a);
+    }
+  if(keyIsDown('g'))
+    {
+      vec3 w = VectorSub(lookAtPoint,position);
+      vec3 a = Normalize(CrossProduct(upVector,w));
+      a = Normalize(VectorAdd(w,ScalarMult(a,1.0/10.0)));
+      lookAtPoint = VectorAdd(position,a);
+    }
+  if(keyIsDown('j'))
+    {
+      vec3 w = VectorSub(lookAtPoint,position);
+      vec3 a = Normalize(CrossProduct(upVector,w));
+      a = Normalize(VectorAdd(w,ScalarMult(a,-1.0/10.0)));
+      lookAtPoint = VectorAdd(position,a);
+    }
+
+
   //space and c to increase or decrease height
   if(keyIsDown(' '))
     {
@@ -163,11 +193,11 @@ void Camera::handleKeyPress()
   //+ and - to increase or decrease movement speed
   if(keyIsDown('+'))
     {
-      velocity += 1.1;
+      velocity = min(3.0,velocity + 1.0);
     }
   if(keyIsDown('-'))
     {
-      velocity /= 1.1;
+      velocity = max(1.0,velocity - 1.0);
     }
 
   //1 and 3 to lock or unlock frustum, for debugging purposes
@@ -180,21 +210,13 @@ void Camera::handleKeyPress()
       lockFrustum = false;
     }
 
-  //f to print current position and direction
-  if(keyIsDown('f'))
-    {
-      vec3 dir = getDirection();
-      printf("Pos: (%3.1f,%3.1f,%3.1f)\n",position.x,position.y,position.z);
-      printf("Dir: ((%1.2f,%1.2f,%1.2f))\n",dir.x,dir.y,dir.z);
-    }
-
   //cameraMatrix = lookAtv(position,lookAtPoint,upVector); // In update!
 
 }
 
 void Camera::handleMouse(int x, int y)
 {
-  GLfloat xtemp = (GLfloat)(-x + SCREEN_WIDTH / 2) / (10000 / sensitivity);
+  /*GLfloat xtemp = (GLfloat)(-x + SCREEN_WIDTH / 2) / (10000 / sensitivity);
   GLfloat ytemp = (GLfloat)(-y + SCREEN_HEIGHT / 2) / (10000 / sensitivity);
 
   vec3 r = Normalize(VectorSub(lookAtPoint, position)); // Forward Direction
@@ -217,7 +239,7 @@ void Camera::handleMouse(int x, int y)
 #ifdef __APPLE__
 #else
 
-#endif
+#endif*/
 }
 
 void Camera::update()

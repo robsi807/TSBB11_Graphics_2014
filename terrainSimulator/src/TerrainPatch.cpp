@@ -35,7 +35,7 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
 #if PERLIN==1
   patchGenerator = new PerlinPatchGeneratorFast(biotope, NoF, amplitude, patchSize,seed);
 #else
-    patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
+  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
 #endif
   rawHeightMap = patchGenerator->generatePatch(x,y);
   blendedHeightMap = rawHeightMap;
