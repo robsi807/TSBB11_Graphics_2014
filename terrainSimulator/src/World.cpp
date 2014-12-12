@@ -1,7 +1,11 @@
 #include "World.h"
 
 World::World(){
-	
+#if LOWGRAPHICS == 1
+    distanceFogConstant = 0.002;
+#else
+    distanceFogConstant = 0.0005;
+#endif
   time = 0;
   specularExponent = 2.0;
   updatingWorld = false;
@@ -126,8 +130,6 @@ void World::generateStartingPatches(int startSize){
   mutex rowLock; 
   int index;  
 
-  clock_t t;
-  t = clock();
   // Initiate height maps
   for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
     vector<TerrainPatch*> terrainRow;
@@ -147,8 +149,6 @@ void World::generateStartingPatches(int startSize){
     terrainVector.push_back(terrainRow);
     threadVector.clear();
   }
-  t = clock()-t;
-  printf("%d\n",t);
   
   blender->blendAll(&terrainVector);
 	

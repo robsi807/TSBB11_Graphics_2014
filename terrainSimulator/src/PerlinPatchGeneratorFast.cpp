@@ -6,7 +6,6 @@ PerlinPatchGeneratorFast::PerlinPatchGeneratorFast(int inputBiotope, int inputNo
     NoF = inputNoF;
     amplitudeScale = inputAmplitude;
     gridSize = inputSize;
-
     rng.seed(seed);
 }
 
@@ -33,10 +32,7 @@ vector<float> PerlinPatchGeneratorFast::addMatrices(vector<float> inGrid1, vecto
 }
 //Interpolates a value from a and b, with x being the distance from a to the point
 float PerlinPatchGeneratorFast::interpolateValues(float a, float b, float x){
-
-    //float Sx = 3.0*pow(x,2.0)-2.0*pow(x,3.0);
-    //float res = a+Sx*(b-a);
-    
+ 
     float res = a+x*(b-a); //Linear blending works best.
     return res;
 
@@ -69,21 +65,16 @@ vector<float> PerlinPatchGeneratorFast::createPatch(int frequency, int gradientP
 //Generates a full patch of value noise. Parameters can be set in constructor.
 vector<float> PerlinPatchGeneratorFast::generatePatch(int x, int y)
 {
-    vector<float> tempPatch;
-	//float tempPatch[gridSize*gridSize];
-	vector<float> heightMapPatch;
+    vector<float> heightMapPatch;
 	int frequency;
 	int gradientPoints;
 	float amplitude;
+    float s,t,u,v,diffX,diffY,a,b,z;
+    int gradientX, gradientY;
+    float sVec[2], tVec[2], uVec[2], vVec[2];
     
     //Initiate a start
-	heightMapPatch.assign(gridSize*gridSize,0);
-
-    //Position based seed
-    int n=x+y*57;
-    n=(n<<13)^n;
-    int seed=(n*(n*n*60493+19990303)+1376312589)&0x7fffffff;
-    srand(seed);
+	heightMapPatch.assign(gridSize*gridSize,0.0);
 
     //Creates a height map for each frequency, and adds them together 
 	for(int n = 0; n <= NoF; n = n+1){
@@ -100,13 +91,8 @@ vector<float> PerlinPatchGeneratorFast::generatePatch(int x, int y)
         amplitude *= amplitudeScale;
         
         //Calculate patch for that frequency
-	    float s,t,u,v,diffX,diffY,a,b,z;
-        int gradientX, gradientY;
         vector<float> finalGrid;
-        float sVec[2], tVec[2], uVec[2], vVec[2];
-
 	    float gradients[gradientPoints*gradientPoints][2];
-
         float value,value2,norm;
         
         boost::uniform_int<> one_to_six( 0, INT_MAX );
@@ -168,10 +154,9 @@ vector<float> PerlinPatchGeneratorFast::generatePatch(int x, int y)
                 
 		    } 
 	    }
-        tempPatch = finalGrid;
 
         //Add the temporary patch together with previous patches
-		heightMapPatch = addMatrices(heightMapPatch, tempPatch);
+		heightMapPatch = addMatrices(heightMapPatch, finalGrid);
       
 	}
 	return heightMapPatch;

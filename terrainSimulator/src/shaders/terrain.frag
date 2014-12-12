@@ -46,11 +46,11 @@ vec4 calculateColor()
 	// Calculate slope
 	float wSlope = clamp(1.2-terrainNormal.y,0,1); // Shortcut for dot product with y-axis!
 	
-	float texScale = 9.0; // Scale up the texture coordinates
-	vec4 grass1 = texture(grassTex,texCoord / texScale);
-	vec4 rock1 = texture(rockTex1,texCoord / texScale);
-	vec4 rock2 = texture(rockTex2,texCoord / texScale);	
-	vec4 noise1 = texture(noiseTex,texCoord / 500);	
+	float texScale = 16.0; // Scale up the texture coordinates
+	vec4 grass1 = texture(grassTex,texCoord * texScale);
+	vec4 rock1 = texture(rockTex1,texCoord * texScale);
+	vec4 rock2 = texture(rockTex2,texCoord * texScale);	
+	vec4 noise1 = texture(noiseTex,texCoord);	
 
 	float perlNoise = noise1.x;
 	float wRock = (perlNoise + 1) * 0.5;

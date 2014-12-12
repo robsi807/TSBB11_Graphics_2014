@@ -26,7 +26,6 @@
 #include <thread>
 #include <iostream>
 #include <time.h>
-
 #include <mutex>
 
 // Debugging includes
@@ -50,15 +49,8 @@ class World
   GLuint rockTex1;
   GLuint rockTex2;
   GLuint noiseTex2;
-  GLuint terrainTexture;
   GLfloat specularExponent;
-
-#if LOWGRAPHICS == 1
-  const float distanceFogConstant = 0.002;
-#else
-  const float distanceFogConstant = 0.0005;
-#endif
-
+  float distanceFogConstant;
   void init();
   void printTerrainToFile(int startSize);
 
@@ -66,8 +58,7 @@ class World
   GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader, birdShader;
     
   int gridSize;
-    
-    
+  
   Camera* camera;
   Skybox* skybox;
 #if BIRDS == 1
