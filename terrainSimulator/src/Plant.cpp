@@ -67,7 +67,7 @@ void Plant::draw(mat4 cameraMatrix,vec3 camPos,float time){
   }
 
 	// Check if distance too large
-	float maxDist = 500.0;
+	float maxDist = 1000.0;
 	if(Norm(camPos-globalPosition) < maxDist){
 		glEnable (GL_POLYGON_SMOOTH);
 		glUseProgram(*geomShader);

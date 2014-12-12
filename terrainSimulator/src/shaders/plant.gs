@@ -28,7 +28,7 @@ void createLeaf(vec4 position,vec3 normal,vec3 tangent,vec2 texCord,float height
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     
-		texCoordG = texCord; 
+		texCoordG = texCord+vec2(0.1,0.1); 
     exNormalG = normalMatrix * normal;
     newPos = position + (height/2)*vec4(normal,0.0)+(width/2)*vec4(tangent,0.0);
     exPositionG = vec3( world2View * mdl2World * newPos);
@@ -36,7 +36,7 @@ void createLeaf(vec4 position,vec3 normal,vec3 tangent,vec2 texCord,float height
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     
-    texCoordG = texCord; 
+    texCoordG = texCord+vec2(-0.1,-0.1); 
     exNormalG = normalMatrix * normal;
     newPos = position + (height/2)*vec4(normal,0.0) - (width/2)*vec4(tangent,0.0);
     exPositionG = vec3( world2View * mdl2World * newPos);
@@ -44,7 +44,7 @@ void createLeaf(vec4 position,vec3 normal,vec3 tangent,vec2 texCord,float height
     gl_Position = projMatrix * vec4(exPositionG,1.0);
     EmitVertex();
     
-    texCoordG = texCord; 
+    texCoordG = texCord+vec2(0.0,0.1); 
     exNormalG = normalMatrix * normal;
     newPos = position + height*vec4(normal,0.0);
     exPositionG = vec3( world2View * mdl2World * newPos);
@@ -95,13 +95,13 @@ void main(){
               
         vec2 tex0,tex1,tex2;
         tex0 = texCoord[0];
-        tex1 = texCoord[1];
-        tex2 = texCoord[2];
+        //tex1 = texCoord[1];
+        //tex2 = texCoord[2];
         
         vec3 normal0,normal1,normal2;
         normal0 = exNormal[0];
-        normal1 = exNormal[1];
-        normal2 = exNormal[2];
+        //normal1 = exNormal[1];
+        //normal2 = exNormal[2];
         
         if(cameraCoord.z < zLod0 && cameraCoord.x > -xLod0 && cameraCoord.x < xLod0){
         // zLod 0
@@ -109,11 +109,11 @@ void main(){
             //vec3 rgbNoise2 = 2*vec3(texture(noiseTex,1.5*(tex1/scaleNoise)))-1;
             //vec3 rgbNoise3 = 2*vec3(texture(noiseTex,2*(tex2/scaleNoise)))-1;
             
-            vec4 grPos0 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise1.x),pos2,0.5+posScale*rgbNoise1.y);
+            vec4 grPos0 = pos0;//mix(mix(pos0,pos1,0.5+posScale*rgbNoise1.x),pos2,0.5+posScale*rgbNoise1.y);
             //vec4 grPos1 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise1.z),pos2,0.5+posScale*rgbNoise2.x);
             //vec4 grPos2 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise2.y),pos2,0.5+posScale*rgbNoise2.z);
             
-            vec3 grNorm0 = mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.x),normal2,0.5+posScale*rgbNoise1.y);
+            vec3 grNorm0 = normal0;//mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.x),normal2,0.5+posScale*rgbNoise1.y);
             //vec3 grNorm1 = mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.z),normal2,0.5+posScale*rgbNoise2.x);
             //vec3 grNorm2 = mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.y),normal2,0.5+posScale*rgbNoise1.z);
             
@@ -129,13 +129,30 @@ void main(){
            	if(temp > 0.5){
 		          rgbNoise1 = 2*rgbNoise1 - 1; 
 		          width *= 2.0;
-		          vec4 grPos0 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise1.x),pos2,0.5+posScale*rgbNoise1.y);
+		          vec4 grPos0 = pos0;
 		          
-		          vec3 grNorm0 = mix(mix(normal0,normal1,0.5+posScale*rgbNoise1.x),normal2,0.5+posScale*rgbNoise1.y);
+		          vec3 grNorm0 = normal0;
 		          
 		          vec3 grTang0 = mix(mix(tang0,tang1,0.5+posScale*rgbNoise1.x),tang2,0.5+posScale*rgbNoise1.y);
 		          
 		          createLeaf(grPos0,grNorm0,grTang0,tex0,height+heightScale*rgbNoise1.x,width,normalMatrix);
+            } 
+        }
+        else if(cameraCoord.z <= zLod2 && cameraCoord.x > -xLod1 && cameraCoord.x < xLod1 ){
+        // zLod 1
+            vec3 rgbNoise1 = vec3(texture(noiseTex,pos0.xy/scaleNoise));
+            float temp = (rgbNoise1.x + rgbNoise1.y + rgbNoise1.z ) / 3.0;
+           	if(temp > 0.6){
+           		float lodHeight = 1.0 - (cameraCoord.z - zLod1)/(zLod2 - zLod1); 
+		          rgbNoise1 = 2*rgbNoise1 - 1; 
+		          width *= 4.0;
+		          vec4 grPos0 = pos0;
+		          
+		          vec3 grNorm0 = normal0;
+		          
+		          vec3 grTang0 = mix(mix(tang0,tang1,0.5+posScale*rgbNoise1.x),tang2,0.5+posScale*rgbNoise1.y);
+		          
+		          createLeaf(grPos0,grNorm0,grTang0,tex0,lodHeight*(height+heightScale*rgbNoise1.x),width,normalMatrix);
             } 
         }
  

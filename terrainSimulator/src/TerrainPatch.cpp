@@ -195,6 +195,12 @@ void TerrainPatch::addPlants(){
   boost::variate_generator<RNGType, boost::uniform_int<>> dice(rng, one_to_six);
   
   int bushPatches = 1;
+  
+  // Decide if terrain patch has vegetation
+  bool hasVegetation = dice() < (INT_MAX * 0.2);
+  if(!hasVegetation)
+  	return;
+  
   for(int i=0;i<bushPatches;i++){
     // Add bushes
     // Randomize a start position
@@ -202,8 +208,8 @@ void TerrainPatch::addPlants(){
     int zMid = patchOverlap/2 + dice() % (blendedSize-patchOverlap/2);  
     
     // Randomize a grid size between 3 and 5
-    int xGridSize = 25 + dice() % 10;
-    int zGridSize = 25 + dice() % 10;
+    int xGridSize = 30 + dice() % 10;
+    int zGridSize = 30 + dice() % 10;
     float gridOffset = 10.0 + ((float)((dice()%300) - 150))/100.0;
    // printf("xGridSize=%i, zGridSize=%i, gridOffset=%i\n",xGridSize,zGridSize,gridOffset);
     
@@ -218,9 +224,9 @@ void TerrainPatch::addPlants(){
 	        vec3 newPos = vec3(newXPos,newYPos,newZPos);
       
       		// Randomly select if plant is to be placed
-      		bool placePlant = (dice() % 10000) < 10000*0.2;
+      		bool placePlant = dice() < INT_MAX*0.2;
       		if(placePlant){
-          	float scale = 1.5 + ((float)(dice() % 150)) /100.0;
+          	float scale = 0.2 + ((float)(dice() % 150)) /100.0;
           	float angle = 3.1415*((float)(dice() % 200))/100.0;
           	WorldObject* plant = new Plant(newPos,angle,scale,vec3(xPos,0.0,yPos),Bush);
           	objects.push_back(plant);
