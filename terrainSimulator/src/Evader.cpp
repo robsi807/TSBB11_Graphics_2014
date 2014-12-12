@@ -25,7 +25,7 @@ Evader::Evader(vec3 pos, int numOfBoids, int index, vec3 cameraPosition)
   // yMin is calculated by calcHeight.
   // yMax should be a fixed value because otherwise the followCam
   // will make it possible to fly up for infinity.
-  yMax = 370.0;
+  yMax = 250.0;
   zMin = cameraPosition.z - 256.0;
   zMax = cameraPosition.z + 256.0;
   
@@ -56,8 +56,8 @@ Evader::~Evader()
 
 void Evader::updateLeader(GLfloat time)
 {
-  // To make the flock not change direction so often, update offsetVec every 2.0 sec.
-  if((time - prevTime) > 2.0)
+  // To make the flock not change direction so often, update offsetVec every 1.5 sec.
+  if((time - prevTime) > 1.5)
     {
       prevTime = time;
 

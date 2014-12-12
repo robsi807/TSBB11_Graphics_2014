@@ -24,7 +24,7 @@ Chaser::Chaser(vec3 pos, int numOfBoids, vec3 cameraPosition)
   // yMin is calculated by calcHeight.
   // yMax should be a fixed value because otherwise the followCam
   // will make it possible to fly up for infinity.
-  yMax = 370.0;
+  yMax = 250.0;
   zMin = cameraPosition.z - 256.0;
   zMax = cameraPosition.z + 256.0;
   
