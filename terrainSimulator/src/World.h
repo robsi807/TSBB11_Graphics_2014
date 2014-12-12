@@ -39,70 +39,69 @@ using namespace std;
 
 class World
 {
-  private:
-    long worldSeed;
-    GLfloat time;
-    int patchOverlap,patchSize;
-    GLuint grassTex1;
-    GLuint grassBillboardTex;
-    GLuint grassTexLowPass;
-    GLuint noiseTex;
-    GLuint rockTex1;
-    GLuint rockTex2;
-    GLuint noiseTex2;
-    GLfloat specularExponent;
+ private:
+  long worldSeed;
+  GLfloat time;
+  int patchOverlap,patchSize;
+  GLuint grassTex1;
+  GLuint grassBillboardTex;
+  GLuint grassTexLowPass;
+  GLuint noiseTex;
+  GLuint rockTex1;
+  GLuint rockTex2;
+  GLuint noiseTex2;
+  GLuint terrainTexture;
+  GLfloat specularExponent;
+
 #if LOWGRAPHICS == 1
-    const float distanceFogConstant = 0.002;
+  const float distanceFogConstant = 0.002;
 #else
-    const float distanceFogConstant = 0.0005;
+  const float distanceFogConstant = 0.0005;
 #endif
-    void init();
 
-		void printTerrainToFile(int startSize);
-  public:
-    GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader, birdShader;
-    Model* sphere;
-    
-    int gridSize;
-    
-    GLuint terrainTexture;
-    Camera* camera;
-    Skybox* skybox;
+  void init();
+  void printTerrainToFile(int startSize);
 
+ public:
+  GLuint phongShader,skyboxShader,terrainShader,grassShader,plantShader, birdShader;
+    
+  int gridSize;
+    
+    
+  Camera* camera;
+  Skybox* skybox;
 #if BIRDS == 1
-    ManageChasersAndEvaders* birds;
+  ManageChasersAndEvaders* birds;
 #endif
+  Blender* blender;
 
-    Blender* blender;
+  vector<vector<TerrainPatch*>> terrainVector;
+  mutex terrainMutex;
+  bool updatingWorld;
 
-    vector<vector<TerrainPatch*>> terrainVector;
-    mutex terrainMutex;
+  World();
+  ~World();
+  void draw();
+  TerrainPatch* generatePatch(int patchX, int patchY);
+  void generateStartingPatches(int startSize);
+  void addPatchRow(int direction);
+  void addTerrainSouth();
+  void addTerrainNorth();
+  void addTerrainNorth2();
+  void addTerrainEast();
+  void addTerrainWest();
+  void removeTerrainSouth();
+  void removeTerrainNorth();
+  void removeTerrainEast();
+  void removeTerrainWest();
     
-    bool updatingWorld;
-
-    World();
-    ~World();
-    void draw();
-    TerrainPatch* generatePatch(int patchX, int patchY);
-    void generateStartingPatches(int startSize);
-    void addPatchRow(int direction);
-    void addTerrainSouth();
-    void addTerrainNorth();
-    void addTerrainNorth2();
-    void addTerrainEast();
-    void addTerrainWest();
-    void removeTerrainSouth();
-    void removeTerrainNorth();
-    void removeTerrainEast();
-    void removeTerrainWest();
-    
-    void addGeneratedTerrain();
-    void update();
-    void updateTerrain();
+  void addGeneratedTerrain();
+  void update();
+  void updateTerrain();
 };
 
 // Threading functions
-void threadGeneratePatch(World *w, int x, int y, vector<TerrainPatch*> *terrainRow, std::mutex * lock, int index);
+void threadGeneratePatch(World *w, int x, int y, vector<TerrainPatch*> *terrainRow, mutex * lock, int index);
 void threadAddPatchNorth(World *w);
 void threadAddPatchSouth(World *w);
 void threadAddPatchEast(World *w);
