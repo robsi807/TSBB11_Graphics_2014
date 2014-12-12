@@ -37,7 +37,7 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
 #else
   patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
 #endif
-  rawHeightMap = patchGenerator->generatePatch(x,y);
+  rawHeightMap = patchGenerator->generatePatch(x,y, (float)rand()/INT_MAX);
   blendedHeightMap = rawHeightMap;
 
 }

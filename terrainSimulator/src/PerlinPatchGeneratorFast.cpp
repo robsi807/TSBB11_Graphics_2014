@@ -62,9 +62,11 @@ vector<float> PerlinPatchGeneratorFast::createPatch(int frequency, int gradientP
 	return NULL;	
 }*/
 
+
 //Generates a full patch of value noise. Parameters can be set in constructor.
-vector<float> PerlinPatchGeneratorFast::generatePatch(int x, int y)
+vector<float> PerlinPatchGeneratorFast::generatePatch(int x, int y, float heightOffset)
 {
+  printf("test = %f \n", heightOffset);
     vector<float> heightMapPatch;
 	int frequency;
 	int gradientPoints;
@@ -150,7 +152,7 @@ vector<float> PerlinPatchGeneratorFast::generatePatch(int x, int y)
                 a = interpolateValues(s,t,diffX); 
                 b = interpolateValues(u,v,diffX);
                 z = interpolateValues(a,b,diffY);
-			    finalGrid.push_back(z * amplitude);
+			    finalGrid.push_back(z * amplitude + heightOffset);
                 
 		    } 
 	    }

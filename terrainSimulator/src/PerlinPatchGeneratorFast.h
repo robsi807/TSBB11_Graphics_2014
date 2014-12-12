@@ -47,10 +47,9 @@ class PerlinPatchGeneratorFast : public PatchGenerator{
   public:
 
     RNGType rng;
-
     PerlinPatchGeneratorFast(int inputBiotope, int inputNoF, int inputAmplitude, int inputSize, int seed);
     void printMatrix(vector<float> matrix);
-    vector<float> generatePatch(int xPatch, int yPatch);
+    vector<float> generatePatch(int xPatch, int yPatch, float offset);
 
 };
 

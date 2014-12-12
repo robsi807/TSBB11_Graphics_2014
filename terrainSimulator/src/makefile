@@ -5,13 +5,13 @@ BOOSTDIR = ../../boost_1_57_0/
 # Determine system and compiler
 UNAME := $(shell uname)
 
-GRASS=1
+GRASS=0
 PLANTS=0
 PERLIN=1
 LOWGRAPHICS=0
 
-PATCH_SIZE=256
-PATCH_OVERLAP=PATCH_SIZE/4
+PATCH_SIZE=512
+PATCH_OVERLAP=PATCH_SIZE/2
 GRID_BEGIN_SIZE=9
 
 ifeq ($(UNAME), Darwin) # Mac
