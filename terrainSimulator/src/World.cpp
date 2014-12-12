@@ -1,7 +1,11 @@
 #include "World.h"
 
 World::World(){
-	
+#if LOWGRAPHICS == 1
+    distanceFogConstant = 0.002;
+#else
+    distanceFogConstant = 0.0005;
+#endif
   time = 0;
   specularExponent = 2.0;
   updatingWorld = false;
