@@ -83,3 +83,10 @@ body{
   font-family:Consolas, monospace;
   background-color: #f1f1f1;
 }
+.center{
+  text-align: center;
+}
+
+.bottom-space{
+  padding-bottom: 40px;
+}
