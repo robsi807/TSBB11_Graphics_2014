@@ -2,12 +2,10 @@
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
 #include "../common/mac/MicroGlut.h"
-// Linking hint for Lightweight IDE
-// uses framework Cocoa
 #else
 #include <GL/gl.h>
 #include "../common/linux/MicroGlut.h"
-#include <X11/Xlib.h> // Moved! XInitThreads() does not exist in the Mac implementation.
+#include <X11/Xlib.h> // XInitThreads() does not exist in the Mac implementation.
 #endif
 
 #include "GL_utilities.h"
@@ -23,13 +21,8 @@ using namespace std;
 
 World* world;
 
-// Should be a member of world
-//GLfloat t = 0;
-
-
 void init(void)
 {
-
   // GL inits
   glClearColor(0.2,0.2,0.5,0);
   glEnable(GL_DEPTH_TEST);
@@ -37,7 +30,6 @@ void init(void)
   printError("GL inits");
   
   world = new World();
-
 }
 
 void display(void)
@@ -66,7 +58,7 @@ int main(int argc, char **argv)
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutInitContextVersion(3, 2);
   #ifdef __linux__
-  XInitThreads(); // Must be moved! Does not exist in the Mac implementation.
+  XInitThreads(); // Does not exist in the Mac implementation.
   #endif
   glutInitWindowSize(Camera::SCREEN_WIDTH,Camera::SCREEN_HEIGHT);
   glutCreateWindow("THE GENERATOR");

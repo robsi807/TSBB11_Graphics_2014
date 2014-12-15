@@ -35,7 +35,7 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
 #if PERLIN==1
   patchGenerator = new PerlinPatchGeneratorFast(biotope, NoF, amplitude, patchSize,seed);
 #else
-    patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
+  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
 #endif
   rawHeightMap = patchGenerator->generatePatch(x,y);
   blendedHeightMap = rawHeightMap;
@@ -109,7 +109,7 @@ void TerrainPatch::generateGeometry(){
 	    vec3 n4 = calcNormal(p11,p21,p22);
 	    vec3 n5 = calcNormal(p11,p10,p21);
 
-	    n = VectorAdd(n0,n1);
+	    n = VectorAdd(n0,n1);	
 	    n = VectorAdd(n,n2);
 	    n = VectorAdd(n,n3);
 	    n = VectorAdd(n,n4);
@@ -124,8 +124,9 @@ void TerrainPatch::generateGeometry(){
 	    normalArray[(x + z * blendedWidth)*3 + 1] = n.y; //(z1-z0)*(x2-x0)-(z2-z0)*(x1-x0); //1.0;
 	    normalArray[(x + z * blendedWidth)*3 + 2] = n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
 
-	    texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x1 - offset); // (float)x / size;
-	    texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z1 - offset); // (float)z / patchHeight;
+	    texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x) / (blendedWidth-1); 
+	    texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z) / (blendedWidth-1); 
+	    //cout <<"z = "<< z << " , texCoord  = " << ((float)z) / (blendedWidth-1) << endl;
 	  }
     for (x = 0; x < blendedWidth-1; x++)
       for (z = 0; z < blendedHeight-1; z++)
@@ -361,25 +362,21 @@ TerrainPatch::~TerrainPatch(){
 
     if(geometry->indexArray != NULL)
       free(geometry->indexArray);
-	  
-	  glDeleteBuffers(1, &geometry->vb);
-	  glDeleteBuffers(1, &geometry->ib);
-	  glDeleteBuffers(1, &geometry->nb);
-	  if (geometry->texCoordArray != NULL)
-		  glDeleteBuffers(1, &geometry->tb);
-		  
-		
-	  glDeleteVertexArrays(1, &geometry->vao);
+
+    glDeleteBuffers(1, &geometry->vb);
+    glDeleteBuffers(1, &geometry->ib);
+    glDeleteBuffers(1, &geometry->nb);
+    if (geometry->texCoordArray != NULL)
+      glDeleteBuffers(1, &geometry->tb);
+		  	
+    glDeleteVertexArrays(1, &geometry->vao);
     free(geometry);
-	  
-	       
   }
-  
+
   objects.clear();
   rawHeightMap.clear();
   blendedHeightMap.clear();
-  delete patchGenerator;
-  
+  delete patchGenerator;  
 }
 
 

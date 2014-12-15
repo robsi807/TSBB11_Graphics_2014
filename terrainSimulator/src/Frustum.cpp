@@ -112,6 +112,23 @@ bool Frustum::containsPlant(Plant* plant){
   return found;
 }
 
+bool Frustum::containsBoid(Boid* boid){
+  vec3 boidPos = boid->position;
+  float boidRadius = 4.0;
+  
+  bool found = true;
+  int i = 0;
+  while(i<6 && found == true)
+    {
+      if(planeClassifySphere(planes[i], boidPos, boidRadius) < 0)
+	{
+	  found = false;
+    	}
+      i++;
+    }
+  return found;
+}
+
 // ------------------------ Plane functions -----------------------------
 void Plane::planeNormalize()
 {

@@ -1,14 +1,9 @@
 #version 150
 
-// terrain.frag
-// Author: Peter Thulin
-
 in vec2 texCoord;
 in vec3 exNormal;
 in vec3 surf;
 in vec3 exPosition;
-in vec3 terrainNormal;
-in vec3 terrainPosition;
 
 out vec4 outColor;
 
@@ -16,13 +11,12 @@ uniform vec3 lightDirection;
 uniform float specularExponent;
 uniform float distanceFogConstant;
 
+uniform int evader;
+uniform sampler2D evaderTexture;
+uniform sampler2D chaserTexture;
+
 uniform mat4 world2View;
 uniform mat4 mdl2World;
-
-uniform sampler2D grassTex;
-uniform sampler2D rockTex1;
-uniform sampler2D rockTex2;
-uniform sampler2D noiseTex;
 
 // Beta should be > 0.0
 float cosInterpolate(float x,float beta){
@@ -41,27 +35,6 @@ float cosInterpolate(float x,float beta){
       return res;
 }
 
-vec4 calculateColor()
-{	
-	// Calculate slope
-	float wSlope = clamp(1.2-terrainNormal.y,0,1); // Shortcut for dot product with y-axis!
-	
-	float texScale = 16.0; // Scale up the texture coordinates
-	vec4 grass1 = texture(grassTex,texCoord * texScale);
-	vec4 rock1 = texture(rockTex1,texCoord * texScale);
-	vec4 rock2 = texture(rockTex2,texCoord * texScale);	
-	vec4 noise1 = texture(noiseTex,texCoord);	
-
-	float perlNoise = noise1.x;
-	float wRock = (perlNoise + 1) * 0.5;
-
-	// Weight the rock textures
-	vec4 rock = cosInterpolate(wRock,0.2)*rock1 +
-	cosInterpolate(1-wRock,0.2)*rock2; 
-
-	return cosInterpolate(wSlope,0.3)*grass1 + cosInterpolate(1-wSlope,0.3)*rock;
-}
-
 // Simply fades to gray
 vec4 applyDistanceFog(vec4 rgb){
      // fogColor should ideally be calculate from the skybox
@@ -74,7 +47,6 @@ vec4 applyDistanceFog(vec4 rgb){
 
 void main(void)
 {
-
 	float shade,diffuseShade;
 	vec3 reflectedLightDirection,eyeDirection,lightDir;
 	vec3 normalizedNormal = normalize(exNormal);
@@ -93,8 +65,10 @@ void main(void)
 		specularStrength = pow(specularStrength, specularExponent);
 	}
 
-	shade = (0.7*diffuseShade + 0.3*specularStrength);
-	vec4 color = applyDistanceFog(shade*calculateColor());
-	outColor = clamp(color, 0,1);
-	  
+	shade = 0.7*diffuseShade + 0.3*specularStrength;
+
+	if(evader == 1)
+	   outColor = applyDistanceFog(clamp(shade*texture(evaderTexture, texCoord),0,1));
+	else
+	   outColor = applyDistanceFog(clamp(shade*texture(chaserTexture, texCoord),0,1));
 }
