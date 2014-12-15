@@ -5,7 +5,7 @@ body{
 .big-image{
   height: 500px;
   width: 100%;
-  background-image: url("../images/FrontPagePic1.png");
+  background-image: url("../images/front_page.png");
   background-position: center;
   background-size: 100% auto;
 }
