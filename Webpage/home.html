@@ -2,7 +2,7 @@
   <div class="container ">
 
     <div class="youtube">
-    <iframe width="1280" height="750" src="http://www.youtube.com/embed/TlfwWxvNm-Q" frameborder="0" allowfullscreen></iframe>
+    <iframe class="youtube-iframe"src="http://www.youtube.com/embed/TlfwWxvNm-Q" frameborder="0" allowfullscreen></iframe>
     </div>
 
     <div class="row home-content">
@@ -10,7 +10,9 @@
         <img class="img-circle" src="images/terrain_bubble.png" alt="Generic placeholder image" style="width: 140px; height: 140px;">
  
         <h2>Generating</h2>
-        <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
+        <p>
+        Heightmaps generated with noise are blended and used to generate geometry for the terrain. This is made in realtime as you move around.
+        </p>
         
         <p><a class="btn btn-default" href="#generation" role="button">View details &raquo;</a></p>
       
@@ -19,7 +21,9 @@
         <img class="img-circle" src="images/rendering_bubble.png" alt="Generic placeholder image" style="width: 140px; height: 140px;">
         
         <h2>Rendering</h2>
-        <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh.</p>
+        <p>
+          The terrain is rendered with different shaders to make it look natural. Lightning, procedural texturing and more.
+        </p>
         
         <p><a class="btn btn-default" href="#rendering" role="button">View details &raquo;</a></p>
       
@@ -28,9 +32,10 @@
         <img class="img-circle" src="images/code_bubble.png" alt="Generic placeholder image" style="width: 140px; height: 140px;">
         
         <h2>Code</h2>
-        <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-        
-        <p><a class="btn btn-default" href="#media" role="button">View details &raquo;</a></p>
+        <p>
+          This project is an open source C/C++ project using OpenGL. The code can be found on Github.
+        </p>
+        <p><a class="btn btn-default" href="https://github.com/robsi807/TSBB11_Graphics_2014" role="button">To Github &raquo;</a></p>
       
       </div><!-- /.col-lg-4 -->
     </div><!-- /.row -->
@@ -48,9 +53,19 @@
         
         <h2 class="featurette-heading">Vegitation <span class="text-muted">Grass, bushes and trees.</span></h2>
         
-        <p class="lead">Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur. Fusce dapibus, tellus ac cursus commodo.</p>
+        <p class="lead">
+          This feature project is made by Robin Silverhav and Peter Thulin. It adds grass, bushes and trees to the world to make it more realistic. The grass is generated dynamically and rendered on top of the terrain with a geometry shader.
+          The trees are predefined models that uses a geometry shader that adds leaves to them. 
+          To add the grass, bushes and trees to the terrain:
+            <ul class="lead">
+            <li>Open makefile in TSBB11_Graphics_2014/terrainSimulator/src/</li>
+            <li>Change the GRASS and PLANTS variables from 0 to 1</li>
+            <li>Recompile the program</li>
+            <li>Run</li>
+            </ul>
+
+        </p>
       
-        <p><a class="btn btn-default btn-featurette" href="#feature-vegitation" role="button">View details &raquo;</a></p>
       </div>
       <div class="col-md-5">
         <img class="featurette-image img-responsive" src="images/feature-vegitation.png" alt="Generic placeholder image">

@@ -11,9 +11,17 @@ body{
 }
 
 .youtube{
-  
   margin-top: 600px;
+  padding: 600px 0 80px 0;
+  width: 900px;
+  margin: auto;
 }
+
+.youtube-iframe{
+  width: 900px;
+  height: 500px;
+}
+ 
 .home-content{
   text-align: center;
   padding-bottom: 80px;
@@ -65,5 +73,8 @@ body{
 .btn-col, .btn-col p{
   padding: 0;
   margin: 0;
+}
 
+h3{
+  padding: 60px 0 20px 0;
 }

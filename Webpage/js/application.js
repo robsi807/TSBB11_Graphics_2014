@@ -15,4 +15,5 @@ function hashchanged(){
     $("#mainView").load(hash + ".html");
     
   }
+  document.body.scrollTop = document.documentElement.scrollTop = 0;
 }
