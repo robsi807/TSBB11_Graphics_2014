@@ -1,9 +1,13 @@
 #include "World.h"
 
 World::World(){
-	
+#if LOWGRAPHICS == 1
+    distanceFogConstant = 0.002;
+#else
+    distanceFogConstant = 0.0008;
+#endif
   time = 0;
-  
+  specularExponent = 2.0;
   updatingWorld = false;
 
   patchOverlap = PATCH_OVERLAP;
@@ -11,81 +15,86 @@ World::World(){
   gridSize = GRID_BEGIN_SIZE;
 
   // Load shaders
-  terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
-  //terrainShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/passthrough.gs");
-  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
   skyboxShader = loadShaders("shaders/skybox.vert", "shaders/skybox.frag");
+  terrainShader = loadShaders("shaders/terrain.vert","shaders/terrain.frag");
+  phongShader = loadShaders("shaders/phong.vert", "shaders/phong.frag");
+#if BIRDS == 1
+  birdShader = loadShaders("shaders/phongBird.vert", "shaders/phongBird.frag");
+#endif
+#if PLANTS == 1
   plantShader = loadShadersG("shaders/plant.vert","shaders/plant.frag","shaders/plant.gs");
+#endif
 #if GRASS == 1
   grassShader = loadShadersG("shaders/grass.vert","shaders/grass.frag","shaders/grass.gs");
 #endif
   
   // Init objects
   camera = new Camera(vec3(0.0,60,0.0), 1, 7,&terrainVector, patchSize, patchOverlap,gridSize);
-
   skybox = new Skybox(&skyboxShader, camera->projectionMatrix, "../textures/skybox/skybox2/sky%d.tga");
   blender = new Blender(patchOverlap);
-
-  sphere = LoadModelPlus("../objects/groundsphere.obj");
+#if BIRDS == 1
+  birds = new ManageChasersAndEvaders(&birdShader, "../objects/crowMedium.obj", "../textures/crow.tga", "../objects/eagle.obj", "../textures/eagleBrown.tga", *camera);
+#endif
 
   // Init light to terrain shader
   glUseProgram(terrainShader);
 
   vec3 lightDir = Normalize(vec3(0.0f, 2.0f, 1.0f));
-  GLfloat specularExponent = 2.0;
   glUniform3fv(glGetUniformLocation(terrainShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(terrainShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(terrainShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(terrainShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
 #if GRASS == 1
   glUseProgram(grassShader);
   glUniform3fv(glGetUniformLocation(grassShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(grassShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(grassShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(grassShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
 #endif
 
   glUseProgram(phongShader);
   glUniform3fv(glGetUniformLocation(phongShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(phongShader, "specularExponent"), 1, &specularExponent);
-  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);  
-  
+  glUniform1fv(glGetUniformLocation(phongShader, "distanceFogConstant"), 1, &distanceFogConstant);
+  glUniformMatrix4fv(glGetUniformLocation(phongShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+
+#if BIRDS == 1
+  glUseProgram(birdShader);
+  glUniform3fv(glGetUniformLocation(birdShader, "lightDirection"), 1, &lightDir.x);
+  glUniform1fv(glGetUniformLocation(birdShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(birdShader, "distanceFogConstant"), 1, &distanceFogConstant);
+  glUniformMatrix4fv(glGetUniformLocation(birdShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
+#endif
+
   // Upload textures to terrain shader
   glUseProgram(terrainShader);
-  GLuint grassTex1;
   glActiveTexture(GL_TEXTURE0);
   LoadTGATextureSimple("../textures/grass4_1024_lp.tga", &grassTex1);
   glUniform1i(glGetUniformLocation(terrainShader, "grassTex"), 0); 
   
-  GLuint noiseTex;
   glActiveTexture(GL_TEXTURE0+1);
   LoadTGATextureSimple("../textures/fft-terrain.tga", &noiseTex);
   glUniform1i(glGetUniformLocation(terrainShader, "noiseTex"), 1); 
 
-  GLuint rockTex1;
   glActiveTexture(GL_TEXTURE0+2);
   LoadTGATextureSimple("../textures/rock2_1024.tga", &rockTex1);
   glUniform1i(glGetUniformLocation(terrainShader, "rockTex1"), 2);
-
-  GLuint rockTex2;
   glActiveTexture(GL_TEXTURE0+3);
   LoadTGATextureSimple("../textures/rock3_1024.tga", &rockTex2);
   glUniform1i(glGetUniformLocation(terrainShader, "rockTex2"), 3); 
 
   // Upload textures to grass shader
 #if GRASS == 1
-  glEnable (GL_POLYGON_SMOOTH);
   glUseProgram(grassShader);
-  GLuint grassTexLowPass;
   glActiveTexture(GL_TEXTURE0+4);
   LoadTGATextureSimple("../textures/grass4_1024_lp2.tga",&grassTexLowPass);
   glUniform1i(glGetUniformLocation(grassShader,"grassTex"),4);
 
-  GLuint noiseTex2;
   glActiveTexture(GL_TEXTURE0+5);
   LoadTGATextureSimple("../textures/noise/uniformNoise1.tga",&noiseTex2);
   glUniform1i(glGetUniformLocation(grassShader,"noiseTex"),5);
   
-  GLuint grassBillboardTex;
   glActiveTexture(GL_TEXTURE0+6);
   LoadTGATextureSimple("../textures/grass_billboard2.tga",&grassBillboardTex);
   glUniform1i(glGetUniformLocation(grassShader,"grassBillboard"),6);
@@ -98,6 +107,7 @@ World::World(){
   glUseProgram(plantShader);
   glUniform3fv(glGetUniformLocation(plantShader, "lightDirection"), 1, &lightDir.x);
   glUniform1fv(glGetUniformLocation(plantShader, "specularExponent"), 1, &specularExponent);
+  glUniform1fv(glGetUniformLocation(plantShader, "distanceFogConstant"), 1, &distanceFogConstant);
   glUniformMatrix4fv(glGetUniformLocation(plantShader, "projMatrix"), 1, GL_TRUE, camera->projectionMatrix.m);
   
   glActiveTexture(GL_TEXTURE0+4);
@@ -120,8 +130,6 @@ void World::generateStartingPatches(int startSize){
   mutex rowLock; 
   int index;  
 
-  clock_t t;
-  t = clock();
   // Initiate height maps
   for(int y = -(startSize-1)/2; y <= (startSize-1)/2; y++){
     vector<TerrainPatch*> terrainRow;
@@ -132,22 +140,20 @@ void World::generateStartingPatches(int startSize){
       
       threadVector.push_back(thread(threadGeneratePatch,this,x,y,&terrainRow,&rowLock,index)); 
       index++;
-     }
+    }
      
-     for(unsigned int i=0;i<threadVector.size();i++){
+    for(unsigned int i=0;i<threadVector.size();i++){
       threadVector.at(i).join();
-     }
+    }
      
     terrainVector.push_back(terrainRow);
     threadVector.clear();
   }
-  t = clock()-t;
-  printf("%d\n",t);
   
   blender->blendAll(&terrainVector);
 	
-	// Output height maps to file
-	//printTerrainToFile(startSize);
+  // Output height maps to file
+  //printTerrainToFile(startSize);
 
   // Generate geometry for all but the edge patches
   for(int y = 1; y < startSize-1; y++){
@@ -159,35 +165,33 @@ void World::generateStartingPatches(int startSize){
 }
 
 void World::printTerrainToFile(int startSize){
-	cout << "Printing to file ...\n";
-	fstream myfile;
-	stringstream sstream;
-	string fileName;
-	int size = terrainVector.at(0).at(0)->size;
-	sstream << "../../Evaluation/raw_" << size << "_heightmap.m";
-	fileName = sstream.str();
-	myfile.open(fileName, fstream::out);
+  cout << "Printing to file ...\n";
+  fstream myfile;
+  stringstream sstream;
+  string fileName;
+  int size = terrainVector.at(0).at(0)->size;
+  sstream << "../../Evaluation/raw_" << size << "_heightmap.m";
+  fileName = sstream.str();
+  myfile.open(fileName, fstream::out);
 	
-	for(int y = 0; y < startSize; y++){
+  for(int y = 0; y < startSize; y++){
     for(int x = 0; x < startSize; x++){
-			TerrainPatch* patch = terrainVector.at(y).at(x);
-			vector<float> rawHeightMap = patch->rawHeightMap;
+      TerrainPatch* patch = terrainVector.at(y).at(x);
+      vector<float> rawHeightMap = patch->rawHeightMap;
   
-			myfile << "patch_"<< x << "_" << y << " = [";
+      myfile << "patch_"<< x << "_" << y << " = [";
 
-			for(int row = 0; row < size; row++) {
-				for(int col = 0; col < size; col++) {
-					myfile << rawHeightMap.at(row*size + col) << ",";
-				} 
-				myfile << ";\n";
-			} 
-    	myfile << "];\n\n";
+      for(int row = 0; row < size; row++) {
+	for(int col = 0; col < size; col++) {
+	  myfile << rawHeightMap.at(row*size + col) << ",";
+	} 
+	myfile << ";\n";
+      } 
+      myfile << "];\n\n";
     } 
   }
- 
-	myfile.close();
-	cout << "Printing to file done.\n";
-
+  myfile.close();
+  cout << "Printing to file done.\n";
 }
 
 void World::addTerrainSouth() {
@@ -211,12 +215,12 @@ void World::addTerrainSouth() {
   }
   
   for(unsigned int i=0;i<threadVector.size();i++){
-     threadVector.at(i).join();
+    threadVector.at(i).join();
   }
   
   terrainMutex.lock();
   terrainVector.insert(terrainVector.begin(),newTerrainVec);
-	terrainMutex.unlock();
+  terrainMutex.unlock();
 	
   threadVector.clear();
 
@@ -225,8 +229,6 @@ void World::addTerrainSouth() {
   for(int x = 1; x < xSize-1; x++){
     terrainVector.at(1).at(x)->generateAndUploadGeometry();
   }
-  //printf("Terrain added south at yGrid = %i.\n",yGrid);
-
 }
 
 void World::addTerrainNorth() {
@@ -250,12 +252,12 @@ void World::addTerrainNorth() {
   }
   
   for(unsigned int i=0;i<threadVector.size();i++){
-     threadVector.at(i).join();
+    threadVector.at(i).join();
   }
 	
-	terrainMutex.lock();
+  terrainMutex.lock();
   terrainVector.push_back(newTerrainVec);
-	terrainMutex.unlock();
+  terrainMutex.unlock();
 
   threadVector.clear();
 
@@ -263,9 +265,7 @@ void World::addTerrainNorth() {
 
   for(int x = 1; x < xSize-1; x++){
     terrainVector.at(ySize-1).at(x)->generateAndUploadGeometry();
-    //printf("Generating geometry @ %i, %i\n", terrainVector.at(ySize-1).at(x)->xGrid, terrainVector.at(ySize-1).at(x)->yGrid);
   }
-  //printf("Terrain added north at yGrid = %i.\n",yGrid);  
 }
 
 void World::addTerrainEast(){
@@ -291,14 +291,14 @@ void World::addTerrainEast(){
   }
   
   for(unsigned int i=0;i<threadVector.size();i++){
-     threadVector.at(i).join();
+    threadVector.at(i).join();
   }
   
   terrainMutex.lock();
   for(int y = 0; y < ySize; y++){
     terrainVector.at(y).insert(terrainVector.at(y).begin(),newTerrainVec.at(y));
   }
-	terrainMutex.unlock();
+  terrainMutex.unlock();
 
   threadVector.clear();
 
@@ -332,7 +332,7 @@ void World::addTerrainWest(){
   }
   
   for(unsigned int i=0;i<threadVector.size();i++){
-     threadVector.at(i).join();
+    threadVector.at(i).join();
   }
   
   terrainMutex.lock();
@@ -348,28 +348,29 @@ void World::addTerrainWest(){
   for(int y = 1; y < ySize-1; y++){
     terrainVector.at(y).at(xSize-1)->generateAndUploadGeometry();
   }
-  //printf("Terrain added west at xGrid = %i\n",xGrid);
-
 }
 
 void World::removeTerrainSouth() {
   for (int x = 0; x < terrainVector.at(0).size();x++) {
-    delete terrainVector.at(0).at(x);
+    if(terrainVector.at(0).at(x) != NULL)
+      delete terrainVector.at(0).at(x);
   }
-    terrainVector.erase(terrainVector.begin());
+  terrainVector.erase(terrainVector.begin());
 };
 
 void World::removeTerrainNorth() {
   int ySize = terrainVector.size();
   for (int x = 0; x < terrainVector.at(ySize-1).size();x++) {
-    delete terrainVector.at(ySize-1).at(x);
+    if(terrainVector.at(ySize-1).at(x) != NULL)
+      delete terrainVector.at(ySize-1).at(x);
   }
-  terrainVector.erase(terrainVector.end());
+  terrainVector.erase(terrainVector.end()-1);
 };
 
 void World::removeTerrainEast() {
   for (int y = 0; y < terrainVector.size();y++) {
-    delete terrainVector.at(y).at(0);
+    if(terrainVector.at(y).at(0) != NULL)
+      delete terrainVector.at(y).at(0);
     terrainVector.at(y).erase(terrainVector.at(y).begin());
   }
 
@@ -377,7 +378,8 @@ void World::removeTerrainEast() {
 
 void World::removeTerrainWest() {
   for (int y = 0; y < terrainVector.size();y++) {
-    delete terrainVector.at(y).at(terrainVector.at(y).size() - 1);
+    if(terrainVector.at(y).at(terrainVector.at(y).size() - 1) != NULL)
+      delete terrainVector.at(y).at(terrainVector.at(y).size() - 1);
     terrainVector.at(y).erase(terrainVector.at(y).begin() + terrainVector.at(y).size() - 1);
   }
 };
@@ -390,56 +392,36 @@ TerrainPatch* World::generatePatch(int patchX, int patchY){
 }
 
 void World::update(){
-  time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000;
+  time = (GLfloat)glutGet(GLUT_ELAPSED_TIME)/1000.0;
 
   updateTerrain();
+#if BIRDS == 1
+  birds->update(time,camera);
+#endif
   camera->update();
 }
 
 void World::draw(){
-
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
   skybox->draw(camera->cameraMatrix);
 
-	terrainMutex.lock();
+  terrainMutex.lock();
 	
-	for(int y = 0; y < terrainVector.size(); y++){
+  for(int y = 0; y < terrainVector.size(); y++){
     for(int x = 0; x < terrainVector.at(y).size(); x++){
       TerrainPatch *patch = terrainVector.at(y).at(x);
       if(patch != NULL){
-	      patch->draw(camera,time);
+	patch->draw(camera,time);
       }
     }
   }
 
-	terrainMutex.unlock();
-/*
-  if(terrainMutex.try_lock()){
+  terrainMutex.unlock();
 
-    for(int y = 0; y < terrainVector.size(); y++){
-      for(int x = 0; x < terrainVector.at(y).size(); x++){
-        TerrainPatch *patch = terrainVector.at(y).at(x);
-        if(camera->isInFrustum(patch) && patch->hasGeometry()){
-	        patch->draw(camera,time);
-        }
-      }
-    }
-    terrainMutex.unlock();
-    
-    } else {
-     for(int y = 1; y < terrainVector.size()-1; y++){
-      for(int x = 1; x < terrainVector.at(y).size()-1; x++){
-        TerrainPatch *patch = terrainVector.at(y).at(x);
-        if(camera->isInFrustum(patch) && patch->hasGeometry()){
-	        patch->draw(camera,time);
-        }
-      }
-    }
-   }
-    */
-  //terrainMutex.unlock();
-  
+#if BIRDS == 1
+  birds->draw(time,*camera);
+#endif
 }
 
 void World::updateTerrain(){
@@ -459,44 +441,52 @@ void World::updateTerrain(){
     int yCam = camera->getPosition().z; // well... we go from 3D to 2D.
 
     if(xCam < xPatch) { // move EAST.
-        updatingWorld = true;
-        thread threadEast(threadAddPatchEast, this);
-        threadEast.detach();
-    } else if (xCam > xPatch + patchSize) { // move WEST
+      updatingWorld = true;
+      thread threadEast(threadAddPatchEast, this);
+      threadEast.detach();
+    } 
+    else if (xCam > xPatch + patchSize) { // move WEST
         
-        updatingWorld = true;
-        thread threadWest(threadAddPatchWest, this);
-        threadWest.detach(); 
+      updatingWorld = true;
+      thread threadWest(threadAddPatchWest, this);
+      threadWest.detach(); 
     }
     
     else if(yCam < yPatch) { // move SOUTH.
-        updatingWorld = true;
-        thread threadSouth(threadAddPatchSouth, this);
-        threadSouth.detach();
-    } else if (yCam > yPatch + patchSize) { // move NORTH
-        updatingWorld = true;
-        thread threadNorth(threadAddPatchNorth, this);
-        threadNorth.detach();
+      updatingWorld = true;
+      thread threadSouth(threadAddPatchSouth, this);
+      threadSouth.detach();
+    } 
+    else if (yCam > yPatch + patchSize) { // move NORTH
+      updatingWorld = true;
+      thread threadNorth(threadAddPatchNorth, this);
+      threadNorth.detach();
     }
-
   }
-
 }
 
 World::~World(){
   delete camera;
   delete skybox;
   delete blender;
+#if BIRDS == 1
+  delete birds;
+#endif
+  for(uint x = 0; x < terrainVector.size(); x++)
+    {
+      for(uint z = 0; z < terrainVector.at(x).size(); z++)
+	{
+	  delete terrainVector.at(x).at(z);
+	}
+    }
   terrainVector.clear();
 }
 
 // Threading functions
-void threadGeneratePatch(World *w, int x, int y, vector<TerrainPatch*> *terrainRow, std::mutex * lock, int index)
+void threadGeneratePatch(World *w, int x, int y, vector<TerrainPatch*> *terrainRow, mutex * lock, int index)
 {
-  //cout << "Index is: " << index << endl;
   TerrainPatch* newPatch = w->generatePatch(x,y);
   lock->lock();
-  //  terrainRow->insert(terrainRow->begin()+index, newPatch);
   terrainRow->at(index) = newPatch;
   lock->unlock();
 }

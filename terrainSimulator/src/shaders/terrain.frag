@@ -14,6 +14,7 @@ out vec4 outColor;
 
 uniform vec3 lightDirection;
 uniform float specularExponent;
+uniform float distanceFogConstant;
 
 uniform mat4 world2View;
 uniform mat4 mdl2World;
@@ -45,11 +46,11 @@ vec4 calculateColor()
 	// Calculate slope
 	float wSlope = clamp(1.2-terrainNormal.y,0,1); // Shortcut for dot product with y-axis!
 	
-	float texScale = 9.0; // Scale up the texture coordinates
-	vec4 grass1 = texture(grassTex,texCoord / texScale);
-	vec4 rock1 = texture(rockTex1,texCoord / texScale);
-	vec4 rock2 = texture(rockTex2,texCoord / texScale);	
-	vec4 noise1 = texture(noiseTex,texCoord / 500);	
+	float texScale = 16.0; // Scale up the texture coordinates
+	vec4 grass1 = texture(grassTex,texCoord * texScale);
+	vec4 rock1 = texture(rockTex1,texCoord * texScale);
+	vec4 rock2 = texture(rockTex2,texCoord * texScale);	
+	vec4 noise1 = texture(noiseTex,texCoord);	
 
 	float perlNoise = noise1.x;
 	float wRock = (perlNoise + 1) * 0.5;
@@ -66,7 +67,7 @@ vec4 applyDistanceFog(vec4 rgb){
      // fogColor should ideally be calculate from the skybox
      const vec4 fogColor = vec4(.6,.87,0.99,1.0);
      float dist = length(exPosition);
-     float fogAmount = clamp(dist*0.0005,0.0,1.0);
+     float fogAmount = clamp(dist*distanceFogConstant,0.0,1.0);
      float fogWeight = cosInterpolate(fogAmount,0.7);
      return fogWeight*rgb + (1-fogWeight)*fogColor;
 }

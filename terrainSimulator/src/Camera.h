@@ -19,6 +19,7 @@
 #include "TerrainPatch.h"
 #include "Frustum.h"
 #include "Plant.h"
+#include "Boid.h"
 
 #include <cmath>
 #include <iostream>
@@ -27,8 +28,6 @@
 class Camera
 {
  private:
-  vec3 position;
-  vec3 lookAtPoint;
   vec3 upVector;
   int patchSize;
   int patchOverlap;
@@ -41,7 +40,7 @@ class Camera
   int actualPatchXIndex; 
   int actualPatchZIndex;
   float groundOffset;
-  TerrainPatch * actualPatch;
+  TerrainPatch *actualPatch;
   std::vector<TerrainPatch*> actualPatchRow;
 
   GLfloat velocity;
@@ -61,6 +60,14 @@ class Camera
 
  public:
 
+  vec3 position;
+  vec3 lookAtPoint;
+
+  int timer;
+  bool followFlock;
+  bool birdView;
+  int flockIndex;
+
   static const int SCREEN_WIDTH = 1600;
   static const int SCREEN_HEIGHT = 900;
   mat4 cameraMatrix;
@@ -70,12 +77,14 @@ class Camera
   void handleKeyPress();
   void handleMouse(int x, int y);
   void update();
+  float getActualHeight(vec3 objectPos);
   vec3 getDirection();
   vec3 getPosition();
 
   // Frustum checks
   bool isInFrustum(TerrainPatch* patch);
   bool isInFrustum(Plant* plant);
+  bool isInFrustum(Boid* boid);
 };
 
 #endif

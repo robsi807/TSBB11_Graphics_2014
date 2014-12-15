@@ -21,7 +21,11 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
   heightScale = patchSize;
   
   int biotope = 1; // 1 = mountains, 2 = desert
+#if PATCH_SIZE == 256
+  int NoF = 8;
+#else
   int NoF = 9; // Number of frequencies, 1 <= NoF <= 9. Standard = 9. Max value on n: 2^n <= size
+#endif
   int amplitude = 1; //Scalefactor for the amplitude. Standard = 1.  
   
   int n=x+y*57;
@@ -31,7 +35,7 @@ TerrainPatch::TerrainPatch(int patchSize, int x, int y, int overlap, GLuint* ter
 #if PERLIN==1
   patchGenerator = new PerlinPatchGeneratorFast(biotope, NoF, amplitude, patchSize,seed);
 #else
-    patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
+  patchGenerator = new ValuePatchGenerator(biotope, NoF, amplitude, patchSize,seed);
 #endif
   rawHeightMap = patchGenerator->generatePatch(x,y);
   blendedHeightMap = rawHeightMap;
@@ -105,7 +109,7 @@ void TerrainPatch::generateGeometry(){
 	    vec3 n4 = calcNormal(p11,p21,p22);
 	    vec3 n5 = calcNormal(p11,p10,p21);
 
-	    n = VectorAdd(n0,n1);
+	    n = VectorAdd(n0,n1);	
 	    n = VectorAdd(n,n2);
 	    n = VectorAdd(n,n3);
 	    n = VectorAdd(n,n4);
@@ -120,8 +124,9 @@ void TerrainPatch::generateGeometry(){
 	    normalArray[(x + z * blendedWidth)*3 + 1] = n.y; //(z1-z0)*(x2-x0)-(z2-z0)*(x1-x0); //1.0;
 	    normalArray[(x + z * blendedWidth)*3 + 2] = n.z; //(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0); //0.0;
 
-	    texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x1 - offset); // (float)x / size;
-	    texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z1 - offset); // (float)z / patchHeight;
+	    texCoordArray[(x + z * blendedWidth)*2 + 0] = ((float)x) / (blendedWidth-1); 
+	    texCoordArray[(x + z * blendedWidth)*2 + 1] = ((float)z) / (blendedWidth-1); 
+	    //cout <<"z = "<< z << " , texCoord  = " << ((float)z) / (blendedWidth-1) << endl;
 	  }
     for (x = 0; x < blendedWidth-1; x++)
       for (z = 0; z < blendedHeight-1; z++)
@@ -352,29 +357,32 @@ TerrainPatch::~TerrainPatch(){
   
   if(hasGeometry()) {
   
-		free(geometry->vertexArray);   
-	  free(geometry->texCoordArray); 
-	  free(geometry->normalArray);   
-	  free(geometry->indexArray);
-	  
-	  glDeleteBuffers(1, &geometry->vb);
-	  glDeleteBuffers(1, &geometry->ib);
-	  glDeleteBuffers(1, &geometry->nb);
-	  if (geometry->texCoordArray != NULL)
-		  glDeleteBuffers(1, &geometry->tb);
-		  
-		
-	  glDeleteVertexArrays(1, &geometry->vao);
-	  
-	       
+    if(geometry->vertexArray != NULL)
+      free(geometry->vertexArray);   
+
+    if(geometry->texCoordArray != NULL)
+      free(geometry->texCoordArray); 
+
+    if(geometry->normalArray != NULL)
+      free(geometry->normalArray);   
+
+    if(geometry->indexArray != NULL)
+      free(geometry->indexArray);
+
+    glDeleteBuffers(1, &geometry->vb);
+    glDeleteBuffers(1, &geometry->ib);
+    glDeleteBuffers(1, &geometry->nb);
+    if (geometry->texCoordArray != NULL)
+      glDeleteBuffers(1, &geometry->tb);
+		  	
+    glDeleteVertexArrays(1, &geometry->vao);
+    free(geometry);
   }
-  
+
   objects.clear();
   rawHeightMap.clear();
   blendedHeightMap.clear();
-  delete geometry;
-  delete patchGenerator;
-  
+  delete patchGenerator;  
 }
 
 
@@ -396,13 +404,16 @@ void TerrainPatch::draw(class Camera* cam,float time){//mat4 cameraMatrix,float 
 		vec3 terrainPos = vec3(xPos+blendedSize/2,0.0,yPos+blendedSize/2);
 		float maxDist = 500.0 + sqrt(2.0)*((float)(blendedSize/2));
 		if(Norm(camPos-terrainPos) < maxDist){
-		  // Draw grass 
+		  // Draw grass
+
+      glEnable(GL_POLYGON_SMOOTH); 
 		  glUseProgram(*grassShader);
 		  glUniformMatrix4fv(glGetUniformLocation(*grassShader, "mdl2World"), 1, GL_TRUE, modelView.m);
 		  glUniformMatrix4fv(glGetUniformLocation(*grassShader, "world2View"), 1, GL_TRUE, cameraMatrix.m);
 		  glUniform1f(glGetUniformLocation(*grassShader,"time"), time); 
 		  DrawModel(geometry, *grassShader, "inPosition", "inNormal","inTexCoord");
-		}
+      glDisable(GL_POLYGON_SMOOTH);		
+}
 #endif
 
     // Draw all objects 
