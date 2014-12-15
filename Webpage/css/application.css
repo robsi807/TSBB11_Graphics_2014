@@ -78,3 +78,8 @@ body{
 .space-header{
   padding: 80px 0 20px 0;
 }
+
+.code{
+  font-family:Consolas, monospace;
+  background-color: #f1f1f1;
+}

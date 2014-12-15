@@ -1,2 +1,59 @@
-RENERING
+<div class="container ">
+
+  <h2 class="section-header">Rendering</h2>
+  <p class="lead">
+
+  Rendering has been large part of this project as we wanted to, not only, generate the model for the terrain, but also make it look as natural as possible.<br />
+
+  </p>
+  <hr class="featurette-divider">
+  
+
+  <div class="row featurette">
+    <div class="col-md-7">
+      <h3 class="featurette-heading">Terrain</h3>
+      <p class="lead">
+      The terrain is rendered by using phong shading together with a procedural
+      texturing method. The texturing varies using three different textures: one
+      grass texture and two rock textures. The shader weights between drawing rock
+      or grass depending on how much the terrain is tilting. Flat terrain gets textured
+      as grass and tilting terrain gets textured as rock. The shader then decides which
+      of the two rock textures to draw depending on low frequency noise, to get some
+      variations in the terrain. 
+      </p>
+
+    </div>
+    <div class="col-md-5">
+      <img class="featurette-image img-responsive" src="images/terrain_shading.png" alt="Generic placeholder image">
+    </div>
+  </div>
+
+  <div class="row featurette">
+    <div class="col-md-7">
+
+      <img class="featurette-image img-responsive" src="images/distance_fog.png" alt="Generic placeholder image">
+
+    </div>
+    <div class="col-md-5">
+      <h3 class="featurette-heading">Distance fog</h3>
+      <p class="lead">
+      Distance fog is a visual effect that is used to hide the end of the viewing frustum
+      when drawing a large world. Objects like terrain or trees that are far away fades
+      into the skybox instead of suddenly disappearing. This is done in the fragment
+      shader using the length of a vector from the camera position to the fragment
+      that is drawn. Depending on the length of the vector, the objects’ color are then
+      slowly interpolated into the skyboxs color. The amount of fog that is added is
+      calculated using cosine interpolation which gives a more natural fade then linear
+      interpolation. Figure 12 shows an image of the distance fog.
+      </p>
+
+      <p class="lead">
+      </p>
+    </div>
+  </div>
+
+
+  <hr class="featurette-divider">
+
+</div>
 
