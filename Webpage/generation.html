@@ -11,9 +11,9 @@
     <li>Geometry generation</li>
   </ul>
   <p class="lead">
-    Heightmaps are used to create the models of the terrain that is split into terrain patches. These are smaller sections of the terrain that fits together without any visual artifacts. To make them do this we have to blend the raw heightmaps with all adjacent heightmaps.
-    When this is done, the model for the terrain can be generated using the values in the heightmap scaled with an amplitude.
-    </p>
+  Heightmaps are used to create the models of the terrain that is split into terrain patches. These are smaller sections of the terrain that fits together without any visual artifacts. To make them do this we have to blend the raw heightmaps with all adjacent heightmaps.
+  When this is done, the model for the terrain can be generated using the values in the heightmap scaled with an amplitude.
+  </p>
   </p>
 
   <p class="lead">
@@ -21,53 +21,61 @@
   When moving around, the following algorithm is used:
   </p>
 
-  <ol class="lead">
+  <ol class="lead" style="padding-bottom: 40px;">
     <li>A row/column of new terrain patches are generated on a separate thread. The generated terrain patches are placed inside the
     NxN-grid in the moving direction.</li>
     <li>Blending heightmaps</li>
     <li>Terrain patches in the opposite of the moving direction are removed, making
     our grid retain its NxN size.</li>
   </ol>
+  <hr class="featurette-divider">
 
-  <h3>Heightmap generation</h3>
+  <h2 class="space-header">Heightmap generation</h2>
   <p class="lead">
-  Heightmaps are generated using two different methods: value noise and perlin noise. <br />
-
-  In value noise, the grid values are random numbers evenly distributed
-  between zero and one. Value noise then uses cubic interpolation for pixel
-  calculations.
-  <br />
-  <br />
-  In perlin noise, each grid point instead generates a gradient. The gradients
-  consists of two random numbers to represent a vector. Each grid
-  point then calculates a grid value for each pixel through the scalar product
-  between its gradient and the vector to that pixel. Perlin noise then uses
-  linear interpolation for pixel calculations.
+  Heightmaps are generated using two different methods: value noise and perlin noise. These gives a different look of the terrain as is shown in the section below.
 
   </p>
+
 
   <div class="row featurette">
     <div class="col-md-7">
 
-      <h2 class="featurette-heading">Vegitation <span class="text-muted">Grass, bushes and trees.</span></h2>
+      <h3 class="featurette-heading">Value noise</h3>
 
       <p class="lead">
-      This feature project is made by Robin Silverhav and Peter Thulin. It adds grass, bushes and trees to the world to make it more realistic. The grass is generated dynamically and rendered on top of the terrain with a geometry shader.
-      The trees are predefined models that uses a geometry shader that adds leaves to them. 
-      To add the grass, bushes and trees to the terrain:
-      <ul class="lead">
-        <li>Open makefile in TSBB11_Graphics_2014/terrainSimulator/src/</li>
-        <li>Change the GRASS and PLANTS variables from 0 to 1</li>
-        <li>Recompile the program</li>
-        <li>Run</li>
-      </ul>
+      In value noise, the grid values are random numbers evenly distributed
+      between zero and one. Value noise then uses cubic interpolation for pixel
+      calculations.
       </p>
 
     </div>
     <div class="col-md-5">
-      <img class="featurette-image img-responsive" src="images/feature-vegitation.png" alt="Generic placeholder image">
+      <img class="featurette-image img-responsive" src="images/terrain_value.png" alt="Generic placeholder image">
     </div>
   </div>
+
+  <div class="row featurette">
+    <div class="col-md-7">
+
+      <img class="featurette-image img-responsive" src="images/terrain_perlin.png" alt="Generic placeholder image">
+
+    </div>
+    <div class="col-md-5">
+      <h3 class="featurette-heading">Perlin noise</h3>
+      <p class="lead">
+      In perlin noise, each grid point instead generates a gradient. The gradients
+      consists of two random numbers to represent a vector. Each grid
+      point then calculates a grid value for each pixel through the scalar product
+      between its gradient and the vector to that pixel. Perlin noise then uses
+      linear interpolation for pixel calculations.
+      </p>
+
+      <p class="lead">
+      </p>
+    </div>
+  </div>
+
+
   <hr class="featurette-divider">
 
 </div>
