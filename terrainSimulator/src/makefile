@@ -7,7 +7,7 @@ BOOSTDIR = ../../boost_1_57_0/
 UNAME := $(shell uname)
 
 GRASS=1
-PLANTS=0
+PLANTS=1
 BIRDS=0
 PERLIN=1
 LOWGRAPHICS=0

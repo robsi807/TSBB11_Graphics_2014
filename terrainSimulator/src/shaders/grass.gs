@@ -153,11 +153,9 @@ void main(){
         float zLod0 = 100;
         float zLod1 = 300;
         float zLod2 = 500;
-        float zLod3 = 800;
         float xLod0 = 120;
         float xLod1 = 300;
         float xLod2 = 520;
-        float xLod3 = 1300;
         
         // Grass parameters
         float height = 3.5;
@@ -190,9 +188,9 @@ void main(){
             //vec4 grPos3 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise3.x),pos2,0.5+posScale*rgbNoise3.y);        
             //vec4 grPos4 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise3.z),pos2,0.5+posScale*rgbNoise4.x);
             
-            createGrassBlade(grPos0,normal0,tex0,height+heightScale*rgbNoise1.x,angleScale*rgbNoise1.x,angleScale*rgbNoise1.y);
-            createGrassBlade(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x);
-            createGrassBlade(grPos2,normal0,tex0,height+heightScale*rgbNoise1.z,angleScale*rgbNoise2.y,angleScale*rgbNoise2.z);
+            createGrassBlade(grPos0,normal0,tex0,height+heightScale*rgbNoise1.x,angleScale*rgbNoise1.x + 0.1*0.5*(1+rgbNoise1.z)*cos(time + rgbNoise1.y),angleScale*rgbNoise1.y);
+            createGrassBlade(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z+ 0.1*0.5*(1+rgbNoise1.z)*cos(time+ rgbNoise1.y),angleScale*rgbNoise2.x);
+            createGrassBlade(grPos2,normal0,tex0,height+heightScale*rgbNoise1.z,angleScale*rgbNoise2.y+ 0.1*0.5*(1+rgbNoise1.z)*cos(time+ rgbNoise1.y),angleScale*rgbNoise2.z);
             //createGrassBlade(grPos3,normal0,tex0,height+heightScale*rgbNoise2.x,angleScale*rgbNoise3.x,angleScale*rgbNoise3.y);
             //createGrassBlade(grPos4,normal0,tex0,height+heightScale*rgbNoise2.y,angleScale*rgbNoise3.z,angleScale*rgbNoise3.z);
             //createGrassBlade(grPos4,normal0,tex0,height+heightScale*rgbNoise2.z,angleScale*rgbNoise4.x,angleScale*rgbNoise4.y);
@@ -208,8 +206,8 @@ void main(){
             vec4 grPos1 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise1.z),pos2,0.5+posScale*rgbNoise2.x);
             //vec4 grPos2 = mix(mix(pos0,pos1,0.5+posScale*rgbNoise2.y),pos2,0.5+posScale*rgbNoise2.z);
             
-            createGrassBlade(grPos0,normal0,tex0,height+heightScale*rgbNoise1.x,angleScale*rgbNoise1.x,angleScale*rgbNoise1.y);
-            createGrassBlade(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z,angleScale*rgbNoise2.x);
+            createGrassBlade(grPos0,normal0,tex0,height+heightScale*rgbNoise1.x,angleScale*rgbNoise1.x + 0.1*0.5*(1+rgbNoise1.z)*cos(time + rgbNoise1.y),angleScale*rgbNoise1.y);
+            createGrassBlade(grPos1,normal0,tex0,height+heightScale*rgbNoise1.y,angleScale*rgbNoise1.z + 0.1*0.5*(1+rgbNoise1.z)*cos(time + rgbNoise1.y),angleScale*rgbNoise2.x);
             //createGrassBlade(grPos2,normal0,tex0,height+heightScale*rgbNoise1.z,angleScale*rgbNoise2.y,angleScale*rgbNoise2.z);
 
         }
