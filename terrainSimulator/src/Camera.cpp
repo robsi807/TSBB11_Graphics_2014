@@ -57,6 +57,8 @@ Camera::Camera(vec3 pos, GLfloat vel, GLfloat sens, vector<vector<TerrainPatch*>
 //Keyhandler class to move araound in the world.
 void Camera::handleKeyPress()
 {
+
+  float keySens = 20.0;
   //w,a,s,d to move forward,backwards and sideways
   if(keyIsDown('w'))
     {
@@ -88,27 +90,27 @@ void Camera::handleKeyPress()
   if(keyIsDown('y'))
     {
       vec3 w = VectorSub(lookAtPoint,position);
-      vec3 a = Normalize(VectorAdd(w,ScalarMult(upVector,1.0/10.0)));
+      vec3 a = Normalize(VectorAdd(w,ScalarMult(upVector,1.0/keySens)));
       lookAtPoint = VectorAdd(position,a);
     }  
   if(keyIsDown('h'))
     {
       vec3 w = VectorSub(lookAtPoint,position);
-      vec3 a = Normalize(VectorAdd(w,ScalarMult(upVector,-1.0/10.0)));
+      vec3 a = Normalize(VectorAdd(w,ScalarMult(upVector,-1.0/keySens)));
       lookAtPoint = VectorAdd(position,a);
     }
   if(keyIsDown('g'))
     {
       vec3 w = VectorSub(lookAtPoint,position);
       vec3 a = Normalize(CrossProduct(upVector,w));
-      a = Normalize(VectorAdd(w,ScalarMult(a,1.0/10.0)));
+      a = Normalize(VectorAdd(w,ScalarMult(a,1.0/keySens)));
       lookAtPoint = VectorAdd(position,a);
     }
   if(keyIsDown('j'))
     {
       vec3 w = VectorSub(lookAtPoint,position);
       vec3 a = Normalize(CrossProduct(upVector,w));
-      a = Normalize(VectorAdd(w,ScalarMult(a,-1.0/10.0)));
+      a = Normalize(VectorAdd(w,ScalarMult(a,-1.0/keySens)));
       lookAtPoint = VectorAdd(position,a);
     }
   //space and c to increase or decrease height
