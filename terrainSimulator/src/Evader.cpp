@@ -12,7 +12,7 @@ Evader::Evader(vec3 pos, int numOfBoids, int index, vec3 cameraPosition)
   minDistance = 5.0;
   awarenessRadius = 40;
 
-  cohesionWeight = 0.002;
+  cohesionWeight = 0.0009;
   avoidanceWeight = 0.1;
   alignmentWeight = 0.001;
   followWeight = 0.002;
