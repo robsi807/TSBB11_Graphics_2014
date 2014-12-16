@@ -31,15 +31,16 @@ ManageChasersAndEvaders::ManageChasersAndEvaders(GLuint* phongShader, char *mode
   loadEvaderModels();
   chaserModel = LoadModelPlus(modelPathChaser);
 
-  Evader* evaders = new Evader(cam.position + vec3(25,25,25), 100, 0, cam.position);
-  Evader* evaders2 = new Evader(cam.position + vec3(30,30,50), 40, 1, cam.position);
-  //Evader* evaders3 = new Evader(cam.position + vec3(-30,30,-50), 50, 1, cam.position);
-  //Evader* evaders4 = new Evader(cam.position + vec3(-70,30,70), 150, 1, cam.position);
+  // 350 boids is to much in one flock, ca 200 possible. // Can maybe be increased by threading
+  Evader* evaders = new Evader(cam.position + vec3(25,25,25), 200, 0, cam.position); 
+  Evader* evaders2 = new Evader(cam.position + vec3(30,30,50), 100, 1, cam.position);
+  Evader* evaders3 = new Evader(cam.position + vec3(-30,30,-50), 100, 2, cam.position);
+  Evader* evaders4 = new Evader(cam.position + vec3(-70,30,70), 150, 3, cam.position);
 
   flocks.push_back(evaders);
   flocks.push_back(evaders2);
-  //flocks.push_back(evaders3);
-  //flocks.push_back(evaders4);
+  flocks.push_back(evaders3);
+  flocks.push_back(evaders4);
 
   chasers = new Chaser(cam.position + vec3(300,100,300), 3, cam.position);
 

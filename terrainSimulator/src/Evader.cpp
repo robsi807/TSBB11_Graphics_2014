@@ -28,6 +28,10 @@ Evader::Evader(vec3 pos, int numOfBoids, int index, vec3 cameraPosition)
   yMax = 250.0;
   zMin = cameraPosition.z - 256.0;
   zMax = cameraPosition.z + 256.0;
+
+  cohesionCount = 0;
+  avoidanceCount = 0;
+  alignmentCount = 0;
   
   makeFlockOf(numOfBoids, pos);
   leader.position = pos + vec3(50,0,50);
@@ -131,14 +135,56 @@ void Evader::boundPositionBoid(Boid *boid)
 
 void Evader::flocking(vector<Boid> chaserVector)
 {
-  int N = evaderVector.size();
+  int numberOfEvaders = evaderVector.size();
   position = vec3(0.0,0.0,0.0);
   speed = vec3(0.0,0.0,0.0);
-  for(int i = 0; i < N; i++)
+
+  for(int i = 0; i < numberOfEvaders; i++)
     {
-      cohesion(&evaderVector.at(i), i);
-      avoidance(&evaderVector.at(i), i);
-      alignment(&evaderVector.at(i), i);
+      // Reset vectors
+      evaderVector.at(i).cohesionVector = vec3(0,0,0);
+      evaderVector.at(i).averagePosition = vec3(0,0,0);
+      evaderVector.at(i).avoidanceVector = vec3(0,0,0);
+      evaderVector.at(i).alignmentVector = vec3(0,0,0);
+      evaderVector.at(i).speedDifference = vec3(0,0,0);
+
+      // Reset counts
+      cohesionCount = 0;
+      avoidanceCount = 0;
+      alignmentCount = 0;
+
+      for(int j = 0; j < numberOfEvaders; j++)
+	{
+	  if(i != j)
+	    {
+	      cohesion(&evaderVector.at(i), evaderVector.at(j));
+	      avoidance(&evaderVector.at(i), evaderVector.at(j));
+	      alignment(&evaderVector.at(i), evaderVector.at(j));
+	    }
+	}
+
+      // Set cohesionVector
+      if(cohesionCount > 0)
+	{
+	  evaderVector.at(i).averagePosition /= (float)cohesionCount;
+	  float dist = Norm(evaderVector.at(i).averagePosition - evaderVector.at(i).position);
+	  evaderVector.at(i).cohesionVector = Normalize(evaderVector.at(i).averagePosition - evaderVector.at(i).position)*dist;
+	}
+      else
+	evaderVector.at(i).averagePosition = evaderVector.at(i).position;
+
+      // Set avoidanceVector
+      if(avoidanceCount > 0)
+	{
+	  evaderVector.at(i).avoidanceVector /= (float)avoidanceCount;
+	  //evaderVector.at(i).avoidanceVector = Normalize(evaderVector.at(i).avoidanceVector);
+	}
+      // Set alignmentVector
+      if(alignmentCount > 0)
+	{
+	   evaderVector.at(i).alignmentVector =  evaderVector.at(i).speedDifference/(float)alignmentCount;
+	  // evaderVector.at(i).alignmentVector = Normalize( evaderVector.at(i).alignmentVector);
+	}
  
       avoidChaser(&evaderVector.at(i), chaserVector);
       followLeader(&evaderVector.at(i));
@@ -166,10 +212,11 @@ void Evader::flocking(vector<Boid> chaserVector)
    
       //cout << "Position for boid i: (" << evaderVector.at(i).position.x << "," << evaderVector.at(i).position.y << "," << evaderVector.at(i).position.z << ")" << endl;
     }
-  if(N != 0)
+
+  if(numberOfEvaders != 0)
     {
-      position /= (float)N;
-      speed /= (float)N;
+      position /= (float)numberOfEvaders;
+      speed /= (float)numberOfEvaders;
     }
 }
 
@@ -192,36 +239,17 @@ bool Evader::insideView(Boid boidI, Boid boidJ, float radius)
 }
 
 // Should move the for-loop to flocking() and have boidJ, cohesionCount as arguments and as well the if(i != j) outside.
-void Evader::cohesion(Boid *boidI, int index)
-{
-  boidI->cohesionVector = vec3(0,0,0);
-  boidI->averagePosition = vec3(0,0,0);
-  int N = evaderVector.size();
-  uint count = 0;
-
-  for(int j = 0; j < N; j++)
+void Evader::cohesion(Boid* boidI, Boid boidJ)
+{  
+  float distance = Norm(boidJ.position - boidI->position);
+  if(distance < maxDistance)
     {
-      Boid boidJ = evaderVector.at(j);
-      if(index != j)
-	{
-	  float distance = Norm(boidJ.position - boidI->position);
-	  if(distance < maxDistance)
-	    {
-	      boidI->averagePosition += boidJ.position;
-	      count++;
-	    }
-	}
+      boidI->averagePosition += boidJ.position;
+      cohesionCount++;
     }
-  if(count > 0)
-    {
-      boidI->averagePosition /= (float)count;
-      float dist = Norm(boidI->averagePosition - boidI->position);
-      boidI->cohesionVector = Normalize(boidI->averagePosition - boidI->position)*dist;
-    }
-  else
-    boidI->averagePosition = boidI->position;
 }
 
+// Possible to optimize this by checking if flock position is near chaser first.
 void Evader::avoidChaser(Boid* boidI, vector<Boid> chaserVector)
 {
   avoidChaserVector = vec3(0,0,0);
@@ -250,57 +278,24 @@ void Evader::avoidChaser(Boid* boidI, vector<Boid> chaserVector)
     }
 }
 
-void Evader::avoidance(Boid* boidI, int index)
+void Evader::avoidance(Boid* boidI, Boid boidJ)
 {
-  boidI->avoidanceVector = vec3(0,0,0);
-  int N = evaderVector.size();
-  uint count = 0;
-
-  for(int j = 0; j < N; j++)
+  vec3 distanceVector = boidJ.position - boidI->position;
+  float distance = Norm(distanceVector);
+  if(distance < minDistance)
     {
-      Boid boidJ = evaderVector.at(j);
-      if(index != j)
-	{
-	  vec3 distanceVector = boidJ.position - boidI->position;
-	  float distance = Norm(distanceVector);
-	  if(distance < minDistance)
-	    {
-	      boidI->avoidanceVector -= distanceVector/distance;
-	      count++;
-	    }
-	}
-    }
-  if(count > 0)
-    {
-      boidI->avoidanceVector /= (float)count;
-      //boidI->avoidanceVector = Normalize(boidI->avoidanceVector);
+      boidI->avoidanceVector -= distanceVector/distance;
+      avoidanceCount++;
     }
 }
 
-void Evader::alignment(Boid* boidI, int index)
+void Evader::alignment(Boid* boidI, Boid boidJ)
 {
-  boidI->alignmentVector = vec3(0,0,0);
-  boidI->speedDifference = vec3(0,0,0);
-  int N = evaderVector.size();
-  uint count = 0;
-
-  for(int j = 0; j < N; j++)
+  float distance = Norm(boidJ.position - boidI->position);
+  if(distance < maxDistance)
     {
-      Boid boidJ = evaderVector.at(j);
-      if(index != j)
-	{
-	  float distance = Norm(boidJ.position - boidI->position);
-	  if(distance < maxDistance)
-	    {
-	      boidI->speedDifference += (boidJ.speed - boidI->speed);
-	      count++;
-	    }
-	}
-    }
-  if(count > 0)
-    {
-      boidI->alignmentVector = boidI->speedDifference/(float)count;
-      //boidI->alignmentVector = Normalize(boidI->alignmentVector);
+      boidI->speedDifference += (boidJ.speed - boidI->speed);
+      alignmentCount++;
     }
 }
 

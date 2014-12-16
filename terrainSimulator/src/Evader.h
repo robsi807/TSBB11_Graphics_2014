@@ -38,10 +38,12 @@ class Evader
   float yMin, yMax;
   float zMin, zMax;
 
+  uint cohesionCount,avoidanceCount,alignmentCount;
+
   void flocking(vector<Boid> chaserVector);
-  void cohesion(Boid *boidI, int index);
-  void avoidance(Boid* boidI, int index);
-  void alignment(Boid* boidI, int index);
+  void cohesion(Boid* boidI, Boid boidJ);
+  void avoidance(Boid* boidI, Boid boidJ);
+  void alignment(Boid* boidI, Boid boidJ);
   void avoidChaser(Boid* boidI, vector<Boid> chaserVector);
   void followLeader(Boid* boidI);
   void boundPositionBoid(Boid *boid);

@@ -273,7 +273,7 @@ float Camera::getActualHeight(vec3 objectPos)
   tempObjectPos.y = 0;
   tempCameraPos.y = 0;
   // (gridSize-2)*patchSize is the maximum distance, -3 for safety.
-  if(Norm(tempCameraPos - tempCameraPos) < (gridSize-3)*patchSize)
+  if(Norm(tempCameraPos - tempObjectPos) < (float)(2*patchSize))
     {
       float xPosition,zPosition;    
       if(objectPos.x < 0.0) {
