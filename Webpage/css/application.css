@@ -6,8 +6,9 @@ body{
   height: 500px;
   width: 100%;
   background-image: url("../images/front_page.png");
-  background-position: bottom;
+  background-position: top;
   background-size: 100% auto;
+  background-repeat: no-repeat;
 }
 
 .youtube{
